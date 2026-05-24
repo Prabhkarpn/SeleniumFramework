@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>12 - Advanced Topics</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; line-height: 1.8; color: #333; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; border-radius: 15px 15px 0 0; }
+        .header h1 { font-size: 2.5em; }
+        .nav { background: #2c3e50; padding: 15px 40px; display: flex; justify-content: space-between; }
+        .nav a { color: white; text-decoration: none; padding: 8px 15px; }
+        .content { padding: 40px; }
+        h2 { color: #667eea; margin-top: 40px; margin-bottom: 20px; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+        h3 { color: #764ba2; margin-top: 30px; }
+        pre { background: #2d2d2d; color: #f8f8f2; padding: 20px; border-radius: 8px; overflow-x: auto; margin: 20px 0; }
+        .highlight-box { background: #f8f9fa; border-left: 5px solid #667eea; padding: 20px; margin: 20px 0; }
+        .success-box { background: #d4edda; border-left: 5px solid #28a745; padding: 20px; margin: 20px 0; }
+        ul { margin-left: 30px; margin-bottom: 20px; }
+        .footer { background: #2c3e50; color: white; text-align: center; padding: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📘 Module 12: Advanced Topics</h1>
+            <p>Database Testing, API Testing, Maven & CI/CD Integration</p>
+        </div>
+        <div class="nav">
+            <a href="11-framework-architecture.html">← Previous</a>
+            <a href="index.html">🏠 Home</a>
+        </div>
+        <div class="content">
+            <h2>🗄️ Database Testing with JDBC</h2>
+            <p>Verify data in database before/after UI operations.</p>
+
+            <h3>Maven Dependency:</h3>
+            <pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;com.mysql&lt;/groupId&gt;
+    &lt;artifactId&gt;mysql-connector-j&lt;/artifactId&gt;
+    &lt;version&gt;9.1.0&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+
+            <h3>Database Connection Utility:</h3>
+            <pre><code>import java.sql.*;
+
+public class DBConnection {
+    
+    private static Connection connection;
+    
+    public static Connection getConnection() throws SQLException {
+        String url = "jdbc:mysql://localhost:3306/testdb";
+        String username = "root";
+        String password = "password";
+        
+        connection = DriverManager.getConnection(url, username, password);
+        return connection;
+    }
+    
+    public static ResultSet executeQuery(String query) throws SQLException {
+        Statement stmt = connection.createStatement();
+        return stmt.executeQuery(query);
+    }
+    
+    public static int executeUpdate(String query) throws SQLException {
+        Statement stmt = connection.createStatement();
+        return stmt.executeUpdate(query);
+    }
+    
+    public static void closeConnection() throws SQLException {
+        if(connection != null && !connection.isClosed()) {
+            connection.close();
+        }
+    }
+}
+
+// Usage in test
+@Test
+public void testDatabaseValidation() throws SQLException {
+    Connection conn = DBConnection.getConnection();
+    String query = "SELECT * FROM users WHERE username='admin'";
+    ResultSet rs = DBConnection.executeQuery(query);
+    
+    if(rs.next()) {
+        String dbUsername = rs.getString("username");
+        Assert.assertEquals(dbUsername, "admin");
+    }
+    
+    DBConnection.closeConnection();
+}</code></pre>
+
+            <h2>🌐 API Testing with REST Assured</h2>
+            <p>Validate backend APIs alongside UI tests.</p>
+
+            <h3>Maven Dependency:</h3>
+            <pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;io.rest-assured&lt;/groupId&gt;
+    &lt;artifactId&gt;rest-assured&lt;/artifactId&gt;
+    &lt;version&gt;5.5.1&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+
+            <h3>API Test Example:</h3>
+            <pre><code>import io.restassured.RestAssured;
+import io.restassured.response.Response;
+import static io.restassured.RestAssured.*;
+import static org.hamcrest.Matchers.*;
+
+public class ApiTest {
+    
+    @Test
+    public void testGetUser() {
+        RestAssured.baseURI = "https://reqres.in/api";
+        
+        Response response = given()
+            .when()
+            .get("/users/2")
+            .then()
+            .statusCode(200)
+            .body("data.first_name", equalTo("Janet"))
+            .extract().response();
+        
+        System.out.println(response.asString());
+    }
+    
+    @Test
+    public void testPostUser() {
+        String requestBody = "{ \"name\": \"John\", \"job\": \"Developer\" }";
+        
+        given()
+            .header("Content-Type", "application/json")
+            .body(requestBody)
+        .when()
+            .post("/users")
+        .then()
+            .statusCode(201)
+            .body("name", equalTo("John"))
+            .body("job", equalTo("Developer"));
+    }
+}</code></pre>
+
+            <h2>📦 Maven Build Configuration</h2>
+            <pre><code>&lt;build&gt;
+    &lt;plugins&gt;
+        &lt;plugin&gt;
+            &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+            &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+            &lt;version&gt;3.13.0&lt;/version&gt;
+            &lt;configuration&gt;
+                &lt;source&gt;11&lt;/source&gt;
+                &lt;target&gt;11&lt;/target&gt;
+            &lt;/configuration&gt;
+        &lt;/plugin&gt;
+        
+        &lt;plugin&gt;
+            &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+            &lt;artifactId&gt;maven-surefire-plugin&lt;/artifactId&gt;
+            &lt;version&gt;3.3.0&lt;/version&gt;
+            &lt;configuration&gt;
+                &lt;suiteXmlFiles&gt;
+                    &lt;suiteXmlFile&gt;testng.xml&lt;/suiteXmlFile&gt;
+                &lt;/suiteXmlFiles&gt;
+            &lt;/configuration&gt;
+        &lt;/plugin&gt;
+    &lt;/plugins&gt;
+&lt;/build&gt;
+
+&lt;!-- Run tests --&gt;
+mvn clean test
+
+&lt;!-- Run specific test --&gt;
+mvn test -Dtest=LoginTest
+
+&lt;!-- Run with parameters --&gt;
+mvn test -Dbrowser=chrome</code></pre>
+
+            <h2>🔄 CI/CD Integration</h2>
+
+            <h3>Jenkins Pipeline (Jenkinsfile):</h3>
+            <pre><code>pipeline {
+    agent any
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/user/selenium-framework.git'
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                sh 'mvn clean compile'
+            }
+        }
+        
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+        
+        stage('Report') {
+            steps {
+                publishHTML([
+                    reportName: 'Extent Report',
+                    reportDir: 'test-output',
+                    reportFiles: 'ExtentReport.html'
+                ])
+            }
+        }
+    }
+    
+    post {
+        always {
+            junit '**/target/surefire-reports/*.xml'
+        }
+    }
+}</code></pre>
+
+            <h3>GitHub Actions (.github/workflows/tests.yml):</h3>
+            <pre><code>name: Selenium Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up JDK 11
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+        distribution: 'adopt'
+    
+    - name: Install Chrome
+      run: |
+        sudo apt-get update
+        sudo apt-get install google-chrome-stable
+    
+    - name: Run Tests
+      run: mvn clean test
+    
+    - name: Upload Test Report
+      uses: actions/upload-artifact@v2
+      with:
+        name: test-report
+        path: test-output/ExtentReport.html</code></pre>
+
+            <h2>🐳 Docker Integration</h2>
+            <pre><code># Dockerfile
+FROM maven:3.8-openjdk-11
+WORKDIR /app
+COPY . .
+RUN mvn clean test
+
+# docker-compose.yml
+version: '3'
+services:
+  chrome:
+    image: selenium/standalone-chrome:latest
+    ports:
+      - "4444:4444"
+  
+  tests:
+    build: .
+    depends_on:
+      - chrome
+    environment:
+      - HUB_HOST=chrome</code></pre>
+
+            <h2>🎯 Performance Testing Integration</h2>
+            <pre><code>// Capture page load time
+long startTime = System.currentTimeMillis();
+driver.get(url);
+long endTime = System.currentTimeMillis();
+long loadTime = endTime - startTime;
+System.out.println("Page load time: " + loadTime + "ms");
+
+// Assert performance
+Assert.assertTrue(loadTime < 3000, "Page load time should be less than 3 seconds");</code></pre>
+
+            <h2>🔒 Security Testing</h2>
+            <ul>
+                <li>Test SQL injection vulnerabilities</li>
+                <li>Validate XSS (Cross-Site Scripting) protection</li>
+                <li>Check HTTPS implementation</li>
+                <li>Verify authentication and authorization</li>
+                <li>Test session timeout</li>
+            </ul>
+
+            <h2>📱 Cross-Browser Testing</h2>
+            <pre><code>// Using Selenium Grid
+DesiredCapabilities capabilities = new DesiredCapabilities();
+capabilities.setBrowserName("chrome");
+capabilities.setPlatform(Platform.WINDOWS);
+
+WebDriver driver = new RemoteWebDriver(
+    new URL("http://localhost:4444/wd/hub"), 
+    capabilities
+);
+
+// BrowserStack/Sauce Labs integration
+capabilities.setCapability("os", "Windows");
+capabilities.setCapability("os_version", "10");
+capabilities.setCapability("browser", "Chrome");
+capabilities.setCapability("browser_version", "latest");</code></pre>
+
+            <h2>✅ Best Practices Summary</h2>
+            <div class="success-box">
+                <ul>
+                    <li>Combine UI, API, and database testing for comprehensive coverage</li>
+                    <li>Integrate tests in CI/CD pipeline for continuous testing</li>
+                    <li>Use Docker for consistent test environments</li>
+                    <li>Monitor test execution time and optimize slow tests</li>
+                    <li>Implement parallel execution for faster feedback</li>
+                    <li>Maintain test data separately from test scripts</li>
+                    <li>Use version control (Git) for all framework code</li>
+                    <li>Regular framework maintenance and updates</li>
+                    <li>Document framework architecture and usage</li>
+                </ul>
+            </div>
+
+            <h2>🎓 Congratulations!</h2>
+            <div class="highlight-box">
+                <h3>You've Completed the Selenium WebDriver Course!</h3>
+                <p>You've learned:</p>
+                <ul>
+                    <li>✅ Selenium fundamentals and architecture</li>
+                    <li>✅ WebDriver setup and browser control</li>
+                    <li>✅ All locator strategies</li>
+                    <li>✅ Element interactions and advanced actions</li>
+                    <li>✅ Synchronization with waits</li>
+                    <li>✅ Page Object Model design pattern</li>
+                    <li>✅ TestNG framework and assertions</li>
+                    <li>✅ Data-driven testing with Excel</li>
+                    <li>✅ Reporting and logging</li>
+                    <li>✅ Complete framework architecture</li>
+                    <li>✅ Database and API testing</li>
+                    <li>✅ CI/CD integration</li>
+                </ul>
+                <p style="margin-top: 20px;"><strong>Next Steps:</strong></p>
+                <ul>
+                    <li>Practice by automating real websites</li>
+                    <li>Contribute to open-source projects</li>
+                    <li>Explore advanced topics like AI-powered testing</li>
+                    <li>Build your portfolio with automation projects</li>
+                    <li>Consider certifications (ISTQB, Selenium certifications)</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer">
+            <p>Module 12: Advanced Topics | © 2025 Selenium Documentation | <a href="index.html" style="color: white;">Back to Home</a></p>
+        </div>
+    </div>
+</body>
+</html>

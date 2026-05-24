@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>08 - TestNG Framework</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; line-height: 1.8; color: #333; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; border-radius: 15px 15px 0 0; }
+        .header h1 { font-size: 2.5em; }
+        .nav { background: #2c3e50; padding: 15px 40px; display: flex; justify-content: space-between; }
+        .nav a { color: white; text-decoration: none; padding: 8px 15px; }
+        .content { padding: 40px; }
+        h2 { color: #667eea; margin-top: 40px; margin-bottom: 20px; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+        h3 { color: #764ba2; margin-top: 30px; }
+        pre { background: #2d2d2d; color: #f8f8f2; padding: 20px; border-radius: 8px; overflow-x: auto; margin: 20px 0; }
+        .highlight-box { background: #f8f9fa; border-left: 5px solid #667eea; padding: 20px; margin: 20px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th { background: #667eea; color: white; padding: 15px; }
+        td { padding: 15px; border-bottom: 1px solid #ddd; }
+        ul { margin-left: 30px; margin-bottom: 20px; }
+        .footer { background: #2c3e50; color: white; text-align: center; padding: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📘 Module 08: TestNG Framework</h1>
+            <p>Test Organization, Annotations, Assertions & Parallel Execution</p>
+        </div>
+        <div class="nav">
+            <a href="07-page-object-model.html">← Previous</a>
+            <a href="index.html">🏠 Home</a>
+            <a href="09-data-driven-testing.html">Next →</a>
+        </div>
+        <div class="content">
+            <h2>🎯 What is TestNG?</h2>
+            <p>TestNG is a testing framework inspired by JUnit but with more powerful features. It's designed to cover all categories of tests: unit, functional, end-to-end, integration, etc.</p>
+
+            <h2>📋 TestNG Annotations</h2>
+            <table>
+                <tr><th>Annotation</th><th>Description</th><th>Execution Order</th></tr>
+                <tr><td>@BeforeSuite</td><td>Runs once before all tests in the suite</td><td>1</td></tr>
+                <tr><td>@BeforeTest</td><td>Runs before any test method in &lt;test&gt; tag</td><td>2</td></tr>
+                <tr><td>@BeforeClass</td><td>Runs once before the first test in class</td><td>3</td></tr>
+                <tr><td>@BeforeMethod</td><td>Runs before each @Test method</td><td>4</td></tr>
+                <tr><td>@Test</td><td>Marks a method as test method</td><td>5</td></tr>
+                <tr><td>@AfterMethod</td><td>Runs after each @Test method</td><td>6</td></tr>
+                <tr><td>@AfterClass</td><td>Runs once after all tests in class</td><td>7</td></tr>
+                <tr><td>@AfterTest</td><td>Runs after all test methods in &lt;test&gt;</td><td>8</td></tr>
+                <tr><td>@AfterSuite</td><td>Runs once after all tests in suite</td><td>9</td></tr>
+            </table>
+
+            <h2>💻 TestNG Example</h2>
+            <pre><code>import org.testng.annotations.*;
+
+public class LoginTest {
+    
+    @BeforeSuite
+    public void beforeSuite() {
+        System.out.println("Before Suite");
+    }
+    
+    @BeforeTest
+    public void beforeTest() {
+        System.out.println("Before Test");
+    }
+    
+    @BeforeClass
+    public void beforeClass() {
+        System.out.println("Before Class");
+    }
+    
+    @BeforeMethod
+    public void beforeMethod() {
+        System.out.println("Before Method");
+    }
+    
+    @Test(priority = 1)
+    public void testLogin() {
+        System.out.println("Test Login");
+    }
+    
+    @Test(priority = 2)
+    public void testLogout() {
+        System.out.println("Test Logout");
+    }
+    
+    @AfterMethod
+    public void afterMethod() {
+        System.out.println("After Method");
+    }
+    
+    @AfterClass
+    public void afterClass() {
+        System.out.println("After Class");
+    }
+    
+    @AfterTest
+    public void afterTest() {
+        System.out.println("After Test");
+    }
+    
+    @AfterSuite
+    public void afterSuite() {
+        System.out.println("After Suite");
+    }
+}</code></pre>
+
+            <h2>🔍 @Test Attributes</h2>
+            <pre><code>// Priority (execution order)
+@Test(priority = 1)
+public void firstTest() { }
+
+// Description
+@Test(description = "Verify login functionality")
+public void testLogin() { }
+
+// Enabled/Disabled
+@Test(enabled = false)
+public void skipThisTest() { }
+
+// Expected exception
+@Test(expectedExceptions = ArithmeticException.class)
+public void testException() {
+    int i = 1/0;
+}
+
+// Timeout
+@Test(timeOut = 5000)  // milliseconds
+public void testWithTimeout() { }
+
+// Depends on other tests
+@Test(dependsOnMethods = {"testLogin"})
+public void testProfile() { }
+
+// Groups
+@Test(groups = {"smoke", "regression"})
+public void testSearch() { }</code></pre>
+
+            <h2>✅ TestNG Assertions</h2>
+            <pre><code>import org.testng.Assert;
+
+// Equality assertions
+Assert.assertEquals(actual, expected);
+Assert.assertEquals(actual, expected, "Error message");
+
+// True/False assertions
+Assert.assertTrue(condition);
+Assert.assertFalse(condition);
+
+// Null assertions
+Assert.assertNull(object);
+Assert.assertNotNull(object);
+
+// Fail test
+Assert.fail("Test failed");
+
+// Soft assertions (continue on failure)
+SoftAssert softAssert = new SoftAssert();
+softAssert.assertEquals(actual1, expected1);
+softAssert.assertEquals(actual2, expected2);
+softAssert.assertAll();  // Report all failures</code></pre>
+
+            <h2>📄 testng.xml Configuration</h2>
+            <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd"&gt;
+&lt;suite name="Test Suite" parallel="tests" thread-count="2"&gt;
+    
+    &lt;test name="Login Tests"&gt;
+        &lt;classes&gt;
+            &lt;class name="com.orangehrm.test.LoginPageTest"/&gt;
+        &lt;/classes&gt;
+    &lt;/test&gt;
+    
+    &lt;test name="Home Tests"&gt;
+        &lt;classes&gt;
+            &lt;class name="com.orangehrm.test.HomePageTest"/&gt;
+        &lt;/classes&gt;
+    &lt;/test&gt;
+    
+    &lt;!-- Run specific groups --&gt;
+    &lt;test name="Smoke Tests"&gt;
+        &lt;groups&gt;
+            &lt;run&gt;
+                &lt;include name="smoke"/&gt;
+            &lt;/run&gt;
+        &lt;/groups&gt;
+        &lt;packages&gt;
+            &lt;package name="com.orangehrm.test.*"/&gt;
+        &lt;/packages&gt;
+    &lt;/test&gt;
+    
+&lt;/suite&gt;</code></pre>
+
+            <h2>⚡ Parallel Execution</h2>
+            <pre><code>&lt;!-- Parallel at test level --&gt;
+&lt;suite name="Suite" parallel="tests" thread-count="3"&gt;
+
+&lt;!-- Parallel at class level --&gt;
+&lt;suite name="Suite" parallel="classes" thread-count="3"&gt;
+
+&lt;!-- Parallel at method level --&gt;
+&lt;suite name="Suite" parallel="methods" thread-count="5"&gt;</code></pre>
+
+            <h2>📊 Data Providers</h2>
+            <pre><code>@DataProvider(name = "loginData")
+public Object[][] getData() {
+    return new Object[][] {
+        {"user1", "pass1"},
+        {"user2", "pass2"},
+        {"user3", "pass3"}
+    };
+}
+
+@Test(dataProvider = "loginData")
+public void testLogin(String username, String password) {
+    System.out.println("Testing: " + username + "/" + password);
+}</code></pre>
+
+            <h2>👂 TestNG Listeners</h2>
+            <pre><code>import org.testng.ITestListener;
+import org.testng.ITestResult;
+
+public class TestListener implements ITestListener {
+    
+    public void onTestStart(ITestResult result) {
+        System.out.println("Test started: " + result.getName());
+    }
+    
+    public void onTestSuccess(ITestResult result) {
+        System.out.println("Test passed: " + result.getName());
+    }
+    
+    public void onTestFailure(ITestResult result) {
+        System.out.println("Test failed: " + result.getName());
+        // Take screenshot on failure
+    }
+    
+    public void onTestSkipped(ITestResult result) {
+        System.out.println("Test skipped: " + result.getName());
+    }
+}
+
+// Add to testng.xml
+&lt;listeners&gt;
+    &lt;listener class-name="com.orangehrm.listeners.TestListener"/&gt;
+&lt;/listeners&gt;</code></pre>
+
+            <h2>📝 Summary</h2>
+            <p>TestNG provides powerful features for organizing and executing tests, including annotations, assertions, data providers, parallel execution, and listeners.</p>
+
+            <div class="highlight-box">
+                <h4>🎯 Next Steps:</h4>
+                <p>Continue to <strong>Module 09: Data-Driven Testing</strong> to learn Excel integration and parameterization.</p>
+                <p><a href="09-data-driven-testing.html" style="color: #667eea; font-weight: bold;">Continue →</a></p>
+            </div>
+        </div>
+        <div class="footer">
+            <p>Module 08: TestNG Framework | © 2025 Selenium Documentation</p>
+        </div>
+    </div>
+</body>
+</html>

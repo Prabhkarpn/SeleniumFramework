@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>05 - Waits and Synchronization</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; color: #333; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .nav { background: #2c3e50; padding: 15px 40px; display: flex; justify-content: space-between; }
+        .nav a { color: white; text-decoration: none; padding: 8px 15px; border-radius: 5px; }
+        .content { padding: 40px; }
+        h2 { color: #667eea; margin-top: 40px; margin-bottom: 20px; font-size: 2em; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+        h3 { color: #764ba2; margin-top: 30px; margin-bottom: 15px; font-size: 1.5em; }
+        code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; color: #c7254e; }
+        pre { background: #2d2d2d; color: #f8f8f2; padding: 20px; border-radius: 8px; overflow-x: auto; margin: 20px 0; }
+        .highlight-box { background: #f8f9fa; border-left: 5px solid #667eea; padding: 20px; margin: 20px 0; border-radius: 5px; }
+        .success-box { background: #d4edda; border-left: 5px solid #28a745; padding: 20px; margin: 20px 0; border-radius: 5px; }
+        ul { margin-left: 30px; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th { background: #667eea; color: white; padding: 15px; }
+        td { padding: 15px; border-bottom: 1px solid #ddd; }
+        .footer { background: #2c3e50; color: white; text-align: center; padding: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📘 Module 05: Waits & Synchronization</h1>
+            <p>Mastering Timing and Synchronization in Selenium</p>
+        </div>
+        <div class="nav">
+            <a href="04-web-element-interactions.html">← Previous</a>
+            <a href="index.html">🏠 Home</a>
+            <a href="06-advanced-interactions.html">Next →</a>
+        </div>
+        <div class="content">
+            <h2>🎯 Why Waits are Important</h2>
+            <p>Modern web applications use AJAX, JavaScript, and dynamic content loading. Elements may not be immediately available when the page loads. Waits help synchronize your test scripts with the application state, making tests more reliable and stable.</p>
+
+            <h2>📋 Types of Waits</h2>
+            <table>
+                <tr><th>Wait Type</th><th>Scope</th><th>Use Case</th></tr>
+                <tr><td><strong>Implicit Wait</strong></td><td>Global</td><td>Default wait for all elements</td></tr>
+                <tr><td><strong>Explicit Wait</strong></td><td>Specific</td><td>Wait for specific conditions</td></tr>
+                <tr><td><strong>Fluent Wait</strong></td><td>Specific</td><td>Custom polling and ignore exceptions</td></tr>
+                <tr><td><strong>Thread.sleep()</strong></td><td>N/A</td><td>❌ Not recommended</td></tr>
+            </table>
+
+            <h2>1️⃣ Implicit Wait</h2>
+            <p>Implicit wait tells WebDriver to poll the DOM for a certain amount of time when trying to find any element.</p>
+            <pre><code>import java.time.Duration;
+
+// Set implicit wait (applies to all findElement calls)
+driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+
+// Now all findElement calls will wait up to 10 seconds
+WebElement element = driver.findElement(By.id("dynamic-element"));</code></pre>
+
+            <div class="highlight-box">
+                <h3>✅ Advantages:</h3>
+                <ul>
+                    <li>Easy to implement - single line of code</li>
+                    <li>Applies globally to all findElement() calls</li>
+                    <li>No need to specify wait for each element</li>
+                </ul>
+                <h3>❌ Disadvantages:</h3>
+                <ul>
+                    <li>Not flexible - same timeout for all elements</li>
+                    <li>Can slow down tests if set too high</li>
+                    <li>Cannot wait for specific conditions</li>
+                </ul>
+            </div>
+
+            <h2>2️⃣ Explicit Wait</h2>
+            <p>Explicit wait allows you to wait for a specific condition on a specific element.</p>
+            <pre><code>import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import java.time.Duration;
+
+// Create WebDriverWait object
+WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+
+// Wait for element to be visible
+WebElement element = wait.until(
+    ExpectedConditions.visibilityOfElementLocated(By.id("dynamic-element"))
+);
+
+// Wait for element to be clickable
+wait.until(ExpectedConditions.elementToBeClickable(By.id("submit-btn"))).click();
+
+// Wait for text to be present
+wait.until(ExpectedConditions.textToBePresentInElementLocated(
+    By.id("message"), "Success"
+));</code></pre>
+
+            <h3>Common ExpectedConditions:</h3>
+            <pre><code>// Element visibility
+wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+wait.until(ExpectedConditions.visibilityOf(element));
+
+// Element clickable
+wait.until(ExpectedConditions.elementToBeClickable(locator));
+
+// Element presence in DOM
+wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+
+// Element invisibility
+wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
+
+// Text conditions
+wait.until(ExpectedConditions.textToBe(locator, "Expected Text"));
+wait.until(ExpectedConditions.textToBePresentInElementLocated(locator, "text"));
+
+// URL conditions
+wait.until(ExpectedConditions.urlToBe("https://example.com"));
+wait.until(ExpectedConditions.urlContains("login"));
+
+// Title conditions
+wait.until(ExpectedConditions.titleIs("Page Title"));
+wait.until(ExpectedConditions.titleContains("Title"));
+
+// Alert conditions
+wait.until(ExpectedConditions.alertIsPresent());
+
+// Frame availability
+wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt("frameName"));
+
+// Element selection state
+wait.until(ExpectedConditions.elementToBeSelected(locator));
+
+// Attribute conditions
+wait.until(ExpectedConditions.attributeToBe(locator, "class", "active"));
+wait.until(ExpectedConditions.attributeContains(locator, "class", "btn"));
+
+// Number of windows
+wait.until(ExpectedConditions.numberOfWindowsToBe(2));
+
+// Staleness of element
+wait.until(ExpectedConditions.stalenessOf(element));</code></pre>
+
+            <h2>3️⃣ Fluent Wait</h2>
+            <p>Fluent wait is similar to explicit wait but provides more control over polling frequency and exception handling.</p>
+            <pre><code>import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.Wait;
+import org.openqa.selenium.NoSuchElementException;
+
+// Create FluentWait
+Wait<WebDriver> fluentWait = new FluentWait<WebDriver>(driver)
+    .withTimeout(Duration.ofSeconds(30))           // Maximum wait time
+    .pollingEvery(Duration.ofSeconds(2))           // Check every 2 seconds
+    .ignoring(NoSuchElementException.class);       // Ignore this exception
+
+// Use the wait
+WebElement element = fluentWait.until(driver -> {
+    return driver.findElement(By.id("dynamic-element"));
+});
+
+// With custom condition
+WebElement searchBtn = fluentWait.until(driver -> {
+    WebElement el = driver.findElement(By.id("search-btn"));
+    return el.isDisplayed() ? el : null;
+});</code></pre>
+
+            <h2>4️⃣ Custom Wait Conditions</h2>
+            <pre><code>// Custom wait for element to have specific text
+public static ExpectedCondition<Boolean> textToBeInElement(
+    final WebElement element, final String text) {
+    return new ExpectedCondition<Boolean>() {
+        public Boolean apply(WebDriver driver) {
+            return element.getText().contains(text);
+        }
+    };
+}
+
+// Usage
+wait.until(textToBeInElement(element, "Expected Text"));
+
+// Wait for page to load completely
+public static ExpectedCondition<Boolean> pageLoadComplete() {
+    return new ExpectedCondition<Boolean>() {
+        public Boolean apply(WebDriver driver) {
+            JavascriptExecutor js = (JavascriptExecutor) driver;
+            return js.executeScript("return document.readyState")
+                .toString().equals("complete");
+        }
+    };
+}
+
+wait.until(pageLoadComplete());</code></pre>
+
+            <h2>⚡ Wait Implementation in Framework</h2>
+            <pre><code>public class ActionDriver {
+    private WebDriver driver;
+    private WebDriverWait wait;
+    
+    public ActionDriver(WebDriver driver) {
+        this.driver = driver;
+        int explicitWait = Integer.parseInt(
+            BaseClass.getProp().getProperty("explicitWait")
+        );
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(explicitWait));
+    }
+    
+    private void waitForElementToBeClickable(By locator) {
+        wait.until(ExpectedConditions.elementToBeClickable(locator));
+    }
+    
+    private void waitForElementToBeVisible(By locator) {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+    }
+    
+    public void click(By locator) {
+        waitForElementToBeClickable(locator);
+        driver.findElement(locator).click();
+    }
+    
+    public void enterText(By locator, String text) {
+        waitForElementToBeVisible(locator);
+        WebElement element = driver.findElement(locator);
+        element.clear();
+        element.sendKeys(text);
+    }
+}</code></pre>
+
+            <h2>✅ Best Practices</h2>
+            <div class="success-box">
+                <ul>
+                    <li>Use Explicit Wait over Implicit Wait for better control</li>
+                    <li>Set implicit wait once in BaseClass setup method</li>
+                    <li>Don't mix implicit and explicit waits (can cause unpredictable behavior)</li>
+                    <li>Use appropriate ExpectedConditions for your scenario</li>
+                    <li>Create reusable wait methods in utility classes</li>
+                    <li>Avoid Thread.sleep() - it's inflexible and slows tests</li>
+                    <li>Use FluentWait for custom polling requirements</li>
+                    <li>Handle TimeoutException with proper error messages</li>
+                </ul>
+            </div>
+
+            <h2>📝 Summary</h2>
+            <p>Waits are essential for handling timing issues in modern web applications. Explicit waits provide the most flexibility, while implicit waits offer simplicity. Choose the right wait strategy based on your testing needs.</p>
+
+            <div class="highlight-box" style="margin-top: 40px;">
+                <h4>🎯 Next Steps:</h4>
+                <p>Continue to <strong>Module 06: Advanced Interactions</strong> for Actions class, JavaScript Executor, and handling alerts, frames, and windows.</p>
+                <p style="margin-top: 15px;">
+                    <a href="06-advanced-interactions.html" style="color: #667eea; font-weight: bold;">Continue →</a>
+                </p>
+            </div>
+        </div>
+        <div class="footer">
+            <p>Module 05: Waits & Synchronization | © 2025 Selenium Documentation</p>
+        </div>
+    </div>
+</body>
+</html>

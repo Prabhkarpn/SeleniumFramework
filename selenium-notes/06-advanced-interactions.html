@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>06 - Advanced Interactions</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; line-height: 1.8; color: #333; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; border-radius: 15px 15px 0 0; }
+        .header h1 { font-size: 2.5em; }
+        .nav { background: #2c3e50; padding: 15px 40px; display: flex; justify-content: space-between; }
+        .nav a { color: white; text-decoration: none; padding: 8px 15px; border-radius: 5px; }
+        .content { padding: 40px; }
+        h2 { color: #667eea; margin-top: 40px; margin-bottom: 20px; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+        h3 { color: #764ba2; margin-top: 30px; margin-bottom: 15px; }
+        pre { background: #2d2d2d; color: #f8f8f2; padding: 20px; border-radius: 8px; overflow-x: auto; margin: 20px 0; }
+        .highlight-box { background: #f8f9fa; border-left: 5px solid #667eea; padding: 20px; margin: 20px 0; }
+        ul { margin-left: 30px; margin-bottom: 20px; }
+        .footer { background: #2c3e50; color: white; text-align: center; padding: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📘 Module 06: Advanced Interactions</h1>
+            <p>Actions Class, JavaScript Executor, Alerts, Frames & Windows</p>
+        </div>
+        <div class="nav">
+            <a href="05-waits.html">← Previous</a>
+            <a href="index.html">🏠 Home</a>
+            <a href="07-page-object-model.html">Next →</a>
+        </div>
+        <div class="content">
+            <h2>🎯 Actions Class</h2>
+            <p>The Actions class provides advanced user interactions like mouse hover, drag-and-drop, right-click, double-click, and keyboard combinations.</p>
+            <pre><code>import org.openqa.selenium.interactions.Actions;
+
+Actions actions = new Actions(driver);
+
+// Mouse hover
+WebElement menu = driver.findElement(By.id("menu"));
+actions.moveToElement(menu).perform();
+
+// Click
+actions.click(element).perform();
+
+// Double click
+actions.doubleClick(element).perform();
+
+// Right click (context menu)
+actions.contextClick(element).perform();
+
+// Drag and drop
+WebElement source = driver.findElement(By.id("draggable"));
+WebElement target = driver.findElement(By.id("droppable"));
+actions.dragAndDrop(source, target).perform();
+
+// Chain multiple actions
+actions.moveToElement(menu)
+       .click(submenu)
+       .sendKeys(Keys.ARROW_DOWN)
+       .sendKeys(Keys.ENTER)
+       .perform();
+
+// Click and hold
+actions.clickAndHold(element).perform();
+
+// Release
+actions.release().perform();</code></pre>
+
+            <h2>⚡ JavaScript Executor</h2>
+            <p>JavaScriptExecutor allows you to execute JavaScript code directly in the browser, useful for complex interactions and handling hidden elements.</p>
+            <pre><code>JavascriptExecutor js = (JavascriptExecutor) driver;
+
+// Scroll to element
+js.executeScript("arguments[0].scrollIntoView(true);", element);
+
+// Click using JavaScript
+js.executeScript("arguments[0].click();", element);
+
+// Enter text
+js.executeScript("arguments[0].value='test';", element);
+
+// Scroll to bottom
+js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
+
+// Scroll to top
+js.executeScript("window.scrollTo(0, 0)");
+
+// Get page title
+String title = (String) js.executeScript("return document.title;");
+
+// Highlight element
+js.executeScript("arguments[0].style.border='3px solid red'", element);
+
+// Check page load status
+String status = (String) js.executeScript("return document.readyState");
+
+// Refresh page
+js.executeScript("location.reload()");</code></pre>
+
+            <h2>🔔 Handling Alerts</h2>
+            <pre><code>// Switch to alert
+Alert alert = driver.switchTo().alert();
+
+// Accept alert (OK button)
+alert.accept();
+
+// Dismiss alert (Cancel button)
+alert.dismiss();
+
+// Get alert text
+String alertText = alert.getText();
+System.out.println("Alert says: " + alertText);
+
+// Enter text in prompt
+alert.sendKeys("Test Input");
+alert.accept();
+
+// Complete example
+try {
+    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    wait.until(ExpectedConditions.alertIsPresent());
+    Alert alert = driver.switchTo().alert();
+    System.out.println(alert.getText());
+    alert.accept();
+} catch (NoAlertPresentException e) {
+    System.out.println("No alert found");
+}</code></pre>
+
+            <h2>🪟 Handling Frames/iFrames</h2>
+            <pre><code>// Switch to frame by index
+driver.switchTo().frame(0);
+
+// Switch to frame by name or ID
+driver.switchTo().frame("frameName");
+
+// Switch to frame by WebElement
+WebElement frameElement = driver.findElement(By.id("myFrame"));
+driver.switchTo().frame(frameElement);
+
+// Switch back to main content
+driver.switchTo().defaultContent();
+
+// Switch to parent frame
+driver.switchTo().parentFrame();
+
+// Nested frames example
+driver.switchTo().frame("outerFrame");
+driver.switchTo().frame("innerFrame");
+// Perform actions
+driver.switchTo().defaultContent(); // Back to main</code></pre>
+
+            <h2>🗔 Handling Multiple Windows/Tabs</h2>
+            <pre><code>// Get current window handle
+String mainWindow = driver.getWindowHandle();
+
+// Get all window handles
+Set&lt;String&gt; allWindows = driver.getWindowHandles();
+
+// Switch to new window
+for(String window : allWindows) {
+    if(!window.equals(mainWindow)) {
+        driver.switchTo().window(window);
+        // Perform actions in new window
+        driver.close(); // Close new window
+    }
+}
+
+// Switch back to main window
+driver.switchTo().window(mainWindow);
+
+// Selenium 4: Open new tab
+driver.switchTo().newWindow(WindowType.TAB);
+
+// Selenium 4: Open new window
+driver.switchTo().newWindow(WindowType.WINDOW);</code></pre>
+
+            <h2>📸 Taking Screenshots</h2>
+            <pre><code>import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.OutputType;
+import org.apache.commons.io.FileUtils;
+import java.io.File;
+
+// Take screenshot
+TakesScreenshot ts = (TakesScreenshot) driver;
+File source = ts.getScreenshotAs(OutputType.FILE);
+File destination = new File("screenshot.png");
+FileUtils.copyFile(source, destination);
+
+// Screenshot with timestamp
+String timestamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
+String screenshotPath = "screenshots/test_" + timestamp + ".png";
+FileUtils.copyFile(source, new File(screenshotPath));</code></pre>
+
+            <h2>📝 Summary</h2>
+            <p>Advanced interactions allow you to handle complex user scenarios, work with JavaScript, manage pop-ups, frames, and multiple windows effectively.</p>
+
+            <div class="highlight-box">
+                <h4>🎯 Next Steps:</h4>
+                <p>Continue to <strong>Module 07: Page Object Model</strong> to learn the design pattern for maintainable test automation.</p>
+                <p><a href="07-page-object-model.html" style="color: #667eea; font-weight: bold;">Continue →</a></p>
+            </div>
+        </div>
+        <div class="footer">
+            <p>Module 06: Advanced Interactions | © 2025 Selenium Documentation</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>02 - WebDriver Basics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .nav {
+            background: #2c3e50;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .nav a:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        h2 {
+            color: #667eea;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 2em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: #764ba2;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        h4 {
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .highlight-box {
+            background: #f8f9fa;
+            border-left: 5px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .success-box {
+            background: #d4edda;
+            border-left: 5px solid #28a745;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .info-box {
+            background: #d1ecf1;
+            border-left: 5px solid #17a2b8;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #c7254e;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+        }
+
+        pre code {
+            background: none;
+            color: #f8f8f2;
+            padding: 0;
+        }
+
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📘 Module 02: WebDriver Basics</h1>
+            <p>Setting Up Selenium WebDriver, Browser Initialization & Configuration</p>
+        </div>
+
+        <div class="nav">
+            <a href="01-selenium-introduction.html">← Previous: Introduction</a>
+            <a href="index.html">🏠 Home</a>
+            <a href="03-locators.html">Next: Locators →</a>
+        </div>
+
+        <div class="content">
+            <h2>🎯 What is WebDriver?</h2>
+            
+            <p>
+                <strong>WebDriver</strong> is a browser automation API and a core component of Selenium. It provides 
+                a programming interface to create and execute test scripts that interact with web browsers. Unlike 
+                Selenium RC, WebDriver communicates directly with the browser using the browser's native support 
+                for automation, making it faster and more reliable.
+            </p>
+
+            <div class="highlight-box">
+                <h4>🔑 Key Features of WebDriver</h4>
+                <ul>
+                    <li><strong>Direct Browser Communication:</strong> No need for JavaScript injection</li>
+                    <li><strong>Native Browser Support:</strong> Uses browser's built-in automation capabilities</li>
+                    <li><strong>Lightweight:</strong> Doesn't require a server to be running</li>
+                    <li><strong>Realistic Testing:</strong> Simulates real user interactions</li>
+                    <li><strong>Cross-Browser:</strong> Works with all major browsers</li>
+                </ul>
+            </div>
+
+            <h2>🛠️ Environment Setup</h2>
+
+            <h3>Step 1: Install Java</h3>
+            <p>
+                Selenium WebDriver requires Java Development Kit (JDK) to be installed.
+            </p>
+
+            <div class="info-box">
+                <h4>Installation Steps:</h4>
+                <ol>
+                    <li>Download JDK from <code>https://www.oracle.com/java/technologies/downloads/</code></li>
+                    <li>Install JDK and set <code>JAVA_HOME</code> environment variable</li>
+                    <li>Add Java to your system PATH</li>
+                    <li>Verify installation: <code>java -version</code></li>
+                </ol>
+            </div>
+
+            <h3>Step 2: IDE Setup (Eclipse/IntelliJ)</h3>
+            
+            <h4>Eclipse IDE:</h4>
+            <ol>
+                <li>Download from <code>https://www.eclipse.org/downloads/</code></li>
+                <li>Choose "Eclipse IDE for Java Developers"</li>
+                <li>Extract and launch Eclipse</li>
+            </ol>
+
+            <h4>IntelliJ IDEA:</h4>
+            <ol>
+                <li>Download from <code>https://www.jetbrains.com/idea/download/</code></li>
+                <li>Install Community or Ultimate edition</li>
+                <li>Launch IntelliJ IDEA</li>
+            </ol>
+
+            <h3>Step 3: Maven Setup</h3>
+            <p>
+                Maven is a build automation and dependency management tool. It simplifies the process of 
+                managing Selenium libraries and dependencies.
+            </p>
+
+            <h4>Creating a Maven Project:</h4>
+            <pre><code>&lt;!-- pom.xml --&gt;
+&lt;project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+         http://maven.apache.org/xsd/maven-4.0.0.xsd"&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+    
+    &lt;groupId&gt;com.automation&lt;/groupId&gt;
+    &lt;artifactId&gt;selenium-project&lt;/artifactId&gt;
+    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+    
+    &lt;properties&gt;
+        &lt;maven.compiler.source&gt;11&lt;/maven.compiler.source&gt;
+        &lt;maven.compiler.target&gt;11&lt;/maven.compiler.target&gt;
+        &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+    &lt;/properties&gt;
+    
+    &lt;dependencies&gt;
+        &lt;!-- Selenium Java --&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.seleniumhq.selenium&lt;/groupId&gt;
+            &lt;artifactId&gt;selenium-java&lt;/artifactId&gt;
+            &lt;version&gt;4.28.1&lt;/version&gt;
+        &lt;/dependency&gt;
+        
+        &lt;!-- TestNG --&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.testng&lt;/groupId&gt;
+            &lt;artifactId&gt;testng&lt;/artifactId&gt;
+            &lt;version&gt;7.10.2&lt;/version&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+&lt;/project&gt;</code></pre>
+
+            <h3>Step 4: Browser Drivers</h3>
+            <p>
+                Each browser requires its own driver executable. Selenium 4+ includes WebDriver Manager 
+                that can automatically download and manage drivers.
+            </p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Browser</th>
+                        <th>Driver</th>
+                        <th>Download Link</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Chrome</td>
+                        <td>ChromeDriver</td>
+                        <td>https://chromedriver.chromium.org/</td>
+                    </tr>
+                    <tr>
+                        <td>Firefox</td>
+                        <td>GeckoDriver</td>
+                        <td>https://github.com/mozilla/geckodriver/releases</td>
+                    </tr>
+                    <tr>
+                        <td>Edge</td>
+                        <td>EdgeDriver</td>
+                        <td>https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/</td>
+                    </tr>
+                    <tr>
+                        <td>Safari</td>
+                        <td>SafariDriver</td>
+                        <td>Built-in (macOS only)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>🚀 Your First Selenium Script</h2>
+
+            <h3>Basic Script - Opening a Browser</h3>
+            <pre><code>package com.automation.test;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class FirstSeleniumTest {
+    
+    public static void main(String[] args) {
+        // Initialize ChromeDriver
+        WebDriver driver = new ChromeDriver();
+        
+        // Navigate to URL
+        driver.get("https://www.google.com");
+        
+        // Get page title
+        String title = driver.getTitle();
+        System.out.println("Page Title: " + title);
+        
+        // Close browser
+        driver.quit();
+    }
+}</code></pre>
+
+            <div class="success-box">
+                <h4>✅ What This Script Does:</h4>
+                <ol>
+                    <li><strong>Creates WebDriver instance:</strong> Initializes Chrome browser</li>
+                    <li><strong>Navigates to URL:</strong> Opens Google homepage</li>
+                    <li><strong>Gets title:</strong> Retrieves and prints page title</li>
+                    <li><strong>Closes browser:</strong> Quits the browser and cleans up resources</li>
+                </ol>
+            </div>
+
+            <h2>🌐 Browser Initialization</h2>
+
+            <h3>1. Chrome Browser</h3>
+            <pre><code>import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+
+// Basic initialization
+WebDriver driver = new ChromeDriver();
+
+// With options
+ChromeOptions options = new ChromeOptions();
+options.addArguments("--start-maximized");
+options.addArguments("--disable-notifications");
+options.addArguments("--incognito");
+WebDriver driver = new ChromeDriver(options);</code></pre>
+
+            <h3>2. Firefox Browser</h3>
+            <pre><code>import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
+
+// Basic initialization
+WebDriver driver = new FirefoxDriver();
+
+// With options
+FirefoxOptions options = new FirefoxOptions();
+options.addArguments("--private");
+WebDriver driver = new FirefoxDriver(options);</code></pre>
+
+            <h3>3. Edge Browser</h3>
+            <pre><code>import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.edge.EdgeOptions;
+
+// Basic initialization
+WebDriver driver = new EdgeDriver();
+
+// With options
+EdgeOptions options = new EdgeOptions();
+options.addArguments("--start-maximized");
+WebDriver driver = new EdgeDriver(options);</code></pre>
+
+            <h3>4. Safari Browser (macOS only)</h3>
+            <pre><code>import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.safari.SafariDriver;
+
+WebDriver driver = new SafariDriver();</code></pre>
+
+            <h2>⚙️ Browser Configuration</h2>
+
+            <h3>Window Management</h3>
+            <pre><code>// Maximize window
+driver.manage().window().maximize();
+
+// Minimize window (Selenium 4+)
+driver.manage().window().minimize();
+
+// Full screen
+driver.manage().window().fullscreen();
+
+// Set specific size
+Dimension size = new Dimension(1024, 768);
+driver.manage().window().setSize(size);
+
+// Set position
+Point position = new Point(100, 100);
+driver.manage().window().setPosition(position);</code></pre>
+
+            <h3>Timeouts Configuration</h3>
+            <pre><code>import java.time.Duration;
+
+// Implicit Wait - Wait for elements to appear
+driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+
+// Page Load Timeout - Wait for page to load
+driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
+
+// Script Timeout - For JavaScript execution
+driver.manage().timeouts().scriptTimeout(Duration.ofSeconds(20));</code></pre>
+
+            <h3>Cookie Management</h3>
+            <pre><code>// Add cookie
+Cookie cookie = new Cookie("username", "testuser");
+driver.manage().addCookie(cookie);
+
+// Get cookie
+Cookie retrievedCookie = driver.manage().getCookieNamed("username");
+
+// Get all cookies
+Set&lt;Cookie&gt; allCookies = driver.manage().getCookies();
+
+// Delete specific cookie
+driver.manage().deleteCookieNamed("username");
+
+// Delete all cookies
+driver.manage().deleteAllCookies();</code></pre>
+
+            <h2>🧭 Navigation Methods</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Description</th>
+                        <th>Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>get(String url)</code></td>
+                        <td>Navigate to a URL</td>
+                        <td><code>driver.get("https://example.com")</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>navigate().to(String url)</code></td>
+                        <td>Navigate to a URL (same as get)</td>
+                        <td><code>driver.navigate().to("https://example.com")</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>navigate().back()</code></td>
+                        <td>Navigate back in browser history</td>
+                        <td><code>driver.navigate().back()</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>navigate().forward()</code></td>
+                        <td>Navigate forward in browser history</td>
+                        <td><code>driver.navigate().forward()</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>navigate().refresh()</code></td>
+                        <td>Refresh current page</td>
+                        <td><code>driver.navigate().refresh()</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Navigation Example:</h3>
+            <pre><code>// Navigate to Google
+driver.get("https://www.google.com");
+
+// Navigate to Amazon
+driver.navigate().to("https://www.amazon.com");
+
+// Go back to Google
+driver.navigate().back();
+
+// Go forward to Amazon
+driver.navigate().forward();
+
+// Refresh the page
+driver.navigate().refresh();</code></pre>
+
+            <h2>📄 Page Information Methods</h2>
+
+            <pre><code>// Get current URL
+String currentUrl = driver.getCurrentUrl();
+System.out.println("Current URL: " + currentUrl);
+
+// Get page title
+String title = driver.getTitle();
+System.out.println("Page Title: " + title);
+
+// Get page source (HTML)
+String pageSource = driver.getPageSource();
+System.out.println("Page Source: " + pageSource);
+
+// Get current window handle
+String windowHandle = driver.getWindowHandle();
+System.out.println("Window Handle: " + windowHandle);
+
+// Get all window handles
+Set&lt;String&gt; allHandles = driver.getWindowHandles();
+for(String handle : allHandles) {
+    System.out.println("Handle: " + handle);
+}</code></pre>
+
+            <h2>🔚 Closing Browser</h2>
+
+            <h3>close() vs quit()</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Behavior</th>
+                        <th>When to Use</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>driver.close()</code></td>
+                        <td>Closes current window/tab only</td>
+                        <td>When you have multiple windows and want to close only one</td>
+                    </tr>
+                    <tr>
+                        <td><code>driver.quit()</code></td>
+                        <td>Closes all windows and terminates WebDriver session</td>
+                        <td>At the end of test execution (recommended)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <pre><code>// Close current window
+driver.close();
+
+// Close all windows and quit
+driver.quit();  // Recommended for cleanup</code></pre>
+
+            <div class="warning-box">
+                <h4>⚠️ Important:</h4>
+                <ul>
+                    <li>Always use <code>driver.quit()</code> at the end of tests to free up system resources</li>
+                    <li>Not calling quit() may leave browser processes running in background</li>
+                    <li>Use try-finally or try-with-resources to ensure cleanup even if test fails</li>
+                </ul>
+            </div>
+
+            <h2>🏗️ BaseClass Implementation</h2>
+
+            <p>
+                A BaseClass provides reusable setup and teardown methods for all test classes. This is a 
+                best practice in test automation frameworks.
+            </p>
+
+            <pre><code>package com.orangehrm.base;
+
+import java.io.FileInputStream;
+import java.time.Duration;
+import java.util.Properties;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeSuite;
+
+public class BaseClass {
+    
+    protected static Properties prop;
+    protected static WebDriver driver;
+    
+    @BeforeSuite
+    public void loadConfig() throws Exception {
+        // Load configuration file
+        prop = new Properties();
+        FileInputStream fis = new FileInputStream(
+            "src/main/resources/config.properties");
+        prop.load(fis);
+        System.out.println("Configuration loaded successfully");
+    }
+    
+    @BeforeMethod
+    public void setup() {
+        // Initialize browser based on config
+        String browser = prop.getProperty("browser");
+        
+        if(browser.equalsIgnoreCase("chrome")) {
+            driver = new ChromeDriver();
+        } else if(browser.equalsIgnoreCase("firefox")) {
+            driver = new FirefoxDriver();
+        } else if(browser.equalsIgnoreCase("edge")) {
+            driver = new EdgeDriver();
+        }
+        
+        // Configure browser
+        driver.manage().window().maximize();
+        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        
+        // Navigate to application URL
+        driver.get(prop.getProperty("url"));
+    }
+    
+    @AfterMethod
+    public void tearDown() {
+        if(driver != null) {
+            driver.quit();
+        }
+    }
+}</code></pre>
+
+            <h3>Configuration File (config.properties):</h3>
+            <pre><code># Browser Configuration
+browser=chrome
+
+# Application URL
+url=https://opensource-demo.orangehrmlive.com/
+
+# Timeouts
+implicitWait=10
+explicitWait=20
+pageLoadTimeout=30</code></pre>
+
+            <h2>🎨 Browser Options</h2>
+
+            <h3>ChromeOptions - Advanced Configuration</h3>
+            <pre><code>ChromeOptions options = new ChromeOptions();
+
+// Window settings
+options.addArguments("--start-maximized");
+options.addArguments("--window-size=1920,1080");
+
+// Browser behavior
+options.addArguments("--incognito");
+options.addArguments("--disable-notifications");
+options.addArguments("--disable-popup-blocking");
+options.addArguments("--disable-extensions");
+
+// Performance
+options.addArguments("--disable-gpu");
+options.addArguments("--no-sandbox");
+options.addArguments("--disable-dev-shm-usage");
+
+// Headless mode (no UI)
+options.addArguments("--headless");
+
+// Set download directory
+Map&lt;String, Object&gt; prefs = new HashMap&lt;&gt;();
+prefs.put("download.default_directory", "/path/to/download");
+options.setExperimentalOption("prefs", prefs);
+
+// Disable automation info bar
+options.setExperimentalOption("excludeSwitches", 
+    Collections.singletonList("enable-automation"));
+
+// Initialize with options
+WebDriver driver = new ChromeDriver(options);</code></pre>
+
+            <h3>Headless Browser Testing</h3>
+            <pre><code>// Chrome Headless
+ChromeOptions options = new ChromeOptions();
+options.addArguments("--headless");
+options.addArguments("--disable-gpu");
+WebDriver driver = new ChromeDriver(options);
+
+// Firefox Headless
+FirefoxOptions options = new FirefoxOptions();
+options.addArguments("--headless");
+WebDriver driver = new FirefoxDriver(options);</code></pre>
+
+            <div class="info-box">
+                <h4>💡 When to Use Headless Mode:</h4>
+                <ul>
+                    <li>CI/CD pipeline execution (Jenkins, GitHub Actions)</li>
+                    <li>Running tests on servers without GUI</li>
+                    <li>Faster test execution (no UI rendering)</li>
+                    <li>Running multiple tests in parallel</li>
+                </ul>
+            </div>
+
+            <h2>🔄 WebDriver Manager</h2>
+
+            <p>
+                WebDriver Manager automatically downloads and configures browser drivers, eliminating 
+                manual driver management.
+            </p>
+
+            <h3>Add Dependency:</h3>
+            <pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;io.github.bonigarcia&lt;/groupId&gt;
+    &lt;artifactId&gt;webdrivermanager&lt;/artifactId&gt;
+    &lt;version&gt;5.9.2&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+
+            <h3>Usage:</h3>
+            <pre><code>import io.github.bonigarcia.wdm.WebDriverManager;
+
+// Chrome
+WebDriverManager.chromedriver().setup();
+WebDriver driver = new ChromeDriver();
+
+// Firefox
+WebDriverManager.firefoxdriver().setup();
+WebDriver driver = new FirefoxDriver();
+
+// Edge
+WebDriverManager.edgedriver().setup();
+WebDriver driver = new EdgeDriver();</code></pre>
+
+            <h2>📱 Remote WebDriver</h2>
+
+            <p>
+                RemoteWebDriver allows running tests on remote machines or Selenium Grid.
+            </p>
+
+            <pre><code>import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import java.net.URL;
+
+// Set capabilities
+DesiredCapabilities capabilities = new DesiredCapabilities();
+capabilities.setBrowserName("chrome");
+capabilities.setPlatform(Platform.WINDOWS);
+
+// Connect to remote WebDriver (Selenium Grid)
+WebDriver driver = new RemoteWebDriver(
+    new URL("http://localhost:4444/wd/hub"), 
+    capabilities
+);</code></pre>
+
+            <h2>✅ Best Practices</h2>
+
+            <div class="success-box">
+                <ol>
+                    <li><strong>Always use driver.quit():</strong> Ensures proper cleanup of resources</li>
+                    <li><strong>Use configuration files:</strong> Externalize browser and URL settings</li>
+                    <li><strong>Implement BaseClass:</strong> Centralize setup and teardown logic</li>
+                    <li><strong>Set appropriate timeouts:</strong> Implicit and page load timeouts</li>
+                    <li><strong>Maximize window:</strong> Ensures elements are visible and clickable</li>
+                    <li><strong>Use WebDriver Manager:</strong> Simplifies driver management</li>
+                    <li><strong>Use try-finally:</strong> Ensure cleanup even when tests fail</li>
+                    <li><strong>Headless for CI/CD:</strong> Faster execution in automated pipelines</li>
+                </ol>
+            </div>
+
+            <h2>🐛 Common Issues & Solutions</h2>
+
+            <h3>1. SessionNotCreatedException</h3>
+            <div class="warning-box">
+                <p><strong>Cause:</strong> Version mismatch between browser and driver</p>
+                <p><strong>Solution:</strong> Update browser driver or use WebDriver Manager</p>
+            </div>
+
+            <h3>2. WebDriver executable not found</h3>
+            <div class="warning-box">
+                <p><strong>Cause:</strong> Driver not in system PATH</p>
+                <p><strong>Solution:</strong> Set system PATH or use WebDriver Manager</p>
+            </div>
+
+            <h3>3. Browser doesn't close after test</h3>
+            <div class="warning-box">
+                <p><strong>Cause:</strong> Not calling driver.quit()</p>
+                <p><strong>Solution:</strong> Always call quit() in @AfterMethod or finally block</p>
+            </div>
+
+            <h2>📝 Summary</h2>
+
+            <p>
+                In this module, we learned how to set up Selenium WebDriver environment, initialize different 
+                browsers, configure browser settings, and implement a reusable BaseClass for test automation.
+            </p>
+
+            <p><strong>Key Takeaways:</strong></p>
+            <ul>
+                <li>WebDriver provides direct browser communication without requiring a server</li>
+                <li>Each browser requires its own driver (ChromeDriver, GeckoDriver, etc.)</li>
+                <li>Browser options allow customization (headless, incognito, window size, etc.)</li>
+                <li>BaseClass centralizes setup and teardown logic for reusability</li>
+                <li>Always use driver.quit() to properly close browser and free resources</li>
+                <li>WebDriver Manager simplifies driver version management</li>
+            </ul>
+
+            <div class="highlight-box" style="margin-top: 40px;">
+                <h4>🎯 Next Steps:</h4>
+                <p>
+                    In the next module, we'll explore <strong>Locator Strategies</strong>, where you'll learn 
+                    different techniques to identify and locate web elements on a page using ID, Name, XPath, 
+                    CSS Selectors, and more.
+                </p>
+                <p style="margin-top: 15px;">
+                    <a href="03-locators.html" style="color: #667eea; font-weight: bold; text-decoration: none;">
+                        Continue to Module 03: Locator Strategies →
+                    </a>
+                </p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Module 02: WebDriver Basics | © 2025 Selenium Documentation</p>
+        </div>
+    </div>
+</body>
+</html>
