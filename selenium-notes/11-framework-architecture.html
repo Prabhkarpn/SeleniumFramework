@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>11 - Framework Architecture</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; line-height: 1.8; color: #333; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; border-radius: 15px 15px 0 0; }
+        .header h1 { font-size: 2.5em; }
+        .nav { background: #2c3e50; padding: 15px 40px; display: flex; justify-content: space-between; }
+        .nav a { color: white; text-decoration: none; padding: 8px 15px; }
+        .content { padding: 40px; }
+        h2 { color: #667eea; margin-top: 40px; margin-bottom: 20px; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+        h3 { color: #764ba2; margin-top: 30px; }
+        pre { background: #2d2d2d; color: #f8f8f2; padding: 20px; border-radius: 8px; overflow-x: auto; margin: 20px 0; }
+        .highlight-box { background: #f8f9fa; border-left: 5px solid #667eea; padding: 20px; margin: 20px 0; }
+        .success-box { background: #d4edda; border-left: 5px solid #28a745; padding: 20px; margin: 20px 0; }
+        ul { margin-left: 30px; margin-bottom: 20px; }
+        .footer { background: #2c3e50; color: white; text-align: center; padding: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📘 Module 11: Framework Architecture</h1>
+            <p>Complete Framework Design, Patterns & Best Practices</p>
+        </div>
+        <div class="nav">
+            <a href="10-reporting.html">← Previous</a>
+            <a href="index.html">🏠 Home</a>
+            <a href="12-advanced-topics.html">Next →</a>
+        </div>
+        <div class="content">
+            <h2>🏗️ Framework Structure</h2>
+            <pre><code>SeleniumFramework/
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   └── com/orangehrm/
+│   │   │       ├── base/
+│   │   │       │   └── BaseClass.java
+│   │   │       ├── pages/
+│   │   │       │   ├── LoginPage.java
+│   │   │       │   └── HomePage.java
+│   │   │       ├── actiondriver/
+│   │   │       │   └── ActionDriver.java
+│   │   │       ├── utilities/
+│   │   │       │   ├── ExcelReaderUtility.java
+│   │   │       │   ├── DataProviders.java
+│   │   │       │   ├── ExtentManager.java
+│   │   │       │   ├── LoggerManager.java
+│   │   │       │   ├── RetryAnalyzer.java
+│   │   │       │   ├── DBConnection.java
+│   │   │       │   └── ApiUtility.java
+│   │   │       └── listeners/
+│   │   │           └── TestListener.java
+│   │   └── resources/
+│   │       ├── config.properties
+│   │       └── log4j2.xml
+│   └── test/
+│       ├── java/
+│       │   └── com/orangehrm/test/
+│       │       ├── LoginPageTest.java
+│       │       └── HomePageTest.java
+│       └── resources/
+│           ├── testdata/
+│           │   └── TestData.xlsx
+│           └── screenshots/
+├── testng.xml
+└── pom.xml</code></pre>
+
+            <h2>🎯 Framework Components</h2>
+
+            <h3>1. BaseClass</h3>
+            <p>Handles browser initialization, configuration, and teardown.</p>
+            <pre><code>@BeforeSuite
+public void loadConfig() {
+    // Load properties file
+}
+
+@BeforeMethod
+public void setup() {
+    // Launch browser
+    // Configure timeouts
+    // Navigate to URL
+}
+
+@AfterMethod
+public void tearDown() {
+    // Close browser
+    // Clean up resources
+}</code></pre>
+
+            <h3>2. ActionDriver</h3>
+            <p>Encapsulates all WebElement interactions with waits and error handling.</p>
+            <pre><code>public class ActionDriver {
+    private WebDriver driver;
+    private WebDriverWait wait;
+    
+    public void click(By locator) { }
+    public void enterText(By locator, String text) { }
+    public String getText(By locator) { }
+    public boolean isDisplayed(By locator) { }
+    public void scrollToElement(By locator) { }
+}</code></pre>
+
+            <h3>3. Page Object Classes</h3>
+            <p>Represent each page with locators and page-specific actions.</p>
+
+            <h3>4. Utilities</h3>
+            <ul>
+                <li><strong>ExcelReaderUtility:</strong> Read/write Excel files</li>
+                <li><strong>DataProviders:</strong> Supply test data to tests</li>
+                <li><strong>ExtentManager:</strong> Manage test reporting</li>
+                <li><strong>LoggerManager:</strong> Handle logging</li>
+                <li><strong>RetryAnalyzer:</strong> Retry failed tests</li>
+            </ul>
+
+            <h3>5. Test Classes</h3>
+            <p>Contain actual test methods using TestNG annotations.</p>
+
+            <h2>⚙️ Configuration File (config.properties)</h2>
+            <pre><code>browser=chrome
+url=https://opensource-demo.orangehrmlive.com/
+implicitWait=10
+explicitWait=20
+pageLoadTimeout=30</code></pre>
+
+            <h2>🔄 ThreadLocal for Parallel Execution</h2>
+            <pre><code>public class BaseClass {
+    
+    protected static ThreadLocal&lt;WebDriver&gt; driver = new ThreadLocal&lt;&gt;();
+    protected static ThreadLocal&lt;ActionDriver&gt; actionDriver = new ThreadLocal&lt;&gt;();
+    
+    @BeforeMethod
+    public synchronized void setup() {
+        // Initialize driver for current thread
+        driver.set(new ChromeDriver());
+        actionDriver.set(new ActionDriver(getDriver()));
+    }
+    
+    public static WebDriver getDriver() {
+        return driver.get();
+    }
+    
+    public static ActionDriver getActionDriver() {
+        return actionDriver.get();
+    }
+    
+    @AfterMethod
+    public synchronized void tearDown() {
+        if(getDriver() != null) {
+            getDriver().quit();
+        }
+        driver.remove();
+        actionDriver.remove();
+    }
+}</code></pre>
+
+            <h2>🔁 Retry Analyzer</h2>
+            <pre><code>import org.testng.IRetryAnalyzer;
+import org.testng.ITestResult;
+
+public class RetryAnalyzer implements IRetryAnalyzer {
+    
+    private int retryCount = 0;
+    private static final int maxRetryCount = 2;
+    
+    @Override
+    public boolean retry(ITestResult result) {
+        if(retryCount < maxRetryCount) {
+            retryCount++;
+            return true;
+        }
+        return false;
+    }
+}
+
+// Use in test
+@Test(retryAnalyzer = RetryAnalyzer.class)
+public void testLogin() { }</code></pre>
+
+            <h2>✅ Framework Best Practices</h2>
+            <div class="success-box">
+                <ul>
+                    <li>Follow Page Object Model design pattern</li>
+                    <li>Use configuration files for environment settings</li>
+                    <li>Implement ActionDriver for reusable actions</li>
+                    <li>Use ThreadLocal for parallel execution safety</li>
+                    <li>Integrate logging and reporting</li>
+                    <li>Implement retry mechanism for flaky tests</li>
+                    <li>Use data-driven approach with Excel/DataProviders</li>
+                    <li>Handle exceptions gracefully</li>
+                    <li>Take screenshots on failures</li>
+                    <li>Use meaningful test and method names</li>
+                    <li>Keep code DRY (Don't Repeat Yourself)</li>
+                    <li>Version control with Git</li>
+                    <li>CI/CD integration ready</li>
+                </ul>
+            </div>
+
+            <h2>📊 Design Patterns Used</h2>
+            <ul>
+                <li><strong>Page Object Model:</strong> Encapsulate page elements and actions</li>
+                <li><strong>Singleton Pattern:</strong> ExtentManager, LoggerManager</li>
+                <li><strong>Factory Pattern:</strong> Browser initialization</li>
+                <li><strong>Strategy Pattern:</strong> Different wait strategies</li>
+                <li><strong>Observer Pattern:</strong> TestNG Listeners</li>
+            </ul>
+
+            <h2>📝 Summary</h2>
+            <p>A well-architected framework follows design patterns, uses proper separation of concerns, supports parallel execution, and integrates reporting and logging for comprehensive test automation.</p>
+
+            <div class="highlight-box">
+                <h4>🎯 Next Steps:</h4>
+                <p>Continue to <strong>Module 12: Advanced Topics</strong> for database testing, API testing, and CI/CD integration.</p>
+                <p><a href="12-advanced-topics.html" style="color: #667eea; font-weight: bold;">Continue →</a></p>
+            </div>
+        </div>
+        <div class="footer">
+            <p>Module 11: Framework Architecture | © 2025 Selenium Documentation</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>04 - WebElement Interactions</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; color: #333; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .nav { background: #2c3e50; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; }
+        .nav a { color: white; text-decoration: none; padding: 8px 15px; border-radius: 5px; transition: background 0.3s; }
+        .nav a:hover { background: rgba(255,255,255,0.1); }
+        .content { padding: 40px; }
+        h2 { color: #667eea; margin-top: 40px; margin-bottom: 20px; font-size: 2em; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+        h3 { color: #764ba2; margin-top: 30px; margin-bottom: 15px; font-size: 1.5em; }
+        h4 { color: #555; margin-top: 20px; margin-bottom: 10px; font-size: 1.2em; }
+        p { margin-bottom: 15px; text-align: justify; }
+        .highlight-box { background: #f8f9fa; border-left: 5px solid #667eea; padding: 20px; margin: 20px 0; border-radius: 5px; }
+        .warning-box { background: #fff3cd; border-left: 5px solid #ffc107; padding: 20px; margin: 20px 0; border-radius: 5px; }
+        .success-box { background: #d4edda; border-left: 5px solid #28a745; padding: 20px; margin: 20px 0; border-radius: 5px; }
+        .info-box { background: #d1ecf1; border-left: 5px solid #17a2b8; padding: 20px; margin: 20px 0; border-radius: 5px; }
+        code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; color: #c7254e; }
+        pre { background: #2d2d2d; color: #f8f8f2; padding: 20px; border-radius: 8px; overflow-x: auto; margin: 20px 0; border-left: 5px solid #667eea; }
+        pre code { background: none; color: #f8f8f2; padding: 0; }
+        ul, ol { margin-left: 30px; margin-bottom: 20px; }
+        li { margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        th { background: #667eea; color: white; padding: 15px; text-align: left; }
+        td { padding: 15px; border-bottom: 1px solid #ddd; }
+        tr:hover { background: #f5f5f5; }
+        .footer { background: #2c3e50; color: white; text-align: center; padding: 20px; margin-top: 40px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📘 Module 04: WebElement Interactions</h1>
+            <p>Performing Actions on Web Elements - Click, Type, Select, and More</p>
+        </div>
+        <div class="nav">
+            <a href="03-locators.html">← Previous: Locators</a>
+            <a href="index.html">🏠 Home</a>
+            <a href="05-waits.html">Next: Waits & Synchronization →</a>
+        </div>
+        <div class="content">
+            <h2>🎯 What is WebElement?</h2>
+            <p>A <strong>WebElement</strong> represents an HTML element on a web page. Once you've located an element using a locator strategy, you can interact with it using various WebElement methods. These interactions simulate real user actions like clicking, typing, selecting options, etc.</p>
+
+            <div class="highlight-box">
+                <h4>🔑 Common WebElement Operations:</h4>
+                <ul>
+                    <li>Click buttons, links, checkboxes, radio buttons</li>
+                    <li>Type text into input fields</li>
+                    <li>Clear existing text from fields</li>
+                    <li>Select options from dropdowns</li>
+                    <li>Get element text, attributes, and properties</li>
+                    <li>Check element state (displayed, enabled, selected)</li>
+                </ul>
+            </div>
+
+            <h2>📋 WebElement Methods Overview</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Description</th>
+                        <th>Returns</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>click()</code></td><td>Clicks the element</td><td>void</td></tr>
+                    <tr><td><code>sendKeys(String)</code></td><td>Types text into element</td><td>void</td></tr>
+                    <tr><td><code>clear()</code></td><td>Clears text from input field</td><td>void</td></tr>
+                    <tr><td><code>submit()</code></td><td>Submits a form</td><td>void</td></tr>
+                    <tr><td><code>getText()</code></td><td>Gets visible text</td><td>String</td></tr>
+                    <tr><td><code>getAttribute(String)</code></td><td>Gets attribute value</td><td>String</td></tr>
+                    <tr><td><code>isDisplayed()</code></td><td>Checks if element is visible</td><td>boolean</td></tr>
+                    <tr><td><code>isEnabled()</code></td><td>Checks if element is enabled</td><td>boolean</td></tr>
+                    <tr><td><code>isSelected()</code></td><td>Checks if element is selected</td><td>boolean</td></tr>
+                    <tr><td><code>getTagName()</code></td><td>Gets HTML tag name</td><td>String</td></tr>
+                    <tr><td><code>getCssValue(String)</code></td><td>Gets CSS property value</td><td>String</td></tr>
+                    <tr><td><code>getSize()</code></td><td>Gets element dimensions</td><td>Dimension</td></tr>
+                    <tr><td><code>getLocation()</code></td><td>Gets element position</td><td>Point</td></tr>
+                </tbody>
+            </table>
+
+            <h2>1️⃣ click() - Clicking Elements</h2>
+            <p>The <code>click()</code> method simulates a mouse click on an element.</p>
+
+            <pre><code>// Click a button
+WebElement loginButton = driver.findElement(By.id("login-btn"));
+loginButton.click();
+
+// Click a link
+WebElement aboutLink = driver.findElement(By.linkText("About Us"));
+aboutLink.click();
+
+// Click a checkbox
+WebElement agreeCheckbox = driver.findElement(By.id("agree-terms"));
+agreeCheckbox.click();
+
+// Click a radio button
+WebElement maleRadio = driver.findElement(By.id("gender-male"));
+maleRadio.click();</code></pre>
+
+            <div class="warning-box">
+                <h4>⚠️ Common Click Issues:</h4>
+                <ul>
+                    <li><strong>ElementNotInteractableException:</strong> Element is not visible or clickable</li>
+                    <li><strong>ElementClickInterceptedException:</strong> Another element is overlaying it</li>
+                    <li><strong>StaleElementReferenceException:</strong> Element is no longer in DOM</li>
+                </ul>
+                <p><strong>Solution:</strong> Use waits, scroll to element, or use JavaScript click</p>
+            </div>
+
+            <h2>2️⃣ sendKeys() - Typing Text</h2>
+            <p>The <code>sendKeys()</code> method types text into input fields.</p>
+
+            <pre><code>// Type username
+WebElement usernameField = driver.findElement(By.name("username"));
+usernameField.sendKeys("admin");
+
+// Type password
+WebElement passwordField = driver.findElement(By.name("password"));
+passwordField.sendKeys("admin123");
+
+// Type email
+WebElement emailField = driver.findElement(By.id("email"));
+emailField.sendKeys("test@example.com");
+
+// Append text to existing value
+emailField.sendKeys(" - additional text");
+
+// Send special keys
+import org.openqa.selenium.Keys;
+
+// Press Enter
+usernameField.sendKeys(Keys.ENTER);
+
+// Ctrl+A (Select All)
+usernameField.sendKeys(Keys.CONTROL + "a");
+
+// Copy (Ctrl+C)
+usernameField.sendKeys(Keys.CONTROL + "c");
+
+// Paste (Ctrl+V)
+passwordField.sendKeys(Keys.CONTROL + "v");
+
+// Tab to next field
+usernameField.sendKeys(Keys.TAB);</code></pre>
+
+            <h3>Special Keys Reference:</h3>
+            <table>
+                <thead>
+                    <tr><th>Key</th><th>Constant</th><th>Usage</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Enter</td><td><code>Keys.ENTER</code></td><td>Submit form</td></tr>
+                    <tr><td>Tab</td><td><code>Keys.TAB</code></td><td>Navigate to next field</td></tr>
+                    <tr><td>Backspace</td><td><code>Keys.BACK_SPACE</code></td><td>Delete character</td></tr>
+                    <tr><td>Delete</td><td><code>Keys.DELETE</code></td><td>Delete character</td></tr>
+                    <tr><td>Escape</td><td><code>Keys.ESCAPE</code></td><td>Close popups</td></tr>
+                    <tr><td>Arrow Up</td><td><code>Keys.ARROW_UP</code></td><td>Move up</td></tr>
+                    <tr><td>Arrow Down</td><td><code>Keys.ARROW_DOWN</code></td><td>Move down</td></tr>
+                    <tr><td>Home</td><td><code>Keys.HOME</code></td><td>Go to start</td></tr>
+                    <tr><td>End</td><td><code>Keys.END</code></td><td>Go to end</td></tr>
+                </tbody>
+            </table>
+
+            <h2>3️⃣ clear() - Clearing Text Fields</h2>
+            <p>The <code>clear()</code> method removes existing text from input fields.</p>
+
+            <pre><code>// Clear existing text before typing new text
+WebElement searchBox = driver.findElement(By.name("q"));
+searchBox.clear();
+searchBox.sendKeys("Selenium WebDriver");
+
+// Best practice: Always clear before entering text
+WebElement nameField = driver.findElement(By.id("name"));
+nameField.clear();
+nameField.sendKeys("John Doe");</code></pre>
+
+            <h2>4️⃣ submit() - Submitting Forms</h2>
+            <p>The <code>submit()</code> method submits a form. Works on any element inside a form.</p>
+
+            <pre><code>// Submit form by calling submit on any element in the form
+WebElement usernameField = driver.findElement(By.name("username"));
+usernameField.sendKeys("admin");
+
+WebElement passwordField = driver.findElement(By.name("password"));
+passwordField.sendKeys("admin123");
+
+// Submit the form
+passwordField.submit();  // OR usernameField.submit();
+
+// Alternative: Click submit button
+WebElement submitButton = driver.findElement(By.cssSelector("button[type='submit']"));
+submitButton.click();</code></pre>
+
+            <h2>5️⃣ getText() - Getting Element Text</h2>
+            <p>The <code>getText()</code> method retrieves the visible text of an element.</p>
+
+            <pre><code>// Get text from element
+WebElement heading = driver.findElement(By.tagName("h1"));
+String headingText = heading.getText();
+System.out.println("Heading: " + headingText);
+
+// Get error message text
+WebElement errorMsg = driver.findElement(By.className("error-message"));
+String errorText = errorMsg.getText();
+
+// Verify text
+if(errorText.equals("Invalid credentials")) {
+    System.out.println("Correct error message displayed");
+}
+
+// Get text from multiple elements
+List&lt;WebElement&gt; listItems = driver.findElements(By.tagName("li"));
+for(WebElement item : listItems) {
+    System.out.println(item.getText());
+}</code></pre>
+
+            <h2>6️⃣ getAttribute() - Getting Attributes</h2>
+            <p>The <code>getAttribute()</code> method retrieves the value of an element's attribute.</p>
+
+            <pre><code>// Get href attribute from link
+WebElement link = driver.findElement(By.linkText("Google"));
+String url = link.getAttribute("href");
+System.out.println("URL: " + url);
+
+// Get value from input field
+WebElement inputField = driver.findElement(By.name("email"));
+String fieldValue = inputField.getAttribute("value");
+
+// Get class attribute
+WebElement button = driver.findElement(By.id("submit-btn"));
+String className = button.getAttribute("class");
+
+// Get placeholder text
+WebElement searchBox = driver.findElement(By.name("search"));
+String placeholder = searchBox.getAttribute("placeholder");
+
+// Check if attribute exists
+String dataId = element.getAttribute("data-id");
+if(dataId != null) {
+    System.out.println("Data ID: " + dataId);
+}
+
+// Common attributes to retrieve
+String id = element.getAttribute("id");
+String name = element.getAttribute("name");
+String type = element.getAttribute("type");
+String value = element.getAttribute("value");
+String title = element.getAttribute("title");</code></pre>
+
+            <h2>7️⃣ Element State Methods</h2>
+
+            <h3>isDisplayed() - Check Visibility</h3>
+            <pre><code>// Check if element is visible
+WebElement loginButton = driver.findElement(By.id("login-btn"));
+boolean isVisible = loginButton.isDisplayed();
+
+if(isVisible) {
+    loginButton.click();
+} else {
+    System.out.println("Button is not visible");
+}
+
+// Verify logo is displayed
+WebElement logo = driver.findElement(By.className("company-logo"));
+Assert.assertTrue(logo.isDisplayed(), "Logo should be visible");</code></pre>
+
+            <h3>isEnabled() - Check if Element is Enabled</h3>
+            <pre><code>// Check if button is enabled
+WebElement submitButton = driver.findElement(By.id("submit"));
+boolean isEnabled = submitButton.isEnabled();
+
+if(isEnabled) {
+    submitButton.click();
+} else {
+    System.out.println("Button is disabled");
+}
+
+// Check if input field is editable
+WebElement inputField = driver.findElement(By.name("username"));
+if(inputField.isEnabled()) {
+    inputField.sendKeys("admin");
+}</code></pre>
+
+            <h3>isSelected() - Check Selection State</h3>
+            <pre><code>// Check if checkbox is selected
+WebElement checkbox = driver.findElement(By.id("remember-me"));
+boolean isChecked = checkbox.isSelected();
+
+if(!isChecked) {
+    checkbox.click();  // Check the checkbox
+}
+
+// Verify checkbox state
+Assert.assertTrue(checkbox.isSelected(), "Checkbox should be selected");
+
+// Check radio button
+WebElement radioButton = driver.findElement(By.id("gender-male"));
+if(!radioButton.isSelected()) {
+    radioButton.click();
+}</code></pre>
+
+            <h2>8️⃣ Working with Dropdowns (Select Class)</h2>
+            <p>For &lt;select&gt; dropdowns, Selenium provides a special <code>Select</code> class.</p>
+
+            <pre><code>import org.openqa.selenium.support.ui.Select;
+
+// Locate the dropdown
+WebElement dropdown = driver.findElement(By.id("country"));
+
+// Create Select object
+Select select = new Select(dropdown);
+
+// Select by visible text
+select.selectByVisibleText("India");
+
+// Select by value attribute
+select.selectByValue("in");
+
+// Select by index (0-based)
+select.selectByIndex(2);
+
+// Get selected option
+WebElement selectedOption = select.getFirstSelectedOption();
+System.out.println("Selected: " + selectedOption.getText());
+
+// Get all options
+List&lt;WebElement&gt; allOptions = select.getOptions();
+System.out.println("Total options: " + allOptions.size());
+
+// Print all options
+for(WebElement option : allOptions) {
+    System.out.println(option.getText());
+}
+
+// Check if dropdown supports multiple selections
+boolean isMultiple = select.isMultiple();
+
+// For multi-select dropdowns
+if(isMultiple) {
+    select.selectByVisibleText("Option 1");
+    select.selectByVisibleText("Option 2");
+    select.selectByVisibleText("Option 3");
+    
+    // Deselect specific option
+    select.deselectByVisibleText("Option 2");
+    
+    // Deselect all
+    select.deselectAll();
+    
+    // Get all selected options
+    List&lt;WebElement&gt; selectedOptions = select.getAllSelectedOptions();
+}</code></pre>
+
+            <h2>9️⃣ Checkboxes and Radio Buttons</h2>
+
+            <h3>Handling Checkboxes:</h3>
+            <pre><code>// Locate checkbox
+WebElement agreeCheckbox = driver.findElement(By.id("agree-terms"));
+
+// Check if already selected
+if(!agreeCheckbox.isSelected()) {
+    agreeCheckbox.click();  // Check it
+}
+
+// Uncheck if selected
+if(agreeCheckbox.isSelected()) {
+    agreeCheckbox.click();  // Uncheck it
+}
+
+// Toggle checkbox
+agreeCheckbox.click();
+
+// Select multiple checkboxes
+List&lt;WebElement&gt; checkboxes = driver.findElements(By.cssSelector("input[type='checkbox']"));
+for(WebElement checkbox : checkboxes) {
+    if(!checkbox.isSelected()) {
+        checkbox.click();
+    }
+}</code></pre>
+
+            <h3>Handling Radio Buttons:</h3>
+            <pre><code>// Select a radio button
+WebElement maleRadio = driver.findElement(By.id("gender-male"));
+if(!maleRadio.isSelected()) {
+    maleRadio.click();
+}
+
+// Select from radio button group
+List&lt;WebElement&gt; genderOptions = driver.findElements(By.name("gender"));
+for(WebElement option : genderOptions) {
+    if(option.getAttribute("value").equals("female")) {
+        option.click();
+        break;
+    }
+}</code></pre>
+
+            <h2>🔟 Getting Element Properties</h2>
+
+            <h3>getTagName() - Get HTML Tag:</h3>
+            <pre><code>WebElement element = driver.findElement(By.id("myElement"));
+String tagName = element.getTagName();
+System.out.println("Tag: " + tagName);  // Output: input, button, div, etc.</code></pre>
+
+            <h3>getCssValue() - Get CSS Property:</h3>
+            <pre><code>WebElement element = driver.findElement(By.id("header"));
+
+// Get CSS properties
+String color = element.getCssValue("color");
+String fontSize = element.getCssValue("font-size");
+String backgroundColor = element.getCssValue("background-color");
+String fontFamily = element.getCssValue("font-family");
+
+System.out.println("Color: " + color);
+System.out.println("Font Size: " + fontSize);</code></pre>
+
+            <h3>getSize() - Get Element Dimensions:</h3>
+            <pre><code>import org.openqa.selenium.Dimension;
+
+WebElement logo = driver.findElement(By.className("logo"));
+Dimension size = logo.getSize();
+
+int height = size.getHeight();
+int width = size.getWidth();
+
+System.out.println("Height: " + height + ", Width: " + width);</code></pre>
+
+            <h3>getLocation() - Get Element Position:</h3>
+            <pre><code>import org.openqa.selenium.Point;
+
+WebElement button = driver.findElement(By.id("submit"));
+Point location = button.getLocation();
+
+int x = location.getX();
+int y = location.getY();
+
+System.out.println("X: " + x + ", Y: " + y);</code></pre>
+
+            <h2>🎨 ActionDriver Implementation (Real Framework Example)</h2>
+            <p>Based on your framework, here's how to create a reusable ActionDriver class:</p>
+
+            <pre><code>public class ActionDriver {
+    
+    private WebDriver driver;
+    private WebDriverWait wait;
+    
+    public ActionDriver(WebDriver driver) {
+        this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+    
+    // Click method with wait
+    public void click(By locator) {
+        try {
+            wait.until(ExpectedConditions.elementToBeClickable(locator));
+            driver.findElement(locator).click();
+            System.out.println("Clicked: " + getElementDescription(locator));
+        } catch (Exception e) {
+            System.out.println("Unable to click: " + e.getMessage());
+        }
+    }
+    
+    // Enter text method
+    public void enterText(By locator, String text) {
+        try {
+            wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+            WebElement element = driver.findElement(locator);
+            element.clear();
+            element.sendKeys(text);
+            System.out.println("Entered text: " + text);
+        } catch (Exception e) {
+            System.out.println("Unable to enter text: " + e.getMessage());
+        }
+    }
+    
+    // Get text method
+    public String getText(By locator) {
+        try {
+            wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+            return driver.findElement(locator).getText();
+        } catch (Exception e) {
+            System.out.println("Unable to get text: " + e.getMessage());
+            return "";
+        }
+    }
+    
+    // Check if displayed
+    public boolean isDisplayed(By locator) {
+        try {
+            return driver.findElement(locator).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    private String getElementDescription(By locator) {
+        // Implementation to describe element
+        return locator.toString();
+    }
+}</code></pre>
+
+            <h2>📝 Page Object Model Example (LoginPage)</h2>
+            <pre><code>public class LoginPage {
+    
+    private ActionDriver actionDriver;
+    
+    // Locators
+    private By usernameField = By.name("username");
+    private By passwordField = By.name("password");
+    private By loginButton = By.xpath("//button[@type='submit']");
+    private By errorMessage = By.xpath("//p[text()='Invalid credentials']");
+    
+    public LoginPage(WebDriver driver) {
+        this.actionDriver = new ActionDriver(driver);
+    }
+    
+    // Login method
+    public void login(String username, String password) {
+        actionDriver.enterText(usernameField, username);
+        actionDriver.enterText(passwordField, password);
+        actionDriver.click(loginButton);
+    }
+    
+    // Verify error message
+    public boolean isErrorMessageDisplayed() {
+        return actionDriver.isDisplayed(errorMessage);
+    }
+    
+    public String getErrorMessageText() {
+        return actionDriver.getText(errorMessage);
+    }
+}</code></pre>
+
+            <h2>✅ Best Practices</h2>
+
+            <div class="success-box">
+                <ol>
+                    <li><strong>Always clear() before sendKeys():</strong> Removes existing text</li>
+                    <li><strong>Use isDisplayed() before interactions:</strong> Verify element visibility</li>
+                    <li><strong>Use isEnabled() before clicking:</strong> Check if element is clickable</li>
+                    <li><strong>Use Select class for dropdowns:</strong> More reliable than sendKeys()</li>
+                    <li><strong>Wait before interactions:</strong> Use explicit waits for stability</li>
+                    <li><strong>Handle StaleElementReferenceException:</strong> Re-locate element if needed</li>
+                    <li><strong>Create reusable methods:</strong> Wrap interactions in ActionDriver/utility classes</li>
+                    <li><strong>Add descriptive logging:</strong> Track actions for debugging</li>
+                    <li><strong>Verify action success:</strong> Check expected outcome after each action</li>
+                </ol>
+            </div>
+
+            <h2>🐛 Common Issues & Solutions</h2>
+
+            <div class="warning-box">
+                <h4>1. ElementNotInteractableException</h4>
+                <p><strong>Cause:</strong> Element is not visible or overlapped</p>
+                <p><strong>Solution:</strong></p>
+                <pre><code>// Wait for element to be visible
+wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+
+// Or scroll to element
+JavascriptExecutor js = (JavascriptExecutor) driver;
+js.executeScript("arguments[0].scrollIntoView(true);", element);</code></pre>
+
+                <h4>2. ElementClickInterceptedException</h4>
+                <p><strong>Cause:</strong> Another element is covering the target element</p>
+                <p><strong>Solution:</strong></p>
+                <pre><code>// Wait for element to be clickable
+wait.until(ExpectedConditions.elementToBeClickable(locator));
+
+// Or use JavaScript click
+JavascriptExecutor js = (JavascriptExecutor) driver;
+js.executeScript("arguments[0].click();", element);</code></pre>
+
+                <h4>3. StaleElementReferenceException</h4>
+                <p><strong>Cause:</strong> Element is no longer attached to DOM (page refreshed)</p>
+                <p><strong>Solution:</strong></p>
+                <pre><code>// Re-locate the element
+WebElement element = driver.findElement(locator);
+
+// Or use try-catch and retry
+try {
+    element.click();
+} catch(StaleElementReferenceException e) {
+    element = driver.findElement(locator);
+    element.click();
+}</code></pre>
+            </div>
+
+            <h2>📝 Summary</h2>
+            <p>In this module, we learned how to interact with web elements using various WebElement methods. We covered clicking, typing text, clearing fields, selecting dropdowns, checking element states, and implementing reusable action methods in a framework.</p>
+
+            <p><strong>Key Takeaways:</strong></p>
+            <ul>
+                <li>WebElement represents an HTML element and provides methods to interact with it</li>
+                <li>Use click() for buttons, links, checkboxes, and radio buttons</li>
+                <li>Always clear() before sendKeys() to remove existing text</li>
+                <li>Use Select class for dropdown interactions</li>
+                <li>Check element state with isDisplayed(), isEnabled(), isSelected()</li>
+                <li>Create reusable ActionDriver class to wrap element interactions</li>
+                <li>Handle exceptions gracefully with proper waits and error handling</li>
+            </ul>
+
+            <div class="highlight-box" style="margin-top: 40px;">
+                <h4>🎯 Next Steps:</h4>
+                <p>In the next module, we'll explore <strong>Synchronization and Waits</strong> - implicit waits, explicit waits, fluent waits, and custom wait conditions to handle dynamic content and timing issues.</p>
+                <p style="margin-top: 15px;">
+                    <a href="05-waits.html" style="color: #667eea; font-weight: bold; text-decoration: none;">
+                        Continue to Module 05: Waits & Synchronization →
+                    </a>
+                </p>
+            </div>
+        </div>
+        <div class="footer">
+            <p>Module 04: WebElement Interactions | © 2025 Selenium Documentation</p>
+        </div>
+    </div>
+</body>
+</html>

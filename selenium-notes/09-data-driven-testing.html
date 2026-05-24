@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>09 - Data-Driven Testing</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; line-height: 1.8; color: #333; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; border-radius: 15px 15px 0 0; }
+        .header h1 { font-size: 2.5em; }
+        .nav { background: #2c3e50; padding: 15px 40px; display: flex; justify-content: space-between; }
+        .nav a { color: white; text-decoration: none; padding: 8px 15px; }
+        .content { padding: 40px; }
+        h2 { color: #667eea; margin-top: 40px; margin-bottom: 20px; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+        h3 { color: #764ba2; margin-top: 30px; }
+        pre { background: #2d2d2d; color: #f8f8f2; padding: 20px; border-radius: 8px; overflow-x: auto; margin: 20px 0; }
+        .highlight-box { background: #f8f9fa; border-left: 5px solid #667eea; padding: 20px; margin: 20px 0; }
+        ul { margin-left: 30px; margin-bottom: 20px; }
+        .footer { background: #2c3e50; color: white; text-align: center; padding: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📘 Module 09: Data-Driven Testing</h1>
+            <p>Excel Integration, TestNG DataProviders & Parameterization</p>
+        </div>
+        <div class="nav">
+            <a href="08-testng.html">← Previous</a>
+            <a href="index.html">🏠 Home</a>
+            <a href="10-reporting.html">Next →</a>
+        </div>
+        <div class="content">
+            <h2>🎯 What is Data-Driven Testing?</h2>
+            <p>Data-Driven Testing is an approach where test data is separated from test scripts. Tests run multiple times with different datasets, making tests more comprehensive and maintainable.</p>
+
+            <h2>📊 Apache POI for Excel</h2>
+            <p>Apache POI is a Java library for reading/writing Microsoft Office files, including Excel (.xls, .xlsx).</p>
+
+            <h3>Maven Dependencies:</h3>
+            <pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.poi&lt;/groupId&gt;
+    &lt;artifactId&gt;poi&lt;/artifactId&gt;
+    &lt;version&gt;5.4.0&lt;/version&gt;
+&lt;/dependency&gt;
+
+&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.poi&lt;/groupId&gt;
+    &lt;artifactId&gt;poi-ooxml&lt;/artifactId&gt;
+    &lt;version&gt;5.4.0&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+
+            <h2>📖 Reading Excel Files</h2>
+            <pre><code>import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import java.io.FileInputStream;
+
+public class ExcelReader {
+    
+    public static Object[][] getExcelData(String filePath, String sheetName) {
+        Object[][] data = null;
+        
+        try {
+            FileInputStream fis = new FileInputStream(filePath);
+            Workbook workbook = new XSSFWorkbook(fis);
+            Sheet sheet = workbook.getSheet(sheetName);
+            
+            int rowCount = sheet.getLastRowNum();
+            int colCount = sheet.getRow(0).getLastCellNum();
+            
+            data = new Object[rowCount][colCount];
+            
+            for(int i = 0; i < rowCount; i++) {
+                Row row = sheet.getRow(i + 1);
+                for(int j = 0; j < colCount; j++) {
+                    Cell cell = row.getCell(j);
+                    data[i][j] = getCellValue(cell);
+                }
+            }
+            
+            workbook.close();
+            fis.close();
+            
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        
+        return data;
+    }
+    
+    private static String getCellValue(Cell cell) {
+        switch(cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue();
+            case NUMERIC:
+                return String.valueOf((int)cell.getNumericCellValue());
+            case BOOLEAN:
+                return String.valueOf(cell.getBooleanCellValue());
+            default:
+                return "";
+        }
+    }
+}</code></pre>
+
+            <h2>🎲 TestNG DataProvider with Excel</h2>
+            <pre><code>public class DataProviders {
+    
+    private static final String FILE_PATH = 
+        System.getProperty("user.dir") + "/testdata/TestData.xlsx";
+    
+    @DataProvider(name = "validLoginData")
+    public static Object[][] validLoginData() {
+        return ExcelReader.getExcelData(FILE_PATH, "validLoginData");
+    }
+    
+    @DataProvider(name = "invalidLoginData")
+    public static Object[][] invalidLoginData() {
+        return ExcelReader.getExcelData(FILE_PATH, "invalidLoginData");
+    }
+}
+
+// Test class
+public class LoginTest extends BaseClass {
+    
+    @Test(dataProvider = "validLoginData", 
+          dataProviderClass = DataProviders.class)
+    public void testValidLogin(String username, String password) {
+        loginPage.login(username, password);
+        Assert.assertTrue(homePage.isLogoVisible());
+    }
+    
+    @Test(dataProvider = "invalidLoginData",
+          dataProviderClass = DataProviders.class)
+    public void testInvalidLogin(String username, String password) {
+        loginPage.login(username, password);
+        Assert.assertTrue(loginPage.isErrorMessageDisplayed());
+    }
+}</code></pre>
+
+            <h2>✍️ Writing to Excel</h2>
+            <pre><code>public static void writeExcelData(String filePath, String sheetName, 
+                                   int row, int col, String value) {
+    try {
+        FileInputStream fis = new FileInputStream(filePath);
+        Workbook workbook = new XSSFWorkbook(fis);
+        Sheet sheet = workbook.getSheet(sheetName);
+        
+        Row rowObj = sheet.getRow(row);
+        if(rowObj == null) {
+            rowObj = sheet.createRow(row);
+        }
+        
+        Cell cell = rowObj.createCell(col);
+        cell.setCellValue(value);
+        
+        fis.close();
+        
+        FileOutputStream fos = new FileOutputStream(filePath);
+        workbook.write(fos);
+        fos.close();
+        workbook.close();
+        
+    } catch(Exception e) {
+        e.printStackTrace();
+    }
+}</code></pre>
+
+            <h2>💡 Best Practices</h2>
+            <div class="highlight-box">
+                <ul>
+                    <li>Keep test data separate from test scripts</li>
+                    <li>Use meaningful sheet names in Excel</li>
+                    <li>First row should contain column headers</li>
+                    <li>Create separate DataProvider class for reusability</li>
+                    <li>Handle exceptions properly when reading files</li>
+                    <li>Close file streams to prevent memory leaks</li>
+                    <li>Use relative paths for better portability</li>
+                    <li>Consider using CSV for simpler data needs</li>
+                </ul>
+            </div>
+
+            <h2>📝 Summary</h2>
+            <p>Data-Driven Testing with Excel and TestNG DataProviders enables running the same test with multiple datasets, improving test coverage and maintainability.</p>
+
+            <div class="highlight-box">
+                <h4>🎯 Next Steps:</h4>
+                <p>Continue to <strong>Module 10: Reporting & Logging</strong> to learn Extent Reports and Log4j integration.</p>
+                <p><a href="10-reporting.html" style="color: #667eea; font-weight: bold;">Continue →</a></p>
+            </div>
+        </div>
+        <div class="footer">
+            <p>Module 09: Data-Driven Testing | © 2025 Selenium Documentation</p>
+        </div>
+    </div>
+</body>
+</html>

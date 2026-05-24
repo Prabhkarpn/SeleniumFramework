@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>07 - Page Object Model</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; line-height: 1.8; color: #333; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; border-radius: 15px 15px 0 0; }
+        .header h1 { font-size: 2.5em; }
+        .nav { background: #2c3e50; padding: 15px 40px; display: flex; justify-content: space-between; }
+        .nav a { color: white; text-decoration: none; padding: 8px 15px; border-radius: 5px; }
+        .content { padding: 40px; }
+        h2 { color: #667eea; margin-top: 40px; margin-bottom: 20px; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+        h3 { color: #764ba2; margin-top: 30px; margin-bottom: 15px; }
+        pre { background: #2d2d2d; color: #f8f8f2; padding: 20px; border-radius: 8px; overflow-x: auto; margin: 20px 0; }
+        .highlight-box { background: #f8f9fa; border-left: 5px solid #667eea; padding: 20px; margin: 20px 0; }
+        .success-box { background: #d4edda; border-left: 5px solid #28a745; padding: 20px; margin: 20px 0; }
+        ul { margin-left: 30px; margin-bottom: 20px; }
+        .footer { background: #2c3e50; color: white; text-align: center; padding: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📘 Module 07: Page Object Model (POM)</h1>
+            <p>Design Pattern for Maintainable Test Automation</p>
+        </div>
+        <div class="nav">
+            <a href="06-advanced-interactions.html">← Previous</a>
+            <a href="index.html">🏠 Home</a>
+            <a href="08-testng.html">Next →</a>
+        </div>
+        <div class="content">
+            <h2>🎯 What is Page Object Model?</h2>
+            <p>Page Object Model (POM) is a design pattern that creates an object repository for web elements. Each web page is represented as a class, and the elements on that page are defined as variables. All interactions with the page are defined as methods.</p>
+
+            <div class="highlight-box">
+                <h3>✅ Benefits of POM:</h3>
+                <ul>
+                    <li><strong>Maintainability:</strong> Changes in UI require updates in one place</li>
+                    <li><strong>Reusability:</strong> Page classes can be reused across tests</li>
+                    <li><strong>Readability:</strong> Test code is cleaner and easier to understand</li>
+                    <li><strong>Separation of Concerns:</strong> Test logic separated from page interactions</li>
+                </ul>
+            </div>
+
+            <h2>🏗️ POM Structure</h2>
+            <pre><code>src/
+├── main/java/
+│   └── com/orangehrm/
+│       ├── pages/
+│       │   ├── LoginPage.java
+│       │   ├── HomePage.java
+│       │   └── DashboardPage.java
+│       ├── base/
+│       │   └── BaseClass.java
+│       └── actiondriver/
+│           └── ActionDriver.java
+└── test/java/
+    └── com/orangehrm/test/
+        ├── LoginPageTest.java
+        └── HomePageTest.java</code></pre>
+
+            <h2>📄 LoginPage Example</h2>
+            <pre><code>package com.orangehrm.pages;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import com.orangehrm.actiondriver.ActionDriver;
+
+public class LoginPage {
+    
+    private ActionDriver actionDriver;
+    
+    // Define locators
+    private By usernameField = By.name("username");
+    private By passwordField = By.name("password");
+    private By loginButton = By.xpath("//button[@type='submit']");
+    private By errorMessage = By.xpath("//p[text()='Invalid credentials']");
+    
+    // Constructor
+    public LoginPage(WebDriver driver) {
+        this.actionDriver = new ActionDriver(driver);
+    }
+    
+    // Page actions
+    public void enterUsername(String username) {
+        actionDriver.enterText(usernameField, username);
+    }
+    
+    public void enterPassword(String password) {
+        actionDriver.enterText(passwordField, password);
+    }
+    
+    public void clickLogin() {
+        actionDriver.click(loginButton);
+    }
+    
+    // Combined action
+    public HomePage login(String username, String password) {
+        enterUsername(username);
+        enterPassword(password);
+        clickLogin();
+        return new HomePage(driver); // Return next page
+    }
+    
+    // Verification methods
+    public boolean isErrorMessageDisplayed() {
+        return actionDriver.isDisplayed(errorMessage);
+    }
+    
+    public String getErrorMessageText() {
+        return actionDriver.getText(errorMessage);
+    }
+}</code></pre>
+
+            <h2>🧪 Test Class Example</h2>
+            <pre><code>package com.orangehrm.test;
+
+import org.testng.Assert;
+import org.testng.annotations.Test;
+import com.orangehrm.base.BaseClass;
+import com.orangehrm.pages.LoginPage;
+import com.orangehrm.pages.HomePage;
+
+public class LoginPageTest extends BaseClass {
+    
+    private LoginPage loginPage;
+    private HomePage homePage;
+    
+    @BeforeMethod
+    public void setupPages() {
+        loginPage = new LoginPage(driver);
+        homePage = new HomePage(driver);
+    }
+    
+    @Test
+    public void testValidLogin() {
+        homePage = loginPage.login("Admin", "admin123");
+        Assert.assertTrue(homePage.isAdminTabVisible(), 
+            "Admin tab should be visible after login");
+    }
+    
+    @Test
+    public void testInvalidLogin() {
+        loginPage.login("Invalid", "Invalid");
+        Assert.assertTrue(loginPage.isErrorMessageDisplayed(), 
+            "Error message should be displayed");
+        Assert.assertEquals(loginPage.getErrorMessageText(), 
+            "Invalid credentials");
+    }
+}</code></pre>
+
+            <h2>🏭 PageFactory Pattern</h2>
+            <p>PageFactory is a class that supports POM by initializing web elements using annotations.</p>
+            <pre><code>import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+
+public class LoginPage {
+    
+    private WebDriver driver;
+    
+    // Define elements using @FindBy
+    @FindBy(name = "username")
+    private WebElement usernameField;
+    
+    @FindBy(name = "password")
+    private WebElement passwordField;
+    
+    @FindBy(xpath = "//button[@type='submit']")
+    private WebElement loginButton;
+    
+    // Constructor with PageFactory initialization
+    public LoginPage(WebDriver driver) {
+        this.driver = driver;
+        PageFactory.initElements(driver, this);
+    }
+    
+    // Page actions
+    public void login(String username, String password) {
+        usernameField.clear();
+        usernameField.sendKeys(username);
+        passwordField.clear();
+        passwordField.sendKeys(password);
+        loginButton.click();
+    }
+}</code></pre>
+
+            <h2>📋 @FindBy Annotations</h2>
+            <pre><code>// By ID
+@FindBy(id = "username")
+private WebElement usernameField;
+
+// By Name
+@FindBy(name = "password")
+private WebElement passwordField;
+
+// By ClassName
+@FindBy(className = "btn-submit")
+private WebElement submitButton;
+
+// By XPath
+@FindBy(xpath = "//button[@type='submit']")
+private WebElement loginButton;
+
+// By CSS
+@FindBy(css = "input[name='email']")
+private WebElement emailField;
+
+// By LinkText
+@FindBy(linkText = "Forgot Password?")
+private WebElement forgotPasswordLink;
+
+// By PartialLinkText
+@FindBy(partialLinkText = "Forgot")
+private WebElement forgotLink;
+
+// List of elements
+@FindBy(tagName = "a")
+private List&lt;WebElement&gt; allLinks;</code></pre>
+
+            <h2>✅ POM Best Practices</h2>
+            <div class="success-box">
+                <ul>
+                    <li>One page class per web page</li>
+                    <li>Keep locators private and methods public</li>
+                    <li>Return next page object from navigation methods</li>
+                    <li>Use meaningful method names (login, clickSubmit, etc.)</li>
+                    <li>Don't include assertions in page classes</li>
+                    <li>Create separate utility classes for common actions</li>
+                    <li>Use ActionDriver/BasePage for reusable methods</li>
+                    <li>Keep test logic in test classes, not page classes</li>
+                </ul>
+            </div>
+
+            <h2>📝 Summary</h2>
+            <p>Page Object Model is essential for creating maintainable, scalable test automation frameworks. It separates page structure from test logic, making code easier to maintain and reuse.</p>
+
+            <div class="highlight-box">
+                <h4>🎯 Next Steps:</h4>
+                <p>Continue to <strong>Module 08: TestNG Framework</strong> to learn test organization, annotations, and parallel execution.</p>
+                <p><a href="08-testng.html" style="color: #667eea; font-weight: bold;">Continue →</a></p>
+            </div>
+        </div>
+        <div class="footer">
+            <p>Module 07: Page Object Model | © 2025 Selenium Documentation</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>10 - Reporting and Logging</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; line-height: 1.8; color: #333; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; border-radius: 15px 15px 0 0; }
+        .header h1 { font-size: 2.5em; }
+        .nav { background: #2c3e50; padding: 15px 40px; display: flex; justify-content: space-between; }
+        .nav a { color: white; text-decoration: none; padding: 8px 15px; }
+        .content { padding: 40px; }
+        h2 { color: #667eea; margin-top: 40px; margin-bottom: 20px; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+        h3 { color: #764ba2; margin-top: 30px; }
+        pre { background: #2d2d2d; color: #f8f8f2; padding: 20px; border-radius: 8px; overflow-x: auto; margin: 20px 0; }
+        .highlight-box { background: #f8f9fa; border-left: 5px solid #667eea; padding: 20px; margin: 20px 0; }
+        ul { margin-left: 30px; margin-bottom: 20px; }
+        .footer { background: #2c3e50; color: white; text-align: center; padding: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📘 Module 10: Reporting & Logging</h1>
+            <p>Extent Reports, Log4j Integration & Screenshots</p>
+        </div>
+        <div class="nav">
+            <a href="09-data-driven-testing.html">← Previous</a>
+            <a href="index.html">🏠 Home</a>
+            <a href="11-framework-architecture.html">Next →</a>
+        </div>
+        <div class="content">
+            <h2>📊 Extent Reports</h2>
+            <p>Extent Reports is a comprehensive HTML reporting library for test automation. It provides rich, interactive, and visually appealing test reports.</p>
+
+            <h3>Maven Dependency:</h3>
+            <pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;com.aventstack&lt;/groupId&gt;
+    &lt;artifactId&gt;extentreports&lt;/artifactId&gt;
+    &lt;version&gt;5.1.2&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+
+            <h2>🎨 ExtentManager Class</h2>
+            <pre><code>import com.aventstack.extentreports.*;
+import com.aventstack.extentreports.reporter.ExtentSparkReporter;
+
+public class ExtentManager {
+    
+    private static ExtentReports extent;
+    private static ThreadLocal&lt;ExtentTest&gt; test = new ThreadLocal&lt;&gt;();
+    
+    public static ExtentReports getReporter() {
+        if(extent == null) {
+            String reportPath = System.getProperty("user.dir") + 
+                "/test-output/ExtentReport.html";
+            
+            ExtentSparkReporter sparkReporter = new ExtentSparkReporter(reportPath);
+            sparkReporter.config().setDocumentTitle("Automation Report");
+            sparkReporter.config().setReportName("Test Execution Report");
+            
+            extent = new ExtentReports();
+            extent.attachReporter(sparkReporter);
+            extent.setSystemInfo("OS", System.getProperty("os.name"));
+            extent.setSystemInfo("Browser", "Chrome");
+            extent.setSystemInfo("Tester", "QA Team");
+        }
+        return extent;
+    }
+    
+    public static void startTest(String testName) {
+        ExtentTest extentTest = extent.createTest(testName);
+        test.set(extentTest);
+    }
+    
+    public static void logStep(String message) {
+        test.get().log(Status.INFO, message);
+    }
+    
+    public static void logPass(String message) {
+        test.get().log(Status.PASS, message);
+    }
+    
+    public static void logFail(String message) {
+        test.get().log(Status.FAIL, message);
+    }
+    
+    public static void logStepWithScreenshot(WebDriver driver, 
+                                             String stepName, String details) {
+        try {
+            TakesScreenshot ts = (TakesScreenshot) driver;
+            String screenshot = ts.getScreenshotAs(OutputType.BASE64);
+            test.get().info(stepName + ": " + details, 
+                MediaEntityBuilder.createScreenCaptureFromBase64String(screenshot).build());
+        } catch(Exception e) {
+            test.get().info(stepName + ": " + details);
+        }
+    }
+    
+    public static void endTest() {
+        extent.flush();
+    }
+}</code></pre>
+
+            <h2>👂 TestListener with Extent Reports</h2>
+            <pre><code>import org.testng.*;
+
+public class TestListener implements ITestListener {
+    
+    @Override
+    public void onStart(ITestContext context) {
+        ExtentManager.getReporter();
+    }
+    
+    @Override
+    public void onTestStart(ITestResult result) {
+        ExtentManager.startTest(result.getMethod().getMethodName());
+        ExtentManager.logStep("Test Started: " + result.getName());
+    }
+    
+    @Override
+    public void onTestSuccess(ITestResult result) {
+        ExtentManager.logPass("Test Passed: " + result.getName());
+    }
+    
+    @Override
+    public void onTestFailure(ITestResult result) {
+        ExtentManager.logFail("Test Failed: " + result.getName());
+        ExtentManager.logFail("Error: " + result.getThrowable());
+        
+        // Take screenshot on failure
+        ITestContext context = result.getTestContext();
+        WebDriver driver = (WebDriver) context.getAttribute("driver");
+        if(driver != null) {
+            ExtentManager.logStepWithScreenshot(driver, 
+                "Failure Screenshot", "Test failed");
+        }
+    }
+    
+    @Override
+    public void onFinish(ITestContext context) {
+        ExtentManager.endTest();
+    }
+}</code></pre>
+
+            <h2>📝 Log4j2 Integration</h2>
+            <p>Log4j2 is a logging framework that helps track application flow and debug issues.</p>
+
+            <h3>Maven Dependencies:</h3>
+            <pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.logging.log4j&lt;/groupId&gt;
+    &lt;artifactId&gt;log4j-api&lt;/artifactId&gt;
+    &lt;version&gt;2.24.3&lt;/version&gt;
+&lt;/dependency&gt;
+
+&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.logging.log4j&lt;/groupId&gt;
+    &lt;artifactId&gt;log4j-core&lt;/artifactId&gt;
+    &lt;version&gt;2.24.3&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+
+            <h3>log4j2.xml Configuration:</h3>
+            <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;Configuration status="WARN"&gt;
+    &lt;Appenders&gt;
+        &lt;Console name="Console" target="SYSTEM_OUT"&gt;
+            &lt;PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/&gt;
+        &lt;/Console&gt;
+        
+        &lt;File name="File" fileName="logs/app.log"&gt;
+            &lt;PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5level %logger{36} - %msg%n"/&gt;
+        &lt;/File&gt;
+    &lt;/Appenders&gt;
+    
+    &lt;Loggers&gt;
+        &lt;Root level="info"&gt;
+            &lt;AppenderRef ref="Console"/&gt;
+            &lt;AppenderRef ref="File"/&gt;
+        &lt;/Root&gt;
+    &lt;/Loggers&gt;
+&lt;/Configuration&gt;</code></pre>
+
+            <h3>Using Logger in Code:</h3>
+            <pre><code>import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+public class BaseClass {
+    
+    public static final Logger logger = LogManager.getLogger(BaseClass.class);
+    
+    @BeforeMethod
+    public void setup() {
+        logger.info("Starting test execution");
+        logger.debug("Debug message");
+        logger.warn("Warning message");
+        logger.error("Error message");
+        logger.fatal("Fatal error message");
+    }
+}</code></pre>
+
+            <h2>📸 Screenshot Utility</h2>
+            <pre><code>import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.*;
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class ScreenshotUtil {
+    
+    public static String captureScreenshot(WebDriver driver, String testName) {
+        try {
+            TakesScreenshot ts = (TakesScreenshot) driver;
+            File source = ts.getScreenshotAs(OutputType.FILE);
+            
+            String timestamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")
+                .format(new Date());
+            String destination = System.getProperty("user.dir") + 
+                "/screenshots/" + testName + "_" + timestamp + ".png";
+            
+            File finalDestination = new File(destination);
+            FileUtils.copyFile(source, finalDestination);
+            
+            return destination;
+        } catch(Exception e) {
+            System.out.println("Exception while taking screenshot: " + e.getMessage());
+            return null;
+        }
+    }
+}</code></pre>
+
+            <h2>📝 Summary</h2>
+            <p>Effective reporting and logging are essential for test analysis and debugging. Extent Reports provide visual reports, while Log4j2 enables detailed application logging.</p>
+
+            <div class="highlight-box">
+                <h4>🎯 Next Steps:</h4>
+                <p>Continue to <strong>Module 11: Framework Architecture</strong> to understand complete framework design.</p>
+                <p><a href="11-framework-architecture.html" style="color: #667eea; font-weight: bold;">Continue →</a></p>
+            </div>
+        </div>
+        <div class="footer">
+            <p>Module 10: Reporting & Logging | © 2025 Selenium Documentation</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>03 - Locator Strategies</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; color: #333; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .nav { background: #2c3e50; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; }
+        .nav a { color: white; text-decoration: none; padding: 8px 15px; border-radius: 5px; transition: background 0.3s; }
+        .nav a:hover { background: rgba(255,255,255,0.1); }
+        .content { padding: 40px; }
+        h2 { color: #667eea; margin-top: 40px; margin-bottom: 20px; font-size: 2em; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+        h3 { color: #764ba2; margin-top: 30px; margin-bottom: 15px; font-size: 1.5em; }
+        h4 { color: #555; margin-top: 20px; margin-bottom: 10px; font-size: 1.2em; }
+        p { margin-bottom: 15px; text-align: justify; }
+        .highlight-box { background: #f8f9fa; border-left: 5px solid #667eea; padding: 20px; margin: 20px 0; border-radius: 5px; }
+        .warning-box { background: #fff3cd; border-left: 5px solid #ffc107; padding: 20px; margin: 20px 0; border-radius: 5px; }
+        .success-box { background: #d4edda; border-left: 5px solid #28a745; padding: 20px; margin: 20px 0; border-radius: 5px; }
+        .info-box { background: #d1ecf1; border-left: 5px solid #17a2b8; padding: 20px; margin: 20px 0; border-radius: 5px; }
+        code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; color: #c7254e; }
+        pre { background: #2d2d2d; color: #f8f8f2; padding: 20px; border-radius: 8px; overflow-x: auto; margin: 20px 0; border-left: 5px solid #667eea; }
+        pre code { background: none; color: #f8f8f2; padding: 0; }
+        ul, ol { margin-left: 30px; margin-bottom: 20px; }
+        li { margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        th { background: #667eea; color: white; padding: 15px; text-align: left; }
+        td { padding: 15px; border-bottom: 1px solid #ddd; }
+        tr:hover { background: #f5f5f5; }
+        .footer { background: #2c3e50; color: white; text-align: center; padding: 20px; margin-top: 40px; }
+        .html-example { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 15px 0; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📘 Module 03: Locator Strategies</h1>
+            <p>Mastering Element Identification Techniques in Selenium</p>
+        </div>
+        <div class="nav">
+            <a href="02-webdriver-basics.html">← Previous: WebDriver Basics</a>
+            <a href="index.html">🏠 Home</a>
+            <a href="04-web-element-interactions.html">Next: Element Interactions →</a>
+        </div>
+        <div class="content">
+            <h2>🎯 What are Locators?</h2>
+            <p>Locators are the way to identify and interact with web elements on a webpage. They act as addresses that tell Selenium which element to perform actions on. Choosing the right locator strategy is crucial for creating reliable and maintainable test automation scripts.</p>
+            
+            <div class="highlight-box">
+                <h4>🔑 Why Locators are Important</h4>
+                <ul>
+                    <li><strong>Element Identification:</strong> Uniquely identify elements on the page</li>
+                    <li><strong>Test Reliability:</strong> Good locators make tests less brittle</li>
+                    <li><strong>Maintenance:</strong> Easy-to-understand locators simplify updates</li>
+                    <li><strong>Performance:</strong> Efficient locators improve test execution speed</li>
+                </ul>
+            </div>
+
+            <h2>📋 Types of Locators</h2>
+            <p>Selenium provides 8 different locator strategies:</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Locator</th>
+                        <th>Syntax</th>
+                        <th>Speed</th>
+                        <th>Reliability</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>ID</td><td><code>By.id()</code></td><td>⚡ Very Fast</td><td>⭐⭐⭐⭐⭐</td></tr>
+                    <tr><td>Name</td><td><code>By.name()</code></td><td>⚡ Fast</td><td>⭐⭐⭐⭐</td></tr>
+                    <tr><td>Class Name</td><td><code>By.className()</code></td><td>⚡ Fast</td><td>⭐⭐⭐</td></tr>
+                    <tr><td>Tag Name</td><td><code>By.tagName()</code></td><td>⚡ Fast</td><td>⭐⭐</td></tr>
+                    <tr><td>Link Text</td><td><code>By.linkText()</code></td><td>⚡ Fast</td><td>⭐⭐⭐⭐</td></tr>
+                    <tr><td>Partial Link Text</td><td><code>By.partialLinkText()</code></td><td>⚡ Fast</td><td>⭐⭐⭐</td></tr>
+                    <tr><td>CSS Selector</td><td><code>By.cssSelector()</code></td><td>⚡ Fast</td><td>⭐⭐⭐⭐⭐</td></tr>
+                    <tr><td>XPath</td><td><code>By.xpath()</code></td><td>🐌 Slower</td><td>⭐⭐⭐⭐⭐</td></tr>
+                </tbody>
+            </table>
+
+            <h2>1️⃣ ID Locator</h2>
+            <p>The <strong>ID</strong> attribute is the most preferred locator as it's unique and fast. HTML IDs should be unique on a page.</p>
+            
+            <div class="html-example">
+                <strong>HTML:</strong><br>
+                <code>&lt;input type="text" id="username" name="user"&gt;</code>
+            </div>
+
+            <pre><code>// Locate by ID
+WebElement usernameField = driver.findElement(By.id("username"));
+usernameField.sendKeys("admin");</code></pre>
+
+            <div class="success-box">
+                <h4>✅ Advantages:</h4>
+                <ul>
+                    <li>Fastest locator strategy</li>
+                    <li>Most reliable (IDs should be unique)</li>
+                    <li>Easy to read and maintain</li>
+                </ul>
+                <h4>❌ Limitations:</h4>
+                <ul>
+                    <li>Not all elements have IDs</li>
+                    <li>Dynamic IDs may change on each page load</li>
+                </ul>
+            </div>
+
+            <h2>2️⃣ Name Locator</h2>
+            <p>The <strong>Name</strong> attribute is commonly used in form elements.</p>
+            
+            <div class="html-example">
+                <strong>HTML:</strong><br>
+                <code>&lt;input type="password" name="password"&gt;</code>
+            </div>
+
+            <pre><code>// Locate by Name
+WebElement passwordField = driver.findElement(By.name("password"));
+passwordField.sendKeys("admin123");</code></pre>
+
+            <h2>3️⃣ Class Name Locator</h2>
+            <p>Locates elements by their CSS class name. Note: Multiple elements can share the same class.</p>
+            
+            <div class="html-example">
+                <strong>HTML:</strong><br>
+                <code>&lt;button class="btn-submit primary"&gt;Submit&lt;/button&gt;</code>
+            </div>
+
+            <pre><code>// Locate by Class Name (use single class only)
+WebElement submitButton = driver.findElement(By.className("btn-submit"));</code></pre>
+
+            <div class="warning-box">
+                <p><strong>⚠️ Important:</strong> When using <code>By.className()</code>, you can only specify ONE class name, not multiple classes separated by spaces.</p>
+            </div>
+
+            <h2>4️⃣ Tag Name Locator</h2>
+            <p>Locates elements by their HTML tag name. Useful when you want all elements of a certain type.</p>
+            
+            <pre><code>// Find all links on the page
+List&lt;WebElement&gt; allLinks = driver.findElements(By.tagName("a"));
+System.out.println("Total links: " + allLinks.size());
+
+// Find all input fields
+List&lt;WebElement&gt; allInputs = driver.findElements(By.tagName("input"));</code></pre>
+
+            <h2>5️⃣ Link Text Locator</h2>
+            <p>Specifically for anchor tags (&lt;a&gt;). Finds links by their exact visible text.</p>
+            
+            <div class="html-example">
+                <strong>HTML:</strong><br>
+                <code>&lt;a href="/login"&gt;Click Here to Login&lt;/a&gt;</code>
+            </div>
+
+            <pre><code>// Locate by exact link text
+WebElement loginLink = driver.findElement(By.linkText("Click Here to Login"));
+loginLink.click();</code></pre>
+
+            <h2>6️⃣ Partial Link Text Locator</h2>
+            <p>Similar to Link Text, but matches partial text in links.</p>
+            
+            <pre><code>// Locate by partial link text
+WebElement loginLink = driver.findElement(By.partialLinkText("Login"));
+loginLink.click();</code></pre>
+
+            <h2>7️⃣ CSS Selector</h2>
+            <p>CSS Selectors are powerful and fast. They use CSS syntax to locate elements.</p>
+
+            <h3>CSS Selector Syntax:</h3>
+            
+            <table>
+                <thead>
+                    <tr><th>Pattern</th><th>Example</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>#id</code></td><td><code>#username</code></td><td>Select by ID</td></tr>
+                    <tr><td><code>.class</code></td><td><code>.btn-primary</code></td><td>Select by class</td></tr>
+                    <tr><td><code>tag</code></td><td><code>input</code></td><td>Select by tag name</td></tr>
+                    <tr><td><code>[attribute=value]</code></td><td><code>[type='text']</code></td><td>Select by attribute</td></tr>
+                    <tr><td><code>tag.class</code></td><td><code>input.form-control</code></td><td>Tag with class</td></tr>
+                    <tr><td><code>tag#id</code></td><td><code>input#username</code></td><td>Tag with ID</td></tr>
+                    <tr><td><code>parent &gt; child</code></td><td><code>div &gt; input</code></td><td>Direct child</td></tr>
+                    <tr><td><code>parent descendant</code></td><td><code>form input</code></td><td>Any descendant</td></tr>
+                </tbody>
+            </table>
+
+            <h3>CSS Selector Examples:</h3>
+            <pre><code>// By ID
+driver.findElement(By.cssSelector("#username"));
+
+// By Class
+driver.findElement(By.cssSelector(".btn-submit"));
+
+// By Attribute
+driver.findElement(By.cssSelector("input[name='email']"));
+
+// Tag with class
+driver.findElement(By.cssSelector("button.btn-primary"));
+
+// Multiple classes
+driver.findElement(By.cssSelector(".btn.btn-primary.active"));
+
+// Contains attribute value
+driver.findElement(By.cssSelector("input[id*='user']"));
+
+// Starts with
+driver.findElement(By.cssSelector("input[id^='txt']"));
+
+// Ends with
+driver.findElement(By.cssSelector("input[id$='name']"));
+
+// Direct child
+driver.findElement(By.cssSelector("div.form-group > input"));
+
+// nth-child
+driver.findElement(By.cssSelector("ul li:nth-child(2)"));</code></pre>
+
+            <h2>8️⃣ XPath</h2>
+            <p>XPath is the most powerful and flexible locator strategy. It can traverse both forward and backward in the DOM.</p>
+
+            <h3>Types of XPath:</h3>
+            
+            <h4>A. Absolute XPath (Not Recommended)</h4>
+            <p>Starts from the root and traverses through every node. Brittle and breaks easily.</p>
+            <pre><code>// Absolute XPath - Avoid this!
+/html/body/div[1]/div[2]/form/input[1]</code></pre>
+
+            <h4>B. Relative XPath (Recommended)</h4>
+            <p>Starts from any node and searches in the DOM tree. More flexible and reliable.</p>
+            <pre><code>// Relative XPath - Use this!
+//input[@id='username']
+//button[text()='Login']</code></pre>
+
+            <h3>XPath Syntax Guide:</h3>
+
+            <table>
+                <thead>
+                    <tr><th>Syntax</th><th>Example</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>//tag[@attribute='value']</code></td><td><code>//input[@id='email']</code></td><td>Basic XPath</td></tr>
+                    <tr><td><code>//tag[text()='value']</code></td><td><code>//button[text()='Submit']</code></td><td>By text content</td></tr>
+                    <tr><td><code>//tag[contains(@attr,'value')]</code></td><td><code>//input[contains(@id,'user')]</code></td><td>Contains</td></tr>
+                    <tr><td><code>//tag[starts-with(@attr,'value')]</code></td><td><code>//input[starts-with(@id,'txt')]</code></td><td>Starts with</td></tr>
+                    <tr><td><code>//tag[@attr1='v1' and @attr2='v2']</code></td><td><code>//input[@type='text' and @name='user']</code></td><td>AND condition</td></tr>
+                    <tr><td><code>//tag[@attr1='v1' or @attr2='v2']</code></td><td><code>//input[@id='user' or @name='user']</code></td><td>OR condition</td></tr>
+                    <tr><td><code>//parent//child</code></td><td><code>//form//input</code></td><td>Descendant</td></tr>
+                    <tr><td><code>//child/parent::parent</code></td><td><code>//input/parent::div</code></td><td>Parent</td></tr>
+                </tbody>
+            </table>
+
+            <h3>XPath Axes:</h3>
+            <pre><code>// Following sibling
+//label[@for='username']/following-sibling::input
+
+// Preceding sibling
+//input[@id='password']/preceding-sibling::label
+
+// Parent
+//input[@id='username']/parent::div
+
+// Ancestor
+//input[@id='username']/ancestor::form
+
+// Following
+//label[text()='Username']/following::input[1]
+
+// Child
+//form/child::input[@type='text']</code></pre>
+
+            <h3>XPath Advanced Examples:</h3>
+            <pre><code>// Text contains
+//button[contains(text(),'Submit')]
+
+// Multiple attributes
+//input[@type='text' and @name='username']
+
+// Index-based
+//form/input[2]  // Second input in form
+(//input[@type='text'])[3]  // Third text input on page
+
+// Last element
+//ul/li[last()]
+
+// Position less than
+//ul/li[position() < 3]
+
+// Normalize space (handles extra spaces)
+//button[normalize-space(text())='Login']
+
+// Not condition
+//input[@type='text' and not(@disabled)]</code></pre>
+
+            <h2>🆕 Selenium 4: Relative Locators</h2>
+            <p>Selenium 4 introduced Relative Locators (Friendly Locators) that allow you to find elements based on their position relative to other elements.</p>
+
+            <h3>Relative Locator Methods:</h3>
+            <ul>
+                <li><code>above()</code> - Element above the specified element</li>
+                <li><code>below()</code> - Element below the specified element</li>
+                <li><code>toLeftOf()</code> - Element to the left</li>
+                <li><code>toRightOf()</code> - Element to the right</li>
+                <li><code>near()</code> - Element within 50 pixels</li>
+            </ul>
+
+            <pre><code>import static org.openqa.selenium.support.locators.RelativeLocator.with;
+
+// Find element above another element
+WebElement passwordField = driver.findElement(By.id("password"));
+WebElement usernameField = driver.findElement(
+    with(By.tagName("input")).above(passwordField)
+);
+
+// Find element below
+WebElement submitButton = driver.findElement(
+    with(By.tagName("button")).below(passwordField)
+);
+
+// Find element to the right
+WebElement cancelButton = driver.findElement(
+    with(By.tagName("button")).toRightOf(submitButton)
+);
+
+// Find element near (within 50 pixels)
+WebElement label = driver.findElement(
+    with(By.tagName("label")).near(usernameField)
+);
+
+// Chain multiple conditions
+WebElement element = driver.findElement(
+    with(By.tagName("button"))
+        .below(usernameField)
+        .toRightOf(passwordField)
+);</code></pre>
+
+            <h2>🎯 Locator Strategy Selection Guide</h2>
+
+            <div class="info-box">
+                <h4>Priority Order (Best to Least):</h4>
+                <ol>
+                    <li><strong>ID:</strong> If element has unique ID</li>
+                    <li><strong>Name:</strong> For form elements with unique names</li>
+                    <li><strong>CSS Selector:</strong> Fast and flexible</li>
+                    <li><strong>XPath:</strong> When CSS can't solve the problem</li>
+                    <li><strong>Link Text:</strong> For links with unique text</li>
+                    <li><strong>Class Name:</strong> When class is unique</li>
+                    <li><strong>Tag Name:</strong> For finding multiple elements</li>
+                </ol>
+            </div>
+
+            <h2>⚖️ XPath vs CSS Selector</h2>
+
+            <table>
+                <thead>
+                    <tr><th>Feature</th><th>XPath</th><th>CSS Selector</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Speed</td><td>Slower</td><td>Faster</td></tr>
+                    <tr><td>Direction</td><td>Forward & Backward</td><td>Forward only</td></tr>
+                    <tr><td>Text matching</td><td>Yes (text())</td><td>No (limited)</td></tr>
+                    <tr><td>Parent traversal</td><td>Yes</td><td>No</td></tr>
+                    <tr><td>Complex logic</td><td>More powerful</td><td>Limited</td></tr>
+                    <tr><td>Readability</td><td>Can be complex</td><td>More readable</td></tr>
+                    <tr><td>IE Support</td><td>Good</td><td>Limited in older IE</td></tr>
+                </tbody>
+            </table>
+
+            <h2>🔍 Finding Multiple Elements</h2>
+            <pre><code>// findElements() returns List&lt;WebElement&gt;
+List&lt;WebElement&gt; allLinks = driver.findElements(By.tagName("a"));
+System.out.println("Total links: " + allLinks.size());
+
+// Iterate through elements
+for(WebElement link : allLinks) {
+    System.out.println("Link text: " + link.getText());
+    System.out.println("Link URL: " + link.getAttribute("href"));
+}
+
+// Find all elements with specific class
+List&lt;WebElement&gt; buttons = driver.findElements(By.className("btn"));
+
+// XPath for multiple elements
+List&lt;WebElement&gt; checkboxes = 
+    driver.findElements(By.xpath("//input[@type='checkbox']"));</code></pre>
+
+            <h2>🛠️ Browser Developer Tools for Locators</h2>
+
+            <h3>Chrome DevTools:</h3>
+            <ol>
+                <li>Right-click on element → Inspect</li>
+                <li>In Elements tab, right-click on HTML → Copy → Copy XPath/CSS Selector</li>
+                <li>Use Console: <code>$x("xpath")</code> or <code>$$("css")</code></li>
+            </ol>
+
+            <h3>Testing Locators in Console:</h3>
+            <pre><code>// Test XPath in console
+$x("//input[@id='username']")
+
+// Test CSS Selector in console
+$$("input#username")
+
+// Count matching elements
+$x("//a").length
+$$("a").length</code></pre>
+
+            <h2>✅ Best Practices</h2>
+
+            <div class="success-box">
+                <ol>
+                    <li><strong>Prefer ID when available:</strong> Most reliable and fastest</li>
+                    <li><strong>Use CSS over XPath when possible:</strong> Better performance</li>
+                    <li><strong>Avoid absolute XPath:</strong> Very brittle</li>
+                    <li><strong>Create readable locators:</strong> Makes maintenance easier</li>
+                    <li><strong>Use unique attributes:</strong> id, name, data-testid</li>
+                    <li><strong>Avoid using indexes:</strong> [1], [2] can break easily</li>
+                    <li><strong>Test locators in browser console:</strong> Verify before coding</li>
+                    <li><strong>Use contains() for dynamic IDs:</strong> Handle changing parts</li>
+                    <li><strong>Document complex locators:</strong> Add comments explaining logic</li>
+                    <li><strong>Work with developers:</strong> Request test-specific attributes</li>
+                </ol>
+            </div>
+
+            <h2>❌ Common Mistakes to Avoid</h2>
+
+            <div class="warning-box">
+                <ul>
+                    <li><strong>Using generated absolute XPath:</strong> Breaks with UI changes</li>
+                    <li><strong>Multiple class names in className():</strong> Use CSS instead</li>
+                    <li><strong>Not verifying locator uniqueness:</strong> May select wrong element</li>
+                    <li><strong>Hardcoding indexes without validation:</strong> Fragile locators</li>
+                    <li><strong>Ignoring dynamic content:</strong> IDs/classes may change</li>
+                    <li><strong>Over-complicated locators:</strong> Hard to maintain</li>
+                </ul>
+            </div>
+
+            <h2>🎓 Practical Examples from Real Application</h2>
+
+            <h3>OrangeHRM Login Page Locators:</h3>
+            <pre><code>// Username field
+By username = By.name("username");
+// OR
+By username = By.cssSelector("input[name='username']");
+// OR
+By username = By.xpath("//input[@name='username']");
+
+// Password field
+By password = By.name("password");
+
+// Login button
+By loginButton = By.cssSelector("button[type='submit']");
+// OR
+By loginButton = By.xpath("//button[@type='submit']");
+
+// Error message
+By errorMsg = By.cssSelector("p.oxd-alert-content-text");
+// OR
+By errorMsg = By.xpath("//p[@class='oxd-alert-content-text']");</code></pre>
+
+            <h2>📝 Summary</h2>
+            <p>In this module, we explored all 8 locator strategies in Selenium, learned XPath and CSS Selector syntax, and discovered Selenium 4's relative locators. Choosing the right locator is crucial for building reliable and maintainable test automation.</p>
+
+            <p><strong>Key Takeaways:</strong></p>
+            <ul>
+                <li>ID is the fastest and most reliable locator when available</li>
+                <li>CSS Selectors are faster than XPath for most scenarios</li>
+                <li>XPath provides more power and flexibility (parent traversal, text matching)</li>
+                <li>Relative Locators in Selenium 4 simplify location based on element positions</li>
+                <li>Always test locators in browser console before implementation</li>
+                <li>Avoid absolute XPath and prefer relative XPath with unique attributes</li>
+            </ul>
+
+            <div class="highlight-box" style="margin-top: 40px;">
+                <h4>🎯 Next Steps:</h4>
+                <p>In the next module, we'll learn <strong>WebElement Interactions</strong> - how to perform actions on elements like clicking, typing text, selecting dropdowns, and more.</p>
+                <p style="margin-top: 15px;">
+                    <a href="04-web-element-interactions.html" style="color: #667eea; font-weight: bold; text-decoration: none;">
+                        Continue to Module 04: WebElement Interactions →
+                    </a>
+                </p>
+            </div>
+        </div>
+        <div class="footer">
+            <p>Module 03: Locator Strategies | © 2025 Selenium Documentation</p>
+        </div>
+    </div>
+</body>
+</html>
