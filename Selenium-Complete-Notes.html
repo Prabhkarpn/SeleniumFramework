@@ -1,0 +1,2418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Selenium Complete Notes - Beginner Friendly Guide</title>
+<style>
+  /* =========================================================
+     Selenium Complete Notes - Stylesheet
+     Designed for beginners. Clean. Print-friendly. Self-contained.
+     ========================================================= */
+  :root {
+    --bg: #f7f8fb;
+    --panel: #ffffff;
+    --ink: #1f2937;
+    --ink-soft: #4b5563;
+    --muted: #6b7280;
+    --brand: #2563eb;
+    --brand-dark: #1d4ed8;
+    --accent: #f59e0b;
+    --green: #16a34a;
+    --red: #dc2626;
+    --purple: #7c3aed;
+    --code-bg: #0f172a;
+    --code-ink: #e2e8f0;
+    --code-key: #93c5fd;
+    --code-str: #fcd34d;
+    --code-com: #94a3b8;
+    --border: #e5e7eb;
+    --shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+  }
+
+  /* Layout: sidebar + content */
+  .layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    min-height: 100vh;
+  }
+  aside.toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100vh;
+    overflow-y: auto;
+    background: #0b1220;
+    color: #cbd5e1;
+    padding: 24px 18px;
+    border-right: 1px solid #1e293b;
+  }
+  aside.toc h2 {
+    color: #fff;
+    font-size: 18px;
+    margin: 0 0 6px;
+  }
+  aside.toc .sub {
+    color: #94a3b8;
+    font-size: 12px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid #1e293b;
+    padding-bottom: 10px;
+  }
+  aside.toc ol { list-style: none; padding: 0; margin: 0; counter-reset: m; }
+  aside.toc ol li {
+    counter-increment: m;
+    margin: 2px 0;
+  }
+  aside.toc ol li a {
+    display: block;
+    color: #cbd5e1;
+    text-decoration: none;
+    padding: 7px 10px;
+    border-radius: 6px;
+    font-size: 13.5px;
+    transition: background 0.15s, color 0.15s;
+  }
+  aside.toc ol li a::before {
+    content: counter(m, decimal-leading-zero) ". ";
+    color: #64748b;
+    font-weight: 600;
+    margin-right: 4px;
+  }
+  aside.toc ol li a:hover { background: #1e293b; color: #fff; }
+  aside.toc ol li a.active { background: var(--brand); color: #fff; }
+
+  main {
+    padding: 40px 56px 80px;
+    max-width: 1100px;
+    width: 100%;
+  }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+    color: #fff;
+    padding: 40px 36px;
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    margin-bottom: 36px;
+  }
+  .hero h1 {
+    margin: 0 0 8px;
+    font-size: 34px;
+    line-height: 1.2;
+  }
+  .hero p {
+    margin: 4px 0;
+    opacity: 0.95;
+  }
+  .hero .badges { margin-top: 14px; }
+  .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    margin-right: 6px;
+  }
+
+  /* Sections / typography */
+  section.module {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 32px 36px;
+    margin-bottom: 28px;
+    box-shadow: var(--shadow);
+    scroll-margin-top: 20px;
+  }
+  section.module h2 {
+    font-size: 26px;
+    margin-top: 0;
+    color: var(--brand-dark);
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 12px;
+  }
+  section.module h3 {
+    margin-top: 28px;
+    font-size: 19px;
+    color: #111827;
+  }
+  section.module h4 {
+    margin-top: 18px;
+    font-size: 16px;
+    color: #1f2937;
+  }
+  p { color: var(--ink-soft); margin: 10px 0; }
+  ul, ol { color: var(--ink-soft); }
+  ul li, ol li { margin: 4px 0; }
+  strong { color: var(--ink); }
+  a { color: var(--brand); }
+  code {
+    background: #eef2ff;
+    color: #4338ca;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+    font-size: 13.5px;
+  }
+  pre {
+    background: var(--code-bg);
+    color: var(--code-ink);
+    padding: 16px 18px;
+    border-radius: 10px;
+    overflow-x: auto;
+    line-height: 1.55;
+    font-size: 13.5px;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+  }
+  pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+  }
+  pre .k { color: var(--code-key); }
+  pre .s { color: var(--code-str); }
+  pre .c { color: var(--code-com); font-style: italic; }
+  pre .t { color: #6ee7b7; }
+
+  /* Callout boxes */
+  .callout {
+    border-left: 4px solid var(--brand);
+    background: #eff6ff;
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin: 16px 0;
+    color: #1e3a8a;
+  }
+  .callout.tip { border-color: var(--green); background: #ecfdf5; color: #065f46; }
+  .callout.warn { border-color: var(--red); background: #fef2f2; color: #7f1d1d; }
+  .callout.real { border-color: var(--accent); background: #fffbeb; color: #78350f; }
+  .callout.iv { border-color: var(--purple); background: #f5f3ff; color: #4c1d95; }
+  .callout .label {
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 14.5px;
+  }
+  th, td {
+    text-align: left;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+  }
+  th {
+    background: #f1f5f9;
+    color: #0f172a;
+  }
+  tr:nth-child(even) td { background: #fafafa; }
+
+  /* Concept template (What/Why/Real life/How/Mistakes) */
+  .concept {
+    background: #fafbff;
+    border: 1px solid #e0e7ff;
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin: 18px 0;
+  }
+  .concept h4 { margin-top: 6px; color: var(--brand-dark); }
+  .concept .tag {
+    display: inline-block;
+    background: var(--brand);
+    color: #fff;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 99px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+  }
+
+  /* Diagrams */
+  .diagram {
+    background: #0f172a;
+    color: #cbd5e1;
+    font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+    padding: 18px;
+    border-radius: 10px;
+    white-space: pre;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 14px 0;
+  }
+
+  /* Two-column comparison */
+  .twocol {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 14px 0;
+  }
+  .twocol .col {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    background: #fcfcfd;
+  }
+  .twocol .col h5 { margin: 0 0 8px; }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    color: var(--muted);
+    padding: 24px;
+    font-size: 13px;
+  }
+
+  @media (max-width: 1000px) {
+    .layout { grid-template-columns: 1fr; }
+    aside.toc {
+      position: relative;
+      height: auto;
+      max-height: 50vh;
+    }
+    main { padding: 24px; }
+    .twocol { grid-template-columns: 1fr; }
+  }
+
+  @media print {
+    aside.toc { display: none; }
+    main { padding: 0; }
+    section.module { box-shadow: none; page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ====================== SIDEBAR TOC ====================== -->
+  <aside class="toc">
+    <h2>Selenium Notes</h2>
+    <div class="sub">Beginner-friendly, end-to-end</div>
+    <ol>
+      <li><a href="#m1">What is Software Testing?</a></li>
+      <li><a href="#m2">Manual vs Automation Testing</a></li>
+      <li><a href="#m3">What is Selenium?</a></li>
+      <li><a href="#m4">Java Essentials for Selenium</a></li>
+      <li><a href="#m5">Environment Setup</a></li>
+      <li><a href="#m6">Your First Selenium Test</a></li>
+      <li><a href="#m7">HTML &amp; DOM Basics</a></li>
+      <li><a href="#m8">Locators (Deep Dive)</a></li>
+      <li><a href="#m9">XPath &amp; CSS Selectors</a></li>
+      <li><a href="#m10">WebDriver Commands</a></li>
+      <li><a href="#m11">Synchronization (Waits)</a></li>
+      <li><a href="#m12">Dropdowns, Alerts, Frames, Windows</a></li>
+      <li><a href="#m13">Mouse &amp; Keyboard Actions</a></li>
+      <li><a href="#m14">Screenshots, JS Executor, Files</a></li>
+      <li><a href="#m15">TestNG Framework</a></li>
+      <li><a href="#m16">Page Object Model (POM)</a></li>
+      <li><a href="#m17">Maven Build Tool</a></li>
+      <li><a href="#m18">Logging with Log4j2</a></li>
+      <li><a href="#m19">Reporting with ExtentReports</a></li>
+      <li><a href="#m20">Data-Driven Testing (Excel)</a></li>
+      <li><a href="#m21">Database Validation</a></li>
+      <li><a href="#m22">API Testing Basics</a></li>
+      <li><a href="#m23">Git, GitHub &amp; CI/CD</a></li>
+      <li><a href="#m24">Best Practices</a></li>
+      <li><a href="#m25">Interview Q&amp;A</a></li>
+      <li><a href="#m26">Glossary</a></li>
+    </ol>
+  </aside>
+
+  <!-- ====================== MAIN CONTENT ====================== -->
+  <main>
+    <div class="hero">
+      <h1>Selenium Complete Notes</h1>
+      <p>A friendly, no-jargon guide for absolute beginners.</p>
+      <p>From "What is testing?" to building a real automation framework like the one in this repo.</p>
+      <div class="badges">
+        <span class="badge">Beginner Friendly</span>
+        <span class="badge">Real-life Analogies</span>
+        <span class="badge">Hands-on Code</span>
+        <span class="badge">Interview Ready</span>
+      </div>
+    </div>
+
+    <div class="callout">
+      <span class="label">How to use these notes</span>
+      Read top-to-bottom. Each module follows the same pattern: <strong>What it is &rarr; Why we need it &rarr; A real-life example &rarr; How to do it in code &rarr; Common mistakes</strong>.
+      Whenever you see a yellow box, that's a real-life analogy to help you imagine the concept. Whenever you see a green box, that's a tip. Red boxes are warnings. Purple boxes are interview questions.
+    </div>
+
+    <div class="callout tip">
+      <span class="label">Want more depth?</span>
+      Open <a href="Selenium-Deep-Dive.html"><strong>Selenium-Deep-Dive.html</strong></a> &mdash; the companion file that goes much deeper on every topic with worked examples, practice exercises, debugging recipes, and a step-by-step "build a framework from scratch" guide.
+    </div>
+
+    <!-- ============ MODULE 1: What is Testing? ============ -->
+    <section class="module" id="m1">
+      <h2>1. What is Software Testing?</h2>
+
+      <p>Imagine you bought a brand new mobile phone. Before you start using it daily, what do you do? You <em>check</em> it &mdash; does the camera work? Does the speaker work? Can you make a call? You are <strong>testing</strong> the phone before relying on it.</p>
+
+      <p><strong>Software Testing</strong> is exactly the same idea, but for software (websites, mobile apps, APIs). It's the process of checking whether the software does what it's <em>supposed</em> to do, and does <em>not</em> do what it's not supposed to do.</p>
+
+      <div class="callout real">
+        <span class="label">Real-life analogy</span>
+        Think of a <strong>chef in a restaurant</strong>. Before serving a dish to customers, the chef tastes it &mdash; is the salt right? Is it cooked properly? Is the temperature good? If the chef serves a bad dish, the restaurant loses customers. Similarly, if a company releases buggy software, it loses users and money. Testers are the "chefs who taste the dish before customers eat it."
+      </div>
+
+      <h3>Why is Testing Important?</h3>
+      <ul>
+        <li><strong>Money:</strong> A bug in a payment website can charge users twice. That's lost money and lost trust.</li>
+        <li><strong>Reputation:</strong> If your shopping app crashes during the Diwali sale, customers will switch to a competitor.</li>
+        <li><strong>Safety:</strong> Some software runs hospitals, flights, cars. A bug there can cost lives.</li>
+        <li><strong>Compliance:</strong> Banks, insurance, healthcare must pass strict quality checks by law.</li>
+      </ul>
+
+      <div class="callout real">
+        <span class="label">Famous real-world bugs</span>
+        <ul>
+          <li><strong>Ariane 5 rocket (1996)</strong> &mdash; exploded 37 seconds after launch due to a software bug. Cost: ~$370 million.</li>
+          <li><strong>Knight Capital (2012)</strong> &mdash; bad software deployed to trading servers lost $440 million in 45 minutes.</li>
+          <li>Daily examples: an e-commerce site shows price as zero, a banking app sends OTP to wrong number, a video call drops every 2 minutes.</li>
+        </ul>
+      </div>
+
+      <h3>Types of Testing (the big picture)</h3>
+      <table>
+        <tr><th>Type</th><th>What it checks</th><th>Simple example</th></tr>
+        <tr><td>Functional</td><td>Does the feature work?</td><td>Does "Login" button log me in?</td></tr>
+        <tr><td>UI</td><td>Does it look right?</td><td>Is the logo visible? Are buttons aligned?</td></tr>
+        <tr><td>Performance</td><td>Is it fast enough?</td><td>Does the homepage load in under 3 seconds with 1000 users?</td></tr>
+        <tr><td>Security</td><td>Is it safe?</td><td>Can a hacker steal my password?</td></tr>
+        <tr><td>Compatibility</td><td>Does it work everywhere?</td><td>Does it work on Chrome, Edge, Firefox, mobile?</td></tr>
+        <tr><td>Regression</td><td>Did the new change break old features?</td><td>After adding "Forgot Password", does normal login still work?</td></tr>
+      </table>
+
+      <div class="callout tip">
+        <span class="label">Selenium fits where?</span>
+        Selenium is mainly for <strong>Functional, UI, Compatibility, and Regression</strong> testing of <strong>web applications</strong>. It cannot test mobile apps directly (use Appium), it cannot do load testing (use JMeter), and it cannot test APIs alone (use Rest Assured / Postman).
+      </div>
+
+      <h3>Who does testing?</h3>
+      <ul>
+        <li><strong>Developer</strong> &mdash; tests their own code (unit tests).</li>
+        <li><strong>Manual QA Tester</strong> &mdash; clicks through the app like a real user, finds bugs.</li>
+        <li><strong>Automation QA / SDET</strong> &mdash; writes code that simulates a user. <em>This is what we are learning.</em></li>
+        <li><strong>End User</strong> &mdash; the final test (UAT &mdash; User Acceptance Testing).</li>
+      </ul>
+    </section>
+
+    <!-- ============ MODULE 2: Manual vs Automation ============ -->
+    <section class="module" id="m2">
+      <h2>2. Manual vs Automation Testing</h2>
+
+      <p>Let me explain with a story. Imagine your manager asks you to verify that a website's login works correctly &mdash; with valid credentials, invalid credentials, empty username, empty password, special characters, very long username, etc. That's about 20 cases.</p>
+
+      <p>You can do this two ways:</p>
+
+      <div class="twocol">
+        <div class="col">
+          <h5>Manual Testing</h5>
+          <p>Open Chrome, type the URL, type username, type password, click login, see the result, write it down. Repeat 20 times. Tomorrow, the developer fixes a bug, you do it <em>all over again</em>. Every release. Every browser. Forever.</p>
+        </div>
+        <div class="col">
+          <h5>Automation Testing</h5>
+          <p>You write a small program once. The program opens Chrome, types username, types password, clicks login, checks the result, and reports pass/fail. Tomorrow, you click "Run" and the program does it again in 10 seconds. On Edge too. On Firefox too.</p>
+        </div>
+      </div>
+
+      <div class="callout real">
+        <span class="label">Real-life analogy</span>
+        <strong>Manual = washing dishes by hand.</strong> Works fine if you have 5 plates. But if you have 500 plates every day, you'll be exhausted and slow. <strong>Automation = a dishwasher.</strong> You spend time setting it up, but once it works, it cleans 500 plates while you have lunch.
+      </div>
+
+      <h3>When to automate vs when not to?</h3>
+      <table>
+        <tr><th>Good candidates for automation</th><th>Better to do manually</th></tr>
+        <tr><td>Repetitive tests run every release (regression)</td><td>One-time exploratory testing</td></tr>
+        <tr><td>Stable features that don't change often</td><td>Features that change every week</td></tr>
+        <tr><td>Tests that need to run on multiple browsers</td><td>UI look-and-feel checks (humans see better)</td></tr>
+        <tr><td>Performance-style smoke tests</td><td>Usability / "does it feel nice?" testing</td></tr>
+      </table>
+
+      <h3>Pros &amp; Cons</h3>
+      <ul>
+        <li><strong>Automation Pros:</strong> Fast, repeatable, runs at night, consistent (no human typo), can simulate thousands of users (with right tools).</li>
+        <li><strong>Automation Cons:</strong> Initial cost (you must write code), maintenance (when UI changes, scripts break), cannot judge "looks ugly", needs technical skills.</li>
+      </ul>
+
+      <div class="callout warn">
+        <span class="label">Important misconception</span>
+        Automation is <strong>not a replacement for manual testing</strong>. It's a partner. A good QA team uses both. Automation handles the boring repeated stuff, humans handle exploration, creativity, and judgment.
+      </div>
+    </section>
+
+    <!-- ============ MODULE 3: What is Selenium? ============ -->
+    <section class="module" id="m3">
+      <h2>3. What is Selenium?</h2>
+
+      <p>In one line: <strong>Selenium is a free, open-source tool that lets you control a web browser using code.</strong></p>
+
+      <p>That's it. When you write Selenium code, your program does what you would normally do with your hand and mouse: open a browser, type a URL, click a button, fill a form, read text, take a screenshot.</p>
+
+      <div class="callout real">
+        <span class="label">Real-life analogy</span>
+        Imagine you have a <strong>robot hand</strong> sitting next to your computer. You give it instructions in English: "Open Chrome, go to gmail.com, type my email, type my password, click Sign In." The robot does it. Selenium is exactly that &mdash; a robot hand for the browser, but you give instructions in code (Java, Python, etc.).
+      </div>
+
+      <h3>Why Selenium became popular</h3>
+      <ul>
+        <li><strong>Free</strong> &mdash; no license cost (vs. paid tools like UFT/QTP that cost lakhs).</li>
+        <li><strong>Open source</strong> &mdash; huge community, tons of help on Stack Overflow.</li>
+        <li><strong>Multiple languages</strong> &mdash; Java, Python, C#, JavaScript, Ruby, Kotlin.</li>
+        <li><strong>Multiple browsers</strong> &mdash; Chrome, Firefox, Edge, Safari, Opera.</li>
+        <li><strong>Multiple OS</strong> &mdash; Windows, Mac, Linux.</li>
+        <li><strong>Integrates with everything</strong> &mdash; TestNG, JUnit, Maven, Jenkins, Docker, GitHub Actions, ExtentReports, log4j&hellip;</li>
+      </ul>
+
+      <h3>The Selenium Family</h3>
+      <p>Selenium is not <em>one</em> tool. It's a family of tools. You will mostly use Selenium WebDriver in your career, but it helps to know all four.</p>
+
+      <table>
+        <tr><th>Component</th><th>What it does</th><th>Beginner analogy</th></tr>
+        <tr>
+          <td><strong>Selenium IDE</strong></td>
+          <td>A browser plugin (Chrome/Firefox). You record your clicks, it generates a test you can replay. No coding needed.</td>
+          <td>Like a tape recorder &mdash; record once, replay forever. Good for demos, weak for real projects.</td>
+        </tr>
+        <tr>
+          <td><strong>Selenium RC</strong> (Remote Control)</td>
+          <td>The old version (deprecated). Used a "server" to control browsers via JavaScript injection.</td>
+          <td>Like an old Nokia phone &mdash; once popular, now retired. Don't worry about it.</td>
+        </tr>
+        <tr>
+          <td><strong>Selenium WebDriver</strong></td>
+          <td>The main hero. A library you import in your code. Talks <em>directly</em> to the browser using its native automation API.</td>
+          <td>Like a smartphone &mdash; modern, powerful, what we use today.</td>
+        </tr>
+        <tr>
+          <td><strong>Selenium Grid</strong></td>
+          <td>Lets you run tests in parallel on multiple machines / browsers.</td>
+          <td>Like a call-center with many agents &mdash; instead of 1 test at a time, run 100 in parallel.</td>
+        </tr>
+      </table>
+
+      <h3>How Selenium WebDriver works (under the hood)</h3>
+      <div class="diagram">
+   Your Java Code
+   (e.g. driver.findElement().click())
+          |
+          v
+  +-------------------+    HTTP (JSON)    +------------------+    Native     +-------------+
+  | Selenium Java     | ----------------> | Browser Driver   | ------------> | Real Browser|
+  | Client Library    |   "click element" | (e.g. ChromeDr.) |  automation   |  (Chrome)   |
+  +-------------------+ <---------------- +------------------+ <------------ +-------------+
+                          response (json)
+      </div>
+      <ol>
+        <li>You write code: <code>driver.findElement(By.id("login")).click();</code></li>
+        <li>The Selenium client library converts that into an HTTP request (a small JSON message).</li>
+        <li>That request is sent to a <strong>Browser Driver</strong> &mdash; a small executable like <code>chromedriver.exe</code>.</li>
+        <li>The driver speaks the browser's native automation language and tells the browser to click.</li>
+        <li>The browser responds, the driver sends the response back, your code continues.</li>
+      </ol>
+
+      <div class="callout tip">
+        <span class="label">Good news</span>
+        From <strong>Selenium 4.6+</strong>, you don't need to download chromedriver/edgedriver/geckodriver manually anymore. Selenium ships with <em>Selenium Manager</em> which downloads the right driver automatically. (Your repo uses <code>selenium-java 4.28.1</code> &mdash; you're on the modern stack.)
+      </div>
+
+      <h3>What Selenium can do</h3>
+      <ul>
+        <li>Open/close browsers, navigate URLs, refresh, back, forward.</li>
+        <li>Find any element on a web page (button, input, link).</li>
+        <li>Click, type, select dropdown, drag-and-drop, hover, right-click.</li>
+        <li>Read text, attribute values, CSS properties.</li>
+        <li>Handle alerts, popups, frames, multiple browser tabs.</li>
+        <li>Take screenshots, execute JavaScript, manage cookies.</li>
+      </ul>
+
+      <h3>What Selenium <em>cannot</em> do</h3>
+      <ul>
+        <li>Cannot test desktop apps (use WinAppDriver, Pywinauto).</li>
+        <li>Cannot test mobile apps (use <strong>Appium</strong>).</li>
+        <li>Cannot read CAPTCHA / OTP / barcodes.</li>
+        <li>Cannot do performance / load testing on its own (use JMeter, Gatling).</li>
+        <li>Cannot test bitmap content like videos, games rendered on canvas.</li>
+      </ul>
+
+      <div class="callout iv">
+        <span class="label">Interview question</span>
+        <strong>Q: What is the difference between Selenium and QTP/UFT?</strong><br/>
+        Selenium is free, open-source, supports many languages and many browsers, but only does web. QTP/UFT (now MicroFocus UFT One) is paid, supports VBScript only, and can do desktop + web + some mobile. Industry has largely shifted to Selenium for cost and flexibility.
+      </div>
+    </section>
+
+    <!-- MORE MODULES APPENDED BELOW -->
+
+
+
+    <!-- ============ MODULE 4: Java Essentials ============ -->
+    <section class="module" id="m4">
+      <h2>4. Java Essentials You Need for Selenium</h2>
+
+      <p>You don't need to be a Java <em>master</em> to do Selenium. But you must be comfortable with about 10 core ideas. Let's go through them quickly.</p>
+
+      <div class="callout real">
+        <span class="label">Real-life analogy</span>
+        Java is just a <strong>language</strong> &mdash; like English. To order food at a restaurant, you don't need to know Shakespeare's English; you just need 200 useful words. Similarly, for Selenium you don't need <em>all</em> of Java &mdash; just the basics below.
+      </div>
+
+      <h3>4.1 Variables &amp; Data Types</h3>
+      <p>A variable is a <em>named box</em> that holds a value. The data type tells what kind of value goes in the box.</p>
+<pre><code><span class="k">String</span> name = <span class="s">"Prabhakar"</span>;     <span class="c">// text</span>
+<span class="k">int</span> age = 28;                      <span class="c">// whole number</span>
+<span class="k">double</span> salary = 45000.50;          <span class="c">// decimal number</span>
+<span class="k">boolean</span> isLoggedIn = <span class="k">true</span>;       <span class="c">// true/false</span>
+<span class="k">char</span> grade = <span class="s">'A'</span>;                  <span class="c">// single character</span>
+</code></pre>
+
+      <h3>4.2 Operators</h3>
+      <ul>
+        <li>Arithmetic: <code>+ &nbsp; - &nbsp; * &nbsp; / &nbsp; %</code></li>
+        <li>Comparison: <code>== &nbsp; != &nbsp; &gt; &nbsp; &lt; &nbsp; &gt;= &nbsp; &lt;=</code></li>
+        <li>Logical: <code>&amp;&amp; (AND) &nbsp; || (OR) &nbsp; ! (NOT)</code></li>
+      </ul>
+
+      <h3>4.3 Conditional Statements (if / else)</h3>
+<pre><code><span class="k">if</span> (age &gt;= 18) {
+    System.out.println(<span class="s">"Allowed"</span>);
+} <span class="k">else</span> {
+    System.out.println(<span class="s">"Not allowed"</span>);
+}
+</code></pre>
+
+      <h3>4.4 Loops</h3>
+      <p>Loops repeat actions. Used a lot in Selenium &mdash; e.g., "loop through all rows of a table".</p>
+<pre><code><span class="c">// for loop &mdash; when you know how many times</span>
+<span class="k">for</span> (<span class="k">int</span> i = 1; i &lt;= 5; i++) {
+    System.out.println(<span class="s">"Row "</span> + i);
+}
+
+<span class="c">// while loop &mdash; when you don't know how many times</span>
+<span class="k">while</span> (!loginButton.isDisplayed()) {
+    Thread.sleep(500);
+}
+</code></pre>
+
+      <h3>4.5 Arrays &amp; Collections</h3>
+      <p>An array / list stores <em>many</em> values together. Selenium often returns lists of elements.</p>
+<pre><code><span class="c">// Array (fixed size)</span>
+<span class="k">String</span>[] browsers = {<span class="s">"chrome"</span>, <span class="s">"edge"</span>, <span class="s">"firefox"</span>};
+
+<span class="c">// ArrayList (grows dynamically) - more common</span>
+List&lt;<span class="k">String</span>&gt; users = <span class="k">new</span> ArrayList&lt;&gt;();
+users.add(<span class="s">"alice"</span>);
+users.add(<span class="s">"bob"</span>);
+</code></pre>
+
+      <h3>4.6 Methods (Functions)</h3>
+      <p>A method is a <em>reusable block of code</em>. Give it a name, call it whenever you need.</p>
+<pre><code><span class="k">public void</span> login(<span class="k">String</span> user, <span class="k">String</span> pass) {
+    driver.findElement(By.name(<span class="s">"username"</span>)).sendKeys(user);
+    driver.findElement(By.name(<span class="s">"password"</span>)).sendKeys(pass);
+    driver.findElement(By.xpath(<span class="s">"//button[@type='submit']"</span>)).click();
+}
+
+<span class="c">// Call it</span>
+login(<span class="s">"Admin"</span>, <span class="s">"admin123"</span>);
+</code></pre>
+
+      <h3>4.7 Classes &amp; Objects (OOP)</h3>
+      <p>A <strong>class</strong> is a blueprint. An <strong>object</strong> is the actual thing made from the blueprint.</p>
+
+      <div class="callout real">
+        <span class="label">Real-life analogy</span>
+        A <strong>"Car" class</strong> is the blueprint with attributes (color, brand, speed) and behaviors (start, stop, accelerate). When you actually buy "my red Honda" and "your white Toyota", those are <strong>objects</strong> made from the Car blueprint.
+      </div>
+
+<pre><code><span class="k">public class</span> Car {
+    <span class="k">String</span> color;
+    <span class="k">String</span> brand;
+
+    <span class="k">public void</span> start() {
+        System.out.println(brand + <span class="s">" started"</span>);
+    }
+}
+
+<span class="c">// Create an object (instance) of the class</span>
+Car myCar = <span class="k">new</span> Car();
+myCar.brand = <span class="s">"Honda"</span>;
+myCar.start();    <span class="c">// Honda started</span>
+</code></pre>
+
+      <h3>4.8 The 4 Pillars of OOP (in 1 line each)</h3>
+      <ul>
+        <li><strong>Encapsulation</strong> &mdash; hide variables, expose only methods. (Use <code>private</code> + getters/setters.)</li>
+        <li><strong>Inheritance</strong> &mdash; one class reuses another (<code>class HomePageTest <em>extends</em> BaseClass</code>).</li>
+        <li><strong>Polymorphism</strong> &mdash; same method name, different behavior (<code>WebDriver driver = new ChromeDriver();</code>).</li>
+        <li><strong>Abstraction</strong> &mdash; show only what's needed, hide complexity (interface <code>WebDriver</code> hides browser internals).</li>
+      </ul>
+
+      <div class="callout tip">
+        <span class="label">Where you'll see this in your framework</span>
+        Your <code>BaseClass.java</code> is the parent. Your test classes like <code>LoginPageTest</code> use <code>extends BaseClass</code> &mdash; that's <strong>Inheritance</strong>. Your locators in <code>LoginPage</code> are <code>private</code> &mdash; that's <strong>Encapsulation</strong>. The line <code>WebDriver driver = new ChromeDriver();</code> &mdash; that's <strong>Polymorphism</strong> (interface holding implementation reference).
+      </div>
+
+      <h3>4.9 Exception Handling (try-catch)</h3>
+      <p>Sometimes code fails &mdash; element not found, network error, etc. We <em>catch</em> the failure so the program doesn't crash.</p>
+<pre><code><span class="k">try</span> {
+    driver.findElement(By.id(<span class="s">"login"</span>)).click();
+} <span class="k">catch</span> (Exception e) {
+    System.out.println(<span class="s">"Login button missing: "</span> + e.getMessage());
+}
+</code></pre>
+
+      <h3>4.10 String Operations</h3>
+<pre><code><span class="k">String</span> s = <span class="s">"Hello World"</span>;
+s.length();          <span class="c">// 11</span>
+s.toUpperCase();     <span class="c">// "HELLO WORLD"</span>
+s.contains(<span class="s">"World"</span>); <span class="c">// true</span>
+s.equals(<span class="s">"hello"</span>);   <span class="c">// false (case-sensitive)</span>
+s.equalsIgnoreCase(<span class="s">"HELLO WORLD"</span>); <span class="c">// true</span>
+s.trim();            <span class="c">// removes spaces from both ends</span>
+s.split(<span class="s">" "</span>);        <span class="c">// {"Hello","World"}</span>
+</code></pre>
+
+      <div class="callout iv">
+        <span class="label">Interview question</span>
+        <strong>Q: Difference between == and .equals() in Java?</strong><br/>
+        <code>==</code> compares <em>memory addresses</em>. <code>.equals()</code> compares <em>actual content</em>. For Strings always use <code>.equals()</code> or <code>.equalsIgnoreCase()</code>.
+      </div>
+    </section>
+
+    <!-- ============ MODULE 5: Environment Setup ============ -->
+    <section class="module" id="m5">
+      <h2>5. Environment Setup</h2>
+
+      <p>Before writing tests, we need to set up our "kitchen". Here's the full shopping list:</p>
+
+      <table>
+        <tr><th>Software</th><th>Why</th><th>Where to download</th></tr>
+        <tr><td>JDK 17 or newer</td><td>To compile &amp; run Java code</td><td>oracle.com or adoptium.net</td></tr>
+        <tr><td>Eclipse / IntelliJ IDEA</td><td>The "editor" where we write code</td><td>eclipse.org / jetbrains.com</td></tr>
+        <tr><td>Maven (built-in to Eclipse)</td><td>Manages our libraries (Selenium, TestNG, etc.)</td><td>maven.apache.org</td></tr>
+        <tr><td>Chrome / Edge / Firefox</td><td>Browsers we'll automate</td><td>You already have them</td></tr>
+        <tr><td>TestNG plugin</td><td>Test framework (annotations like <code>@Test</code>)</td><td>Marketplace inside Eclipse</td></tr>
+      </table>
+
+      <h3>Steps (one-time)</h3>
+      <ol>
+        <li><strong>Install JDK</strong> &mdash; Download, install, then set <code>JAVA_HOME</code> and add <code>%JAVA_HOME%\bin</code> to PATH. Verify: <code>java -version</code> in Command Prompt.</li>
+        <li><strong>Install Eclipse IDE for Java Developers</strong>.</li>
+        <li><strong>Install TestNG plugin</strong> &mdash; Eclipse &rarr; Help &rarr; Eclipse Marketplace &rarr; search "TestNG" &rarr; install &rarr; restart.</li>
+        <li><strong>Create a Maven project</strong> &mdash; File &rarr; New &rarr; Maven Project &rarr; choose "maven-archetype-quickstart".</li>
+        <li><strong>Edit pom.xml</strong> to add Selenium, TestNG, etc. (see your repo's <code>pom.xml</code> for the full list).</li>
+      </ol>
+
+      <h3>Your repo's pom.xml dependencies (decoded)</h3>
+      <table>
+        <tr><th>Dependency</th><th>What it gives you</th></tr>
+        <tr><td>selenium-java 4.28.1</td><td>The main Selenium WebDriver library</td></tr>
+        <tr><td>testng 7.10.2</td><td>Test framework: annotations, asserts, parallel execution</td></tr>
+        <tr><td>poi + poi-ooxml 5.4.0</td><td>Read/write Excel files (data-driven tests)</td></tr>
+        <tr><td>log4j-core / log4j-api 2.24.3</td><td>Professional logging (writes to app.log, error.log)</td></tr>
+        <tr><td>extentreports 5.1.2</td><td>Beautiful HTML test reports with screenshots</td></tr>
+        <tr><td>commons-io 2.18.0</td><td>Helper utilities for file operations</td></tr>
+        <tr><td>mysql-connector-j 9.1.0</td><td>Connect to MySQL DB for data validation</td></tr>
+        <tr><td>rest-assured 5.5.1</td><td>API testing (GET, POST, PUT, DELETE)</td></tr>
+      </table>
+
+      <div class="callout tip">
+        <span class="label">No more chromedriver downloads!</span>
+        With Selenium 4.6+, the line <code>new ChromeDriver()</code> automatically downloads the matching driver. Your <code>BaseClass.java</code> uses this approach. Modern, clean.
+      </div>
+
+      <h3>Verify everything works</h3>
+<pre><code><span class="c">// Save as Demo.java, run it</span>
+<span class="k">public class</span> Demo {
+    <span class="k">public static void</span> main(<span class="k">String</span>[] args) {
+        WebDriver driver = <span class="k">new</span> ChromeDriver();
+        driver.get(<span class="s">"https://www.google.com"</span>);
+        System.out.println(driver.getTitle());
+        driver.quit();
+    }
+}
+</code></pre>
+      <p>If Chrome opens, navigates to Google, prints "Google" and closes &mdash; congratulations, your setup is complete!</p>
+
+      <div class="callout warn">
+        <span class="label">Common setup pain points</span>
+        <ul>
+          <li><strong>"java not recognized"</strong> &mdash; PATH not set correctly.</li>
+          <li><strong>"Could not find or load main class"</strong> &mdash; check package declaration matches folder structure.</li>
+          <li><strong>Chrome crashes immediately</strong> &mdash; Chrome browser version is much newer than chromedriver. Update Selenium, or let Selenium Manager handle it.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ MODULE 6: First Test ============ -->
+    <section class="module" id="m6">
+      <h2>6. Your First Selenium Test</h2>
+
+      <p>Let's write the simplest possible Selenium test together, then break down every line.</p>
+
+<pre><code><span class="k">package</span> com.demo;
+
+<span class="k">import</span> org.openqa.selenium.By;
+<span class="k">import</span> org.openqa.selenium.WebDriver;
+<span class="k">import</span> org.openqa.selenium.chrome.ChromeDriver;
+
+<span class="k">public class</span> FirstTest {
+    <span class="k">public static void</span> main(<span class="k">String</span>[] args) <span class="k">throws</span> InterruptedException {
+
+        <span class="c">// 1. Create a browser session</span>
+        WebDriver driver = <span class="k">new</span> ChromeDriver();
+
+        <span class="c">// 2. Maximize the window</span>
+        driver.manage().window().maximize();
+
+        <span class="c">// 3. Navigate to URL</span>
+        driver.get(<span class="s">"https://opensource-demo.orangehrmlive.com"</span>);
+
+        <span class="c">// 4. Find username field, type</span>
+        driver.findElement(By.name(<span class="s">"username"</span>)).sendKeys(<span class="s">"Admin"</span>);
+
+        <span class="c">// 5. Find password field, type</span>
+        driver.findElement(By.name(<span class="s">"password"</span>)).sendKeys(<span class="s">"admin123"</span>);
+
+        <span class="c">// 6. Click the login button</span>
+        driver.findElement(By.xpath(<span class="s">"//button[@type='submit']"</span>)).click();
+
+        <span class="c">// 7. Pause to see result (bad practice but ok for first test)</span>
+        Thread.sleep(3000);
+
+        <span class="c">// 8. Print the page title</span>
+        System.out.println(<span class="s">"Title: "</span> + driver.getTitle());
+
+        <span class="c">// 9. Close everything</span>
+        driver.quit();
+    }
+}
+</code></pre>
+
+      <h3>Line-by-line explanation</h3>
+      <ul>
+        <li><strong>WebDriver driver = new ChromeDriver();</strong> &mdash; Open a new Chrome window controlled by code.</li>
+        <li><strong>driver.manage().window().maximize();</strong> &mdash; Maximize so all elements are visible.</li>
+        <li><strong>driver.get(url);</strong> &mdash; Navigate to a URL (like typing in the address bar).</li>
+        <li><strong>driver.findElement(By.name("..."));</strong> &mdash; Find a single element using a "locator". The locator says "find the element whose <code>name</code> attribute is X".</li>
+        <li><strong>.sendKeys("Admin");</strong> &mdash; Type text into the found element.</li>
+        <li><strong>.click();</strong> &mdash; Click the found element.</li>
+        <li><strong>Thread.sleep(3000);</strong> &mdash; Pause 3 seconds. (We'll replace this with proper waits later.)</li>
+        <li><strong>driver.getTitle();</strong> &mdash; Read the browser tab title.</li>
+        <li><strong>driver.quit();</strong> &mdash; Close the browser AND end the WebDriver session.</li>
+      </ul>
+
+      <div class="callout warn">
+        <span class="label">close() vs quit()</span>
+        <code>driver.close()</code> closes the <em>current tab/window</em> only. <code>driver.quit()</code> closes <em>all windows</em> AND ends the WebDriver session (releases memory, kills the chromedriver.exe process). Always use <code>quit()</code> at end of test.
+      </div>
+    </section>
+
+    <!-- ============ MODULE 7: HTML & DOM ============ -->
+    <section class="module" id="m7">
+      <h2>7. HTML &amp; DOM Basics (5 minutes)</h2>
+
+      <p>To find elements on a web page, you must understand how a web page is built. Don't worry &mdash; you don't need to be a web developer.</p>
+
+      <p>Every web page is written in <strong>HTML</strong>. HTML is a tree of <em>tags</em>. Each tag has <em>attributes</em>.</p>
+
+<pre><code>&lt;<span class="t">html</span>&gt;
+  &lt;<span class="t">body</span>&gt;
+    &lt;<span class="t">h1</span> <span class="k">id</span>=<span class="s">"title"</span>&gt;Welcome&lt;/<span class="t">h1</span>&gt;
+    &lt;<span class="t">input</span> <span class="k">name</span>=<span class="s">"username"</span> <span class="k">type</span>=<span class="s">"text"</span> /&gt;
+    &lt;<span class="t">input</span> <span class="k">name</span>=<span class="s">"password"</span> <span class="k">type</span>=<span class="s">"password"</span> /&gt;
+    &lt;<span class="t">button</span> <span class="k">type</span>=<span class="s">"submit"</span> <span class="k">class</span>=<span class="s">"btn-primary"</span>&gt;Login&lt;/<span class="t">button</span>&gt;
+  &lt;/<span class="t">body</span>&gt;
+&lt;/<span class="t">html</span>&gt;
+</code></pre>
+
+      <ul>
+        <li><strong>Tag</strong> &mdash; the type of element: <code>&lt;h1&gt;, &lt;input&gt;, &lt;button&gt;, &lt;a&gt;, &lt;div&gt;</code>.</li>
+        <li><strong>Attribute</strong> &mdash; extra info: <code>id</code>, <code>name</code>, <code>class</code>, <code>type</code>, <code>href</code>, <code>placeholder</code>.</li>
+        <li><strong>Text</strong> &mdash; visible content between tags: "Welcome", "Login".</li>
+      </ul>
+
+      <p>The <strong>DOM</strong> (Document Object Model) is the browser's internal representation of HTML &mdash; a tree structure. When Selenium "finds an element", it walks the DOM tree.</p>
+
+      <h3>How to inspect elements (essential skill!)</h3>
+      <ol>
+        <li>Open Chrome on any web page.</li>
+        <li>Right-click on the element you want &rarr; <strong>Inspect</strong>.</li>
+        <li>DevTools opens. The selected HTML is highlighted.</li>
+        <li>Read the tag name &amp; attributes (id, name, class, etc.) &mdash; these are your locators.</li>
+      </ol>
+
+      <div class="callout tip">
+        <span class="label">Pro tips for DevTools</span>
+        <ul>
+          <li>Press <code>Ctrl+F</code> in the Elements panel to test XPath/CSS selectors live.</li>
+          <li>Right-click element &rarr; Copy &rarr; Copy XPath (but prefer hand-written XPath &mdash; copied ones break easily).</li>
+          <li>Press <code>F12</code> to open/close DevTools. Press <code>Ctrl+Shift+C</code> to enter "pick" mode.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ MODULE 8: Locators ============ -->
+    <section class="module" id="m8">
+      <h2>8. Locators &mdash; Finding Elements (Most Important Topic!)</h2>
+
+      <div class="callout real">
+        <span class="label">Real-life analogy</span>
+        Imagine your friend asks you to deliver a parcel to "John in Mumbai". That's vague &mdash; there are many Johns. But if she says "John, House #42, 3rd Cross, MG Road, Mumbai" &mdash; now you can find him exactly. <strong>Locators are the address of an element on a web page.</strong>
+      </div>
+
+      <p>Selenium provides <strong>8 types</strong> of locators. Let's see all of them.</p>
+
+      <table>
+        <tr><th>#</th><th>Locator</th><th>Example syntax</th><th>When to use</th></tr>
+        <tr><td>1</td><td>id</td><td><code>By.id("login")</code></td><td>Best, fastest. <em>Use first if available.</em></td></tr>
+        <tr><td>2</td><td>name</td><td><code>By.name("username")</code></td><td>2nd best, very fast.</td></tr>
+        <tr><td>3</td><td>className</td><td><code>By.className("btn-primary")</code></td><td>Single class only (no spaces).</td></tr>
+        <tr><td>4</td><td>tagName</td><td><code>By.tagName("input")</code></td><td>For groups: count all inputs, links.</td></tr>
+        <tr><td>5</td><td>linkText</td><td><code>By.linkText("Logout")</code></td><td>Only for <code>&lt;a&gt;</code> tags &mdash; exact match.</td></tr>
+        <tr><td>6</td><td>partialLinkText</td><td><code>By.partialLinkText("Log")</code></td><td>For <code>&lt;a&gt;</code> tags &mdash; partial match.</td></tr>
+        <tr><td>7</td><td>cssSelector</td><td><code>By.cssSelector("input#login")</code></td><td>Powerful &amp; fast. Recommended.</td></tr>
+        <tr><td>8</td><td>xpath</td><td><code>By.xpath("//button[@type='submit']")</code></td><td>Most powerful. Can go up the DOM. Slower.</td></tr>
+      </table>
+
+      <h3>Priority order (industry best practice)</h3>
+      <ol>
+        <li><strong>id</strong> (if unique) &mdash; #1 choice</li>
+        <li><strong>name</strong> &mdash; #2 choice</li>
+        <li><strong>cssSelector</strong> &mdash; preferred for complex cases</li>
+        <li><strong>xpath</strong> &mdash; last resort, but most flexible</li>
+        <li>Avoid <code>className</code> (often not unique) and <code>tagName</code> (almost never unique alone).</li>
+      </ol>
+
+      <h3>Examples on the OrangeHRM login page (your repo!)</h3>
+<pre><code><span class="c">// HTML on OrangeHRM login page (simplified):</span>
+<span class="c">// &lt;input name="username" placeholder="Username" /&gt;</span>
+<span class="c">// &lt;input name="password" type="password" placeholder="Password" /&gt;</span>
+<span class="c">// &lt;button type="submit"&gt;Login&lt;/button&gt;</span>
+
+<span class="k">By</span> userField  = By.name(<span class="s">"username"</span>);                       <span class="c">// from your LoginPage.java</span>
+<span class="k">By</span> passField  = By.name(<span class="s">"password"</span>);
+<span class="k">By</span> loginBtn   = By.xpath(<span class="s">"//button[@type='submit']"</span>);
+<span class="k">By</span> errorMsg   = By.xpath(<span class="s">"//p[text()='Invalid credentials']"</span>);
+</code></pre>
+
+      <h3>findElement vs findElements</h3>
+      <ul>
+        <li><strong>findElement(...)</strong> &mdash; returns the <em>first</em> matching element. Throws error if none found.</li>
+        <li><strong>findElements(...)</strong> &mdash; returns a <em>list</em> of all matches. Returns empty list if none (no error).</li>
+      </ul>
+
+<pre><code><span class="c">// Count how many links on a page</span>
+List&lt;WebElement&gt; allLinks = driver.findElements(By.tagName(<span class="s">"a"</span>));
+System.out.println(<span class="s">"Total links: "</span> + allLinks.size());
+
+<span class="c">// Loop through all rows of a table</span>
+List&lt;WebElement&gt; rows = driver.findElements(By.xpath(<span class="s">"//table//tr"</span>));
+<span class="k">for</span> (WebElement row : rows) {
+    System.out.println(row.getText());
+}
+</code></pre>
+
+      <div class="callout iv">
+        <span class="label">Interview question</span>
+        <strong>Q: What if findElement doesn't find the element?</strong><br/>
+        It throws <code>NoSuchElementException</code>. With <code>findElements</code>, it returns an empty list &mdash; no exception. So <code>findElements(...).size() == 0</code> is a clean way to check existence.
+      </div>
+    </section>
+
+    <!-- ============ MODULE 9: XPath & CSS ============ -->
+    <section class="module" id="m9">
+      <h2>9. XPath &amp; CSS Selectors (Deep Dive)</h2>
+
+      <p>This is the chapter most students struggle with. Let's go slow.</p>
+
+      <h3>9.1 What is XPath?</h3>
+      <p><strong>XPath = XML Path Language.</strong> It's a query language to navigate an HTML/XML document. Imagine you have a tree, and you want to point at one leaf &mdash; XPath is the "path from root to that leaf".</p>
+
+      <div class="callout real">
+        <span class="label">Real-life analogy</span>
+        XPath is like Google Maps directions: "From your home, go straight, take 2nd left, find the 3rd house on the right." Each step navigates the tree.
+      </div>
+
+      <h3>9.2 Two types of XPath</h3>
+      <table>
+        <tr><th>Type</th><th>Starts with</th><th>Example</th><th>Notes</th></tr>
+        <tr><td><strong>Absolute XPath</strong></td><td><code>/</code> (single slash)</td><td><code>/html/body/div[1]/form/input[1]</code></td><td>Full path from root. <strong>Avoid</strong> &mdash; breaks if any parent changes.</td></tr>
+        <tr><td><strong>Relative XPath</strong></td><td><code>//</code> (double slash)</td><td><code>//input[@name='username']</code></td><td>Searches anywhere. Recommended.</td></tr>
+      </table>
+
+      <h3>9.3 XPath syntax (the formula)</h3>
+<pre><code><span class="c">// Format:</span>
+<span class="c">// //tag[@attribute='value']</span>
+
+<span class="c">// Examples:</span>
+//input[@name='username']
+//button[@type='submit']
+//a[@href='/logout']
+//p[text()='Invalid credentials']     <span class="c">// match by visible text</span>
+//*[@id='loginBtn']                    <span class="c">// * means any tag</span>
+</code></pre>
+
+      <h3>9.4 XPath functions (very useful!)</h3>
+      <table>
+        <tr><th>Function</th><th>What it does</th><th>Example</th></tr>
+        <tr><td><code>contains()</code></td><td>Partial match</td><td><code>//input[contains(@name,'user')]</code></td></tr>
+        <tr><td><code>starts-with()</code></td><td>Match prefix</td><td><code>//input[starts-with(@id,'btn-')]</code></td></tr>
+        <tr><td><code>text()</code></td><td>Match by visible text</td><td><code>//button[text()='Login']</code></td></tr>
+        <tr><td><code>not()</code></td><td>Negate</td><td><code>//input[not(@disabled)]</code></td></tr>
+      </table>
+
+      <h3>9.5 XPath axes (going up, down, sideways)</h3>
+      <p>The killer feature of XPath &mdash; you can go to <em>parent, sibling, ancestor</em> elements. CSS cannot do this!</p>
+<pre><code><span class="c">// From an input, find the label above it (parent's previous div)</span>
+//input[@id='empId']/parent::div/preceding-sibling::div
+
+<span class="c">// From a label "Employee Id", find the next input</span>
+//label[text()='Employee Id']/parent::div/following-sibling::div/input
+
+<span class="c">// (This is exactly the pattern used in your HomePage.java for the empId locator!)</span>
+</code></pre>
+      <p>Common axes: <code>parent::</code>, <code>child::</code>, <code>ancestor::</code>, <code>descendant::</code>, <code>following-sibling::</code>, <code>preceding-sibling::</code>, <code>following::</code>, <code>preceding::</code>.</p>
+
+      <h3>9.6 XPath with index</h3>
+<pre><code>(//div[<span class="k">@class</span>=<span class="s">'oxd-table-card'</span>])[1]   <span class="c">// the 1st matching card</span>
+(//input[<span class="k">@placeholder</span>=<span class="s">'Type for hints...'</span>])[1]  <span class="c">// from your HomePage.java</span>
+</code></pre>
+
+      <h3>9.7 CSS Selectors</h3>
+      <p>CSS selectors are <em>shorter and faster</em> than XPath, but cannot navigate to parent.</p>
+      <table>
+        <tr><th>Pattern</th><th>Meaning</th><th>Example</th></tr>
+        <tr><td><code>#id</code></td><td>By id</td><td><code>#login</code></td></tr>
+        <tr><td><code>.class</code></td><td>By class</td><td><code>.btn-primary</code></td></tr>
+        <tr><td><code>tag</code></td><td>By tag</td><td><code>input</code></td></tr>
+        <tr><td><code>tag[attr='val']</code></td><td>By attribute</td><td><code>input[name='username']</code></td></tr>
+        <tr><td><code>parent &gt; child</code></td><td>Direct child</td><td><code>div &gt; input</code></td></tr>
+        <tr><td><code>parent descendant</code></td><td>Any descendant</td><td><code>form input</code></td></tr>
+        <tr><td><code>tag:nth-child(n)</code></td><td>nth child</td><td><code>li:nth-child(3)</code></td></tr>
+      </table>
+
+      <h3>9.8 Quick comparison &mdash; XPath vs CSS</h3>
+      <div class="twocol">
+        <div class="col">
+          <h5>XPath</h5>
+          <ul>
+            <li>Can go to parent / siblings (axes)</li>
+            <li>Match by visible text easily</li>
+            <li>Slightly slower</li>
+            <li>Verbose syntax</li>
+          </ul>
+        </div>
+        <div class="col">
+          <h5>CSS Selector</h5>
+          <ul>
+            <li>Cannot go to parent</li>
+            <li>Cannot match by text</li>
+            <li>Faster, native browser support</li>
+            <li>Shorter syntax</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout tip">
+        <span class="label">Practical rule</span>
+        <strong>Use CSS for simple cases (id, class, attribute). Use XPath when you need to match by visible text or navigate up the tree.</strong> Both are fine &mdash; pick the one that gives a stable, short locator.
+      </div>
+
+      <div class="callout iv">
+        <span class="label">Interview question</span>
+        <strong>Q: Why is absolute XPath bad?</strong><br/>
+        Because it depends on the full path. If a developer adds even one extra <code>&lt;div&gt;</code> wrapper anywhere in the parent chain, your locator breaks. Relative XPath uses unique attributes which are far more stable.
+      </div>
+    </section>
+
+
+
+
+    <!-- ============ MODULE 10: WebDriver Commands ============ -->
+    <section class="module" id="m10">
+      <h2>10. WebDriver Commands (The Toolbox)</h2>
+
+      <p>Once you have a <code>driver</code> object and have located an element, what can you do with them? Here are the everyday commands grouped by purpose.</p>
+
+      <h3>10.1 Browser commands (driver level)</h3>
+      <table>
+        <tr><th>Command</th><th>What it does</th></tr>
+        <tr><td><code>driver.get(url)</code></td><td>Open a URL (no history)</td></tr>
+        <tr><td><code>driver.navigate().to(url)</code></td><td>Same, but maintains history</td></tr>
+        <tr><td><code>driver.navigate().back()</code></td><td>Browser back button</td></tr>
+        <tr><td><code>driver.navigate().forward()</code></td><td>Browser forward button</td></tr>
+        <tr><td><code>driver.navigate().refresh()</code></td><td>Reload the page</td></tr>
+        <tr><td><code>driver.getTitle()</code></td><td>Tab title</td></tr>
+        <tr><td><code>driver.getCurrentUrl()</code></td><td>Current URL</td></tr>
+        <tr><td><code>driver.getPageSource()</code></td><td>Full HTML of current page</td></tr>
+        <tr><td><code>driver.close()</code></td><td>Close current window</td></tr>
+        <tr><td><code>driver.quit()</code></td><td>Close all windows + end session</td></tr>
+      </table>
+
+      <h3>10.2 Window commands</h3>
+<pre><code>driver.manage().window().maximize();
+driver.manage().window().fullscreen();
+driver.manage().window().minimize();
+driver.manage().window().setSize(<span class="k">new</span> Dimension(1280, 800));
+driver.manage().window().setPosition(<span class="k">new</span> Point(0, 0));
+</code></pre>
+
+      <h3>10.3 Element commands (WebElement level)</h3>
+      <table>
+        <tr><th>Command</th><th>Use</th></tr>
+        <tr><td><code>element.click()</code></td><td>Click button/link</td></tr>
+        <tr><td><code>element.sendKeys("text")</code></td><td>Type into field</td></tr>
+        <tr><td><code>element.clear()</code></td><td>Clear an input</td></tr>
+        <tr><td><code>element.getText()</code></td><td>Visible inner text</td></tr>
+        <tr><td><code>element.getAttribute("href")</code></td><td>Read any attribute</td></tr>
+        <tr><td><code>element.getCssValue("color")</code></td><td>Read computed CSS</td></tr>
+        <tr><td><code>element.isDisplayed()</code></td><td>Visible on screen?</td></tr>
+        <tr><td><code>element.isEnabled()</code></td><td>Not greyed-out?</td></tr>
+        <tr><td><code>element.isSelected()</code></td><td>Checkbox/radio checked?</td></tr>
+        <tr><td><code>element.submit()</code></td><td>Submit a form (alternative to click)</td></tr>
+      </table>
+
+      <h3>10.4 Cookies</h3>
+<pre><code>driver.manage().getCookies();              <span class="c">// all cookies</span>
+driver.manage().getCookieNamed(<span class="s">"session"</span>);
+driver.manage().addCookie(<span class="k">new</span> Cookie(<span class="s">"key"</span>,<span class="s">"value"</span>));
+driver.manage().deleteAllCookies();
+</code></pre>
+
+      <h3>10.5 Real example from your <code>ActionDriver.java</code></h3>
+      <p>Your framework wraps these raw commands inside reusable helper methods. Here is a simplified version of the click + enterText pattern:</p>
+<pre><code><span class="k">public void</span> click(By by) {
+    <span class="k">try</span> {
+        waitForElementToBeClickable(by);
+        driver.findElement(by).click();
+        logger.info(<span class="s">"Clicked: "</span> + by);
+    } <span class="k">catch</span> (Exception e) {
+        logger.error(<span class="s">"Click failed: "</span> + e.getMessage());
+    }
+}
+
+<span class="k">public void</span> enterText(By by, <span class="k">String</span> value) {
+    waitForElementToBeVisible(by);
+    WebElement el = driver.findElement(by);
+    el.clear();
+    el.sendKeys(value);
+}
+</code></pre>
+
+      <div class="callout tip">
+        <span class="label">Why wrap?</span>
+        Because in a real test you call <code>click</code> 100 times. If you wrap it once, you get logging, screenshots, error handling, and waits &mdash; for free, everywhere. <strong>This is what makes a framework professional.</strong>
+      </div>
+    </section>
+
+    <!-- ============ MODULE 11: Waits ============ -->
+    <section class="module" id="m11">
+      <h2>11. Synchronization &mdash; Waits (Critical!)</h2>
+
+      <p>Modern web pages are not "loaded all at once". They load partially, then JavaScript fills in more later (think: spinning loader, then content appears). If Selenium tries to click a button that hasn't loaded yet &rarr; <strong>ElementNotFound or NoSuchElement exception</strong>.</p>
+
+      <p>The fix is to <em>wait</em> for the element to be ready. Selenium gives us 3 wait strategies.</p>
+
+      <div class="callout real">
+        <span class="label">Real-life analogy</span>
+        Imagine you go to a coffee shop. The barista says "1 minute". You have 3 options:
+        <ul>
+          <li><strong>Wait exactly 1 minute</strong> &mdash; even if coffee is ready in 30 seconds, you sit. Wasteful. (= Thread.sleep)</li>
+          <li><strong>Wait until you hear "ready"</strong>, but max 5 minutes. (= Explicit Wait)</li>
+          <li>Tell the barista <strong>"any future order I place, give me 1 min before saying not ready"</strong>. (= Implicit Wait)</li>
+        </ul>
+      </div>
+
+      <h3>11.1 Thread.sleep() &mdash; the wrong way</h3>
+<pre><code>Thread.sleep(5000);   <span class="c">// pauses 5 seconds, no matter what</span>
+</code></pre>
+      <ul>
+        <li><strong>Pros:</strong> simple.</li>
+        <li><strong>Cons:</strong> wastes time when page loads fast; fails when page loads slow. <em>Avoid in real tests.</em></li>
+      </ul>
+
+      <h3>11.2 Implicit Wait &mdash; set once, applies always</h3>
+<pre><code>driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+</code></pre>
+      <p>This tells Selenium: "Whenever I call <code>findElement</code>, if not found immediately, keep retrying for up to 10 seconds." Set <em>once</em>, applies to <em>all</em> findElement calls in the session.</p>
+      <ul>
+        <li><strong>Pros:</strong> set-and-forget.</li>
+        <li><strong>Cons:</strong> only checks "element present in DOM", not "visible" or "clickable". For dynamic UI, not enough.</li>
+      </ul>
+
+      <h3>11.3 Explicit Wait &mdash; wait for a specific condition</h3>
+<pre><code>WebDriverWait wait = <span class="k">new</span> WebDriverWait(driver, Duration.ofSeconds(10));
+
+wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(<span class="s">"login"</span>)));
+wait.until(ExpectedConditions.elementToBeClickable(By.id(<span class="s">"login"</span>)));
+wait.until(ExpectedConditions.titleIs(<span class="s">"Dashboard"</span>));
+wait.until(ExpectedConditions.urlContains(<span class="s">"/home"</span>));
+wait.until(ExpectedConditions.alertIsPresent());
+</code></pre>
+      <p>This is what your <code>ActionDriver.java</code> uses. Most powerful and recommended.</p>
+
+      <h4>Common ExpectedConditions</h4>
+      <table>
+        <tr><th>Condition</th><th>Use case</th></tr>
+        <tr><td>presenceOfElementLocated</td><td>Element exists in DOM (may be hidden)</td></tr>
+        <tr><td>visibilityOfElementLocated</td><td>Element is in DOM AND visible</td></tr>
+        <tr><td>elementToBeClickable</td><td>Visible AND enabled (clickable)</td></tr>
+        <tr><td>invisibilityOfElementLocated</td><td>Wait for spinner/loader to disappear</td></tr>
+        <tr><td>textToBePresentInElement</td><td>Wait for specific text</td></tr>
+        <tr><td>numberOfElementsToBe</td><td>Wait for table row count</td></tr>
+        <tr><td>alertIsPresent</td><td>Wait for JS alert popup</td></tr>
+        <tr><td>frameToBeAvailableAndSwitchToIt</td><td>Wait for iframe</td></tr>
+      </table>
+
+      <h3>11.4 Fluent Wait &mdash; advanced</h3>
+      <p>Like Explicit Wait but with custom polling and ignored exceptions.</p>
+<pre><code>Wait&lt;WebDriver&gt; wait = <span class="k">new</span> FluentWait&lt;&gt;(driver)
+    .withTimeout(Duration.ofSeconds(30))
+    .pollingEvery(Duration.ofMillis(500))
+    .ignoring(NoSuchElementException.class);
+
+wait.until(driver -&gt; driver.findElement(By.id(<span class="s">"result"</span>)));
+</code></pre>
+
+      <div class="callout warn">
+        <span class="label">DO NOT mix Implicit + Explicit Wait!</span>
+        If you set <em>both</em>, the actual wait time can become unpredictable (sometimes adds up, sometimes longer). Best practice: <strong>use Explicit Wait only</strong>. Set Implicit to 0 or skip it.
+      </div>
+
+      <h3>11.5 Page-load wait (used in your framework!)</h3>
+<pre><code>driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(60));
+</code></pre>
+      <p>This sets the maximum time for <code>driver.get(url)</code> to wait before throwing TimeoutException.</p>
+
+      <h3>11.6 Wait until JavaScript document is ready (advanced)</h3>
+<pre><code>wait.until(d -&gt; ((JavascriptExecutor)d)
+    .executeScript(<span class="s">"return document.readyState"</span>).equals(<span class="s">"complete"</span>));
+</code></pre>
+      <p>Your <code>ActionDriver.waitForPageLoad()</code> method uses exactly this technique.</p>
+
+      <div class="callout iv">
+        <span class="label">Interview questions</span>
+        <ol>
+          <li><strong>Difference between Implicit and Explicit Wait?</strong> &mdash; Implicit is global &amp; only checks presence. Explicit is per-statement &amp; supports many conditions.</li>
+          <li><strong>What's the default Implicit Wait?</strong> &mdash; 0 seconds. You must set it explicitly.</li>
+          <li><strong>Can we set both?</strong> &mdash; Technically yes, but discouraged due to unpredictable summation behavior in older Selenium. Selenium 4 documents it more clearly but best practice is still: pick one.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============ MODULE 12: Dropdowns, Alerts, Frames, Windows ============ -->
+    <section class="module" id="m12">
+      <h2>12. Dropdowns, Alerts, Frames &amp; Windows</h2>
+
+      <h3>12.1 Dropdowns &mdash; the <code>Select</code> class</h3>
+      <p>For HTML <code>&lt;select&gt;</code> dropdowns (the classic ones), Selenium has a built-in helper.</p>
+<pre><code>WebElement el = driver.findElement(By.id(<span class="s">"country"</span>));
+Select dropdown = <span class="k">new</span> Select(el);
+
+dropdown.selectByVisibleText(<span class="s">"India"</span>);
+dropdown.selectByValue(<span class="s">"IN"</span>);
+dropdown.selectByIndex(2);
+
+<span class="c">// Read selected option</span>
+System.out.println(dropdown.getFirstSelectedOption().getText());
+
+<span class="c">// All options</span>
+List&lt;WebElement&gt; all = dropdown.getOptions();
+
+<span class="c">// Multi-select?</span>
+<span class="k">if</span> (dropdown.isMultiple()) {
+    dropdown.deselectAll();
+}
+</code></pre>
+
+      <div class="callout warn">
+        <span class="label">Custom dropdowns</span>
+        Many modern apps (React, Angular) use fake dropdowns built from <code>&lt;div&gt;</code> tags. The <code>Select</code> class will <strong>not</strong> work. You must click them like normal elements: click the dropdown to open, then click the option.
+      </div>
+
+      <h3>12.2 Alerts &mdash; JavaScript popups</h3>
+      <p>JavaScript can show 3 kinds of popups: <em>alert</em> (info OK), <em>confirm</em> (OK/Cancel), <em>prompt</em> (input + OK/Cancel).</p>
+<pre><code>Alert alert = driver.switchTo().alert();
+
+alert.accept();              <span class="c">// click OK</span>
+alert.dismiss();             <span class="c">// click Cancel</span>
+alert.getText();             <span class="c">// read message</span>
+alert.sendKeys(<span class="s">"hello"</span>);     <span class="c">// type into prompt</span>
+</code></pre>
+
+      <h3>12.3 iFrames &mdash; pages inside pages</h3>
+      <p>An <code>&lt;iframe&gt;</code> embeds another HTML document inside the current page. Selenium cannot "see" elements inside it until you <em>switch</em> to it.</p>
+<pre><code><span class="c">// Switch by index, name/id, or WebElement</span>
+driver.switchTo().frame(0);
+driver.switchTo().frame(<span class="s">"frameName"</span>);
+driver.switchTo().frame(driver.findElement(By.id(<span class="s">"chat-frame"</span>)));
+
+<span class="c">// Now interact with elements inside the frame</span>
+driver.findElement(By.id(<span class="s">"send"</span>)).click();
+
+<span class="c">// Switch back to main page</span>
+driver.switchTo().defaultContent();
+</code></pre>
+
+      <div class="callout real">
+        <span class="label">Real-life analogy</span>
+        An iframe is like a <strong>picture-in-picture</strong> on your TV. By default the remote controls the main TV. To control the small picture, you press a button to "switch focus" to it. <code>switchTo().frame()</code> does exactly that. <code>defaultContent()</code> brings focus back to the main TV.
+      </div>
+
+      <h3>12.4 Multiple windows / tabs</h3>
+<pre><code><span class="c">// Save the current window's id</span>
+<span class="k">String</span> mainWindow = driver.getWindowHandle();
+
+<span class="c">// Click a link that opens new tab...</span>
+driver.findElement(By.linkText(<span class="s">"Open in new tab"</span>)).click();
+
+<span class="c">// Get all open windows</span>
+Set&lt;<span class="k">String</span>&gt; allWindows = driver.getWindowHandles();
+<span class="k">for</span> (<span class="k">String</span> handle : allWindows) {
+    <span class="k">if</span> (!handle.equals(mainWindow)) {
+        driver.switchTo().window(handle);
+        <span class="c">// do work here...</span>
+        driver.close();   <span class="c">// close that tab</span>
+    }
+}
+
+<span class="c">// Return to main</span>
+driver.switchTo().window(mainWindow);
+</code></pre>
+
+      <div class="callout iv">
+        <span class="label">Interview question</span>
+        <strong>Q: getWindowHandle vs getWindowHandles?</strong><br/>
+        <code>getWindowHandle()</code> returns a single <strong>String</strong> (the current window). <code>getWindowHandles()</code> returns a <strong>Set&lt;String&gt;</strong> (all windows). Plural &rarr; many.
+      </div>
+    </section>
+
+    <!-- ============ MODULE 13: Mouse & Keyboard ============ -->
+    <section class="module" id="m13">
+      <h2>13. Mouse &amp; Keyboard Actions</h2>
+
+      <p>For things like <strong>hover</strong>, <strong>right-click</strong>, <strong>drag-and-drop</strong>, <strong>double-click</strong>, <strong>keyboard shortcuts</strong> &mdash; we use the <code>Actions</code> class.</p>
+
+      <h3>13.1 Mouse Actions</h3>
+<pre><code>Actions actions = <span class="k">new</span> Actions(driver);
+
+WebElement menu = driver.findElement(By.id(<span class="s">"profile"</span>));
+WebElement source = driver.findElement(By.id(<span class="s">"src"</span>));
+WebElement target = driver.findElement(By.id(<span class="s">"dst"</span>));
+
+actions.moveToElement(menu).perform();              <span class="c">// hover</span>
+actions.contextClick(menu).perform();               <span class="c">// right-click</span>
+actions.doubleClick(menu).perform();                <span class="c">// double-click</span>
+actions.dragAndDrop(source, target).perform();      <span class="c">// drag &amp; drop</span>
+actions.clickAndHold(source).moveByOffset(50, 0).release().perform();
+</code></pre>
+
+      <div class="callout tip">
+        <span class="label">.perform() is mandatory!</span>
+        The Actions class <em>queues</em> commands. Until you call <code>.perform()</code>, nothing happens. Forgetting <code>.perform()</code> is the #1 newbie bug.
+      </div>
+
+      <h3>13.2 Keyboard Actions</h3>
+<pre><code><span class="c">// Send special keys directly</span>
+element.sendKeys(Keys.ENTER);
+element.sendKeys(Keys.TAB);
+element.sendKeys(Keys.ESCAPE);
+
+<span class="c">// Combinations: Ctrl+A, Ctrl+C, Ctrl+V</span>
+actions.keyDown(Keys.CONTROL).sendKeys(<span class="s">"a"</span>).keyUp(Keys.CONTROL).perform();
+actions.keyDown(Keys.CONTROL).sendKeys(<span class="s">"c"</span>).keyUp(Keys.CONTROL).perform();
+actions.keyDown(Keys.CONTROL).sendKeys(<span class="s">"v"</span>).keyUp(Keys.CONTROL).perform();
+</code></pre>
+
+      <h3>13.3 Building a chain (multiple actions)</h3>
+<pre><code>actions.moveToElement(menu)
+       .pause(Duration.ofMillis(500))
+       .click(submenu)
+       .sendKeys(<span class="s">"hello"</span>)
+       .build()
+       .perform();
+</code></pre>
+
+      <h3>13.4 When .click() fails &mdash; use Actions</h3>
+      <p>Sometimes a normal <code>element.click()</code> doesn't work because the element is overlapped, animated, or sticky. Try:</p>
+<pre><code>actions.moveToElement(element).click().perform();
+</code></pre>
+      <p>Or use JavaScriptExecutor (next module).</p>
+    </section>
+
+    <!-- ============ MODULE 14: Screenshots / JS / Files ============ -->
+    <section class="module" id="m14">
+      <h2>14. Screenshots, JavaScript Executor &amp; File Handling</h2>
+
+      <h3>14.1 Screenshots</h3>
+<pre><code>TakesScreenshot ts = (TakesScreenshot) driver;
+File src = ts.getScreenshotAs(OutputType.FILE);
+File dest = <span class="k">new</span> File(<span class="s">"./screenshots/login.png"</span>);
+FileUtils.copyFile(src, dest);    <span class="c">// from commons-io</span>
+</code></pre>
+
+      <p>Your framework already does this in <code>ExtentManager</code> &mdash; on every failure it auto-captures a screenshot and embeds it in the report. That's what the <code>screenshots/</code> folder in your repo is filled with.</p>
+
+      <h3>14.2 JavaScript Executor &mdash; the cheat code</h3>
+      <p>When normal Selenium can't do something (hidden elements, scroll, popup, fancy UI), you can directly run JavaScript in the browser.</p>
+<pre><code>JavascriptExecutor js = (JavascriptExecutor) driver;
+
+<span class="c">// Click via JS (bypasses overlays)</span>
+js.executeScript(<span class="s">"arguments[0].click();"</span>, element);
+
+<span class="c">// Set value (bypasses sendKeys)</span>
+js.executeScript(<span class="s">"arguments[0].value='hello';"</span>, element);
+
+<span class="c">// Scroll element into view</span>
+js.executeScript(<span class="s">"arguments[0].scrollIntoView(true);"</span>, element);
+
+<span class="c">// Scroll page</span>
+js.executeScript(<span class="s">"window.scrollBy(0, 500);"</span>);
+js.executeScript(<span class="s">"window.scrollTo(0, document.body.scrollHeight);"</span>);
+
+<span class="c">// Get page title via JS</span>
+<span class="k">String</span> title = (<span class="k">String</span>) js.executeScript(<span class="s">"return document.title;"</span>);
+
+<span class="c">// Highlight an element with red border</span>
+js.executeScript(<span class="s">"arguments[0].style.border='3px solid red'"</span>, element);
+</code></pre>
+
+      <div class="callout tip">
+        <span class="label">In your framework</span>
+        Look at <code>ActionDriver.applyBorder()</code> &mdash; it uses JS to highlight elements green (success) or red (failure) before each action. Great for debugging!
+      </div>
+
+      <h3>14.3 File Upload</h3>
+      <p>If the upload field is a normal <code>&lt;input type="file"&gt;</code>:</p>
+<pre><code>driver.findElement(By.id(<span class="s">"file"</span>))
+      .sendKeys(<span class="s">"C:\\Users\\me\\photo.png"</span>);
+</code></pre>
+      <p>That's it &mdash; no click needed. For non-standard file dialogs, use Robot class or AutoIT.</p>
+
+      <h3>14.4 File Download</h3>
+      <p>Selenium cannot click "Save" on the OS download dialog directly. The trick: configure the browser <em>before</em> launch to auto-save without prompting.</p>
+<pre><code>ChromeOptions options = <span class="k">new</span> ChromeOptions();
+Map&lt;<span class="k">String</span>, Object&gt; prefs = <span class="k">new</span> HashMap&lt;&gt;();
+prefs.put(<span class="s">"download.default_directory"</span>, <span class="s">"C:\\downloads"</span>);
+prefs.put(<span class="s">"download.prompt_for_download"</span>, <span class="k">false</span>);
+options.setExperimentalOption(<span class="s">"prefs"</span>, prefs);
+
+WebDriver driver = <span class="k">new</span> ChromeDriver(options);
+</code></pre>
+
+      <h3>14.5 Reading from properties files</h3>
+      <p>Storing config like <code>browser=chrome, url=https://...</code> in a properties file makes your tests configurable without code change.</p>
+<pre><code>Properties prop = <span class="k">new</span> Properties();
+FileInputStream fis = <span class="k">new</span> FileInputStream(<span class="s">"src/main/resources/config.properties"</span>);
+prop.load(fis);
+
+<span class="k">String</span> browser = prop.getProperty(<span class="s">"browser"</span>);
+<span class="k">String</span> url = prop.getProperty(<span class="s">"url"</span>);
+</code></pre>
+      <p>This is exactly what your <code>BaseClass.loadConfig()</code> does at startup.</p>
+    </section>
+
+
+
+
+    <!-- ============ MODULE 15: TestNG ============ -->
+    <section class="module" id="m15">
+      <h2>15. TestNG &mdash; Running Tests Like a Pro</h2>
+
+      <p>So far, our <code>main</code> method runs only one scenario top to bottom. In real projects we have hundreds of tests &mdash; we need a proper test framework. That's <strong>TestNG</strong>.</p>
+
+      <div class="callout real">
+        <span class="label">Real-life analogy</span>
+        TestNG is the <strong>school exam supervisor</strong>. It decides:
+        <ul>
+          <li>Which question paper to give (which test classes to run)</li>
+          <li>The order (test order / priority)</li>
+          <li>Pass / Fail rules (assertions)</li>
+          <li>Setup before exam (open hall, distribute papers = <code>@BeforeMethod</code>)</li>
+          <li>Cleanup after exam (collect papers, lock hall = <code>@AfterMethod</code>)</li>
+          <li>Final result sheet (HTML report)</li>
+        </ul>
+      </div>
+
+      <h3>15.1 Annotations (the heart of TestNG)</h3>
+      <table>
+        <tr><th>Annotation</th><th>Runs</th></tr>
+        <tr><td><code>@BeforeSuite</code></td><td>Once, before all tests</td></tr>
+        <tr><td><code>@BeforeTest</code></td><td>Before all <code>&lt;test&gt;</code> tags in xml</td></tr>
+        <tr><td><code>@BeforeClass</code></td><td>Once before any test in current class</td></tr>
+        <tr><td><code>@BeforeMethod</code></td><td>Before <em>each</em> @Test</td></tr>
+        <tr><td><code>@Test</code></td><td>The actual test</td></tr>
+        <tr><td><code>@AfterMethod</code></td><td>After <em>each</em> @Test</td></tr>
+        <tr><td><code>@AfterClass</code></td><td>Once after all tests in current class</td></tr>
+        <tr><td><code>@AfterTest</code></td><td>After all <code>&lt;test&gt;</code> tags</td></tr>
+        <tr><td><code>@AfterSuite</code></td><td>Once at the end of everything</td></tr>
+        <tr><td><code>@DataProvider</code></td><td>Supplies multiple test data sets to a @Test</td></tr>
+      </table>
+
+      <h3>15.2 The execution order</h3>
+      <div class="diagram">
+@BeforeSuite
+   @BeforeTest
+      @BeforeClass
+         @BeforeMethod  -&gt;  @Test 1  -&gt;  @AfterMethod
+         @BeforeMethod  -&gt;  @Test 2  -&gt;  @AfterMethod
+         @BeforeMethod  -&gt;  @Test 3  -&gt;  @AfterMethod
+      @AfterClass
+   @AfterTest
+@AfterSuite
+      </div>
+
+      <h3>15.3 Sample test class</h3>
+<pre><code><span class="k">public class</span> LoginTest <span class="k">extends</span> BaseClass {
+
+    @Test(priority = 1, description = <span class="s">"Verify valid login"</span>)
+    <span class="k">public void</span> validLoginTest() {
+        LoginPage login = <span class="k">new</span> LoginPage(getDriver());
+        HomePage home = <span class="k">new</span> HomePage(getDriver());
+
+        login.login(<span class="s">"Admin"</span>, <span class="s">"admin123"</span>);
+
+        Assert.assertTrue(home.isAdminTabVisible(), <span class="s">"Admin tab not visible"</span>);
+    }
+
+    @Test(priority = 2, description = <span class="s">"Verify invalid login error"</span>)
+    <span class="k">public void</span> invalidLoginTest() {
+        LoginPage login = <span class="k">new</span> LoginPage(getDriver());
+        login.login(<span class="s">"WrongUser"</span>, <span class="s">"wrongPass"</span>);
+        Assert.assertEquals(login.getErrorMessageText(), <span class="s">"Invalid credentials"</span>);
+    }
+}
+</code></pre>
+
+      <h3>15.4 Assertions</h3>
+      <p>An assertion = a check. If it fails, the test is marked FAIL.</p>
+      <ul>
+        <li><strong>Hard Assert</strong> &mdash; <code>Assert.assertEquals(actual, expected)</code> &mdash; if it fails, the rest of the test stops.</li>
+        <li><strong>Soft Assert</strong> &mdash; <code>SoftAssert sa = new SoftAssert();</code> &mdash; collects all failures, you call <code>sa.assertAll()</code> at the end.</li>
+      </ul>
+
+<pre><code>Assert.assertEquals(actual, expected);
+Assert.assertNotEquals(actual, expected);
+Assert.assertTrue(condition);
+Assert.assertFalse(condition);
+Assert.assertNotNull(object);
+Assert.fail(<span class="s">"forced fail with message"</span>);
+</code></pre>
+
+      <h3>15.5 testng.xml &mdash; the run plan</h3>
+<pre><code>&lt;<span class="t">suite</span> <span class="k">name</span>=<span class="s">"OrangeHRMSuite"</span> <span class="k">parallel</span>=<span class="s">"methods"</span> <span class="k">thread-count</span>=<span class="s">"3"</span>&gt;
+  &lt;<span class="t">test</span> <span class="k">name</span>=<span class="s">"OrangeHRMTest"</span>&gt;
+    &lt;<span class="t">classes</span>&gt;
+      &lt;<span class="t">class</span> <span class="k">name</span>=<span class="s">"com.orangeHRM.test.LoginPageTest"</span>/&gt;
+      &lt;<span class="t">class</span> <span class="k">name</span>=<span class="s">"com.orangeHRM.test.HomePageTest"</span>/&gt;
+    &lt;/<span class="t">classes</span>&gt;
+  &lt;/<span class="t">test</span>&gt;
+&lt;/<span class="t">suite</span>&gt;
+</code></pre>
+
+      <h3>15.6 Parameters &amp; DataProvider</h3>
+
+      <p>How to run the same test with different data? Use <strong>@DataProvider</strong>.</p>
+<pre><code>@DataProvider(name = <span class="s">"loginData"</span>)
+<span class="k">public</span> Object[][] loginData() {
+    <span class="k">return new</span> Object[][] {
+        {<span class="s">"Admin"</span>, <span class="s">"admin123"</span>, <span class="k">true</span>},
+        {<span class="s">"WrongUser"</span>, <span class="s">"wrong"</span>, <span class="k">false</span>},
+        {<span class="s">""</span>, <span class="s">""</span>, <span class="k">false</span>}
+    };
+}
+
+@Test(dataProvider = <span class="s">"loginData"</span>)
+<span class="k">public void</span> testLogin(<span class="k">String</span> u, <span class="k">String</span> p, <span class="k">boolean</span> expected) {
+    LoginPage login = <span class="k">new</span> LoginPage(getDriver());
+    login.login(u, p);
+    <span class="c">// ... assertion based on `expected`</span>
+}
+</code></pre>
+
+      <h3>15.7 Listeners &mdash; hooks for events</h3>
+      <p>A <strong>Listener</strong> reacts to test events: pass, fail, skip, start, end. Your repo has <code>TestListener.java</code>. It auto-captures screenshots on failure and writes to ExtentReports.</p>
+<pre><code>@Listeners(com.orangehrm.listeners.TestListener.<span class="k">class</span>)
+<span class="k">public class</span> LoginPageTest <span class="k">extends</span> BaseClass {
+    <span class="c">// tests here</span>
+}
+</code></pre>
+
+      <h3>15.8 RetryAnalyzer &mdash; flaky test recovery</h3>
+      <p>Sometimes a test fails due to network/timing issues, not a real bug. <code>IRetryAnalyzer</code> retries a failed test N times before declaring fail. Your repo's <code>RetryAnalyzer.java</code> implements this.</p>
+
+      <h3>15.9 Parallel Execution</h3>
+      <p>Run multiple tests at the same time on different browser windows.</p>
+<pre><code>&lt;suite name=<span class="s">"S"</span> <span class="k">parallel</span>=<span class="s">"methods"</span> <span class="k">thread-count</span>=<span class="s">"3"</span>&gt;
+</code></pre>
+      <p>Important: WebDriver is <strong>not thread-safe</strong>. Use <code>ThreadLocal&lt;WebDriver&gt;</code> &mdash; just like your <code>BaseClass</code> already does! That's the entire reason for the <code>ThreadLocal</code> wrappers in your <code>BaseClass.java</code>.</p>
+
+      <div class="callout iv">
+        <span class="label">Interview question</span>
+        <strong>Q: How do you achieve parallel execution in Selenium?</strong><br/>
+        Two parts: (1) tell TestNG to run in parallel via <code>parallel="methods"/"classes"/"tests"</code>; (2) make WebDriver thread-safe using <code>ThreadLocal&lt;WebDriver&gt;</code>. Without ThreadLocal, threads share the same driver and tests crash.
+      </div>
+    </section>
+
+    <!-- ============ MODULE 16: POM ============ -->
+    <section class="module" id="m16">
+      <h2>16. Page Object Model (POM) &mdash; The Right Way to Organize</h2>
+
+      <p>Imagine you have 20 tests. All of them need to login. So you copy-paste the login code (<code>findElement(username)... password... click...</code>) into all 20 tests.</p>
+      <p>One day the developer changes the username field's <code>name</code> attribute. Now you must edit 20 tests. Painful and error-prone.</p>
+
+      <p><strong>Solution: Page Object Model.</strong> Each web page becomes a Java <em>class</em>. The class holds the locators and the actions. Tests just <em>use</em> the page class.</p>
+
+      <div class="callout real">
+        <span class="label">Real-life analogy</span>
+        Think of a <strong>TV remote</strong>. The TV has many buttons inside but the user just presses "Volume +", "Channel Up". The complexity is hidden inside the remote. Page Object = the remote. Test code = the user. The user doesn't care how the remote works internally &mdash; just presses buttons.
+      </div>
+
+      <h3>16.1 Folder structure (your repo)</h3>
+      <div class="diagram">
+src/main/java/com/orangehrm/
+   actiondriver/    ActionDriver.java       &lt;- common element-action helpers
+   base/            BaseClass.java          &lt;- driver setup/teardown
+   listeners/       TestListener.java       &lt;- TestNG event hooks
+   pages/           LoginPage.java          &lt;- one class per page
+                    HomePage.java
+   utilities/       ExcelReaderUtility, DBConnection,
+                    ApiUtility, ExtentManager, LoggerManager,
+                    DataProviders, RetryAnalyzer
+
+src/main/resources/  config.properties, log4j2.xml
+
+src/test/java/com/orangeHRM/test/   LoginPageTest.java, HomePageTest.java, ...
+      </div>
+
+      <h3>16.2 A Page Class (your <code>LoginPage.java</code> simplified)</h3>
+<pre><code><span class="k">public class</span> LoginPage {
+    <span class="k">private</span> ActionDriver actionDriver;
+
+    <span class="c">// 1. Locators - private!</span>
+    <span class="k">private</span> By userNameField = By.name(<span class="s">"username"</span>);
+    <span class="k">private</span> By passwordField = By.name(<span class="s">"password"</span>);
+    <span class="k">private</span> By loginButton   = By.xpath(<span class="s">"//button[@type='submit']"</span>);
+    <span class="k">private</span> By errorMessage  = By.xpath(<span class="s">"//p[text()='Invalid credentials']"</span>);
+
+    <span class="c">// 2. Constructor - get the action driver</span>
+    <span class="k">public</span> LoginPage(WebDriver driver) {
+        <span class="k">this</span>.actionDriver = BaseClass.getActionDriver();
+    }
+
+    <span class="c">// 3. Actions - public methods exposing what users can do</span>
+    <span class="k">public void</span> login(<span class="k">String</span> u, <span class="k">String</span> p) {
+        actionDriver.enterText(userNameField, u);
+        actionDriver.enterText(passwordField, p);
+        actionDriver.click(loginButton);
+    }
+
+    <span class="k">public boolean</span> isErrorMessageDisplayed() {
+        <span class="k">return</span> actionDriver.isDisplayed(errorMessage);
+    }
+}
+</code></pre>
+
+      <h3>16.3 A Test using the Page Class</h3>
+<pre><code><span class="k">public class</span> LoginPageTest <span class="k">extends</span> BaseClass {
+    @Test
+    <span class="k">public void</span> validLoginTest() {
+        LoginPage login = <span class="k">new</span> LoginPage(getDriver());
+        login.login(<span class="s">"Admin"</span>, <span class="s">"admin123"</span>);
+
+        HomePage home = <span class="k">new</span> HomePage(getDriver());
+        Assert.assertTrue(home.verifyOrangeHRMLogo());
+    }
+}
+</code></pre>
+
+      <p>Notice: the test code reads almost like English. <em>"Login. Verify logo."</em> No locators, no <code>findElement</code>. That's the beauty of POM.</p>
+
+      <h3>16.4 Benefits</h3>
+      <ul>
+        <li><strong>Reusable</strong> &mdash; 20 tests can call <code>login(u, p)</code>.</li>
+        <li><strong>Maintainable</strong> &mdash; if locator changes, edit ONE place.</li>
+        <li><strong>Readable</strong> &mdash; tests describe scenarios, not how-to clicks.</li>
+        <li><strong>Layered</strong> &mdash; tests &rarr; page &rarr; action driver &rarr; selenium.</li>
+      </ul>
+
+      <h3>16.5 PageFactory (alternative POM style)</h3>
+      <p>Selenium ships a helper called <code>PageFactory</code> that uses <code>@FindBy</code> annotations instead of <code>By</code> objects.</p>
+<pre><code><span class="k">public class</span> LoginPage {
+    @FindBy(name=<span class="s">"username"</span>)  WebElement userField;
+    @FindBy(name=<span class="s">"password"</span>)  WebElement passField;
+    @FindBy(xpath=<span class="s">"//button[@type='submit']"</span>) WebElement loginBtn;
+
+    <span class="k">public</span> LoginPage(WebDriver driver) {
+        PageFactory.initElements(driver, <span class="k">this</span>);
+    }
+
+    <span class="k">public void</span> login(<span class="k">String</span> u, <span class="k">String</span> p) {
+        userField.sendKeys(u);
+        passField.sendKeys(p);
+        loginBtn.click();
+    }
+}
+</code></pre>
+
+      <div class="callout tip">
+        <span class="label">By vs PageFactory</span>
+        Both are valid. Industry trend leans toward <code>By</code> + <code>WebDriverWait</code> (your repo's pattern) because PageFactory has subtle issues with stale elements in dynamic pages and lazy loading. The <code>By</code> approach is more explicit and reliable.
+      </div>
+    </section>
+
+    <!-- ============ MODULE 17: Maven ============ -->
+    <section class="module" id="m17">
+      <h2>17. Maven Build Tool</h2>
+
+      <p>Maven is the <strong>package manager + builder</strong> for Java. Without it, you'd have to manually download every JAR file. With Maven, you just declare what you need in <code>pom.xml</code> and Maven downloads everything from the central repository.</p>
+
+      <div class="callout real">
+        <span class="label">Real-life analogy</span>
+        Maven is like <strong>Zomato or Amazon</strong>. You don't go to factories to get tomatoes, rice, soap &mdash; you order them online with a list. Maven downloads JARs the same way: you give a "shopping list" (pom.xml), Maven brings them to your project.
+      </div>
+
+      <h3>17.1 What is pom.xml?</h3>
+      <p><strong>POM = Project Object Model.</strong> An XML file describing your project + dependencies + build settings.</p>
+
+      <h3>17.2 Anatomy of pom.xml</h3>
+<pre><code>&lt;<span class="t">project</span>&gt;
+  &lt;<span class="t">modelVersion</span>&gt;4.0.0&lt;/<span class="t">modelVersion</span>&gt;
+
+  &lt;<span class="c">!-- 1. Coordinates: your project's identity --&gt;</span>
+  &lt;<span class="t">groupId</span>&gt;OrangeHRMProject&lt;/<span class="t">groupId</span>&gt;
+  &lt;<span class="t">artifactId</span>&gt;OrangeHRMProject&lt;/<span class="t">artifactId</span>&gt;
+  &lt;<span class="t">version</span>&gt;0.0.1-SNAPSHOT&lt;/<span class="t">version</span>&gt;
+
+  &lt;<span class="c">!-- 2. Dependencies (libraries you need) --&gt;</span>
+  &lt;<span class="t">dependencies</span>&gt;
+    &lt;<span class="t">dependency</span>&gt;
+      &lt;<span class="t">groupId</span>&gt;org.seleniumhq.selenium&lt;/<span class="t">groupId</span>&gt;
+      &lt;<span class="t">artifactId</span>&gt;selenium-java&lt;/<span class="t">artifactId</span>&gt;
+      &lt;<span class="t">version</span>&gt;4.28.1&lt;/<span class="t">version</span>&gt;
+    &lt;/<span class="t">dependency</span>&gt;
+  &lt;/<span class="t">dependencies</span>&gt;
+&lt;/<span class="t">project</span>&gt;
+</code></pre>
+
+      <h3>17.3 Maven lifecycle (commands you'll use)</h3>
+      <table>
+        <tr><th>Command</th><th>What it does</th></tr>
+        <tr><td><code>mvn clean</code></td><td>Delete the <code>target/</code> folder</td></tr>
+        <tr><td><code>mvn compile</code></td><td>Compile all source code</td></tr>
+        <tr><td><code>mvn test</code></td><td>Run all tests</td></tr>
+        <tr><td><code>mvn package</code></td><td>Compile + test + create jar</td></tr>
+        <tr><td><code>mvn install</code></td><td>Above + install jar in your local maven repo</td></tr>
+        <tr><td><code>mvn clean test</code></td><td>Most common: clean + run tests</td></tr>
+        <tr><td><code>mvn dependency:tree</code></td><td>See all transitive dependencies</td></tr>
+      </table>
+
+      <h3>17.4 Local Maven cache</h3>
+      <p>Downloaded JARs are cached at <code>C:\Users\YOU\.m2\repository</code>. So you only download once, ever. Subsequent projects reuse them.</p>
+
+      <h3>17.5 Surefire plugin (running TestNG via Maven)</h3>
+      <p>The <code>maven-surefire-plugin</code> in your <code>pom.xml</code> tells Maven where the testng.xml is, so <code>mvn test</code> runs your tests:</p>
+<pre><code>&lt;<span class="t">plugin</span>&gt;
+  &lt;<span class="t">artifactId</span>&gt;maven-surefire-plugin&lt;/<span class="t">artifactId</span>&gt;
+  &lt;<span class="t">version</span>&gt;3.3.0&lt;/<span class="t">version</span>&gt;
+  &lt;<span class="t">configuration</span>&gt;
+    &lt;<span class="t">suiteXmlFiles</span>&gt;
+      &lt;<span class="t">suiteXmlFile</span>&gt;testng.xml&lt;/<span class="t">suiteXmlFile</span>&gt;
+    &lt;/<span class="t">suiteXmlFiles</span>&gt;
+  &lt;/<span class="t">configuration</span>&gt;
+&lt;/<span class="t">plugin</span>&gt;
+</code></pre>
+
+      <div class="callout iv">
+        <span class="label">Interview question</span>
+        <strong>Q: What is the difference between groupId, artifactId and version?</strong><br/>
+        <code>groupId</code> = the company / organization (like a surname). <code>artifactId</code> = the project name (first name). <code>version</code> = which release. Together they form a unique identifier &mdash; the "G:A:V" coordinate.
+      </div>
+    </section>
+
+    <!-- ============ MODULE 18: Log4j2 ============ -->
+    <section class="module" id="m18">
+      <h2>18. Logging with Log4j2</h2>
+
+      <p>Print statements (<code>System.out.println</code>) are fine for hello-world. But in real projects you need:</p>
+      <ul>
+        <li>Different severity levels (info, warn, error)</li>
+        <li>Logs written to <em>files</em>, not just console</li>
+        <li>Timestamps, thread names, class names automatically</li>
+        <li>Different log files for different concerns (app.log, error.log)</li>
+      </ul>
+
+      <p><strong>Log4j2</strong> gives you all of this with a simple XML config.</p>
+
+      <h3>18.1 Log levels (smallest &rarr; largest noise)</h3>
+      <table>
+        <tr><th>Level</th><th>Meaning</th><th>When to use</th></tr>
+        <tr><td>TRACE</td><td>Most verbose</td><td>"Method entered with arg x=5"</td></tr>
+        <tr><td>DEBUG</td><td>Developer info</td><td>Variable values, intermediate steps</td></tr>
+        <tr><td>INFO</td><td>General flow</td><td>"Login button clicked"</td></tr>
+        <tr><td>WARN</td><td>Something unusual</td><td>"Element took 8s to appear (slow)"</td></tr>
+        <tr><td>ERROR</td><td>Test failed</td><td>"Unable to click login: NoSuchElementException"</td></tr>
+        <tr><td>FATAL</td><td>System unusable</td><td>"Browser crashed"</td></tr>
+      </table>
+
+      <h3>18.2 In code (your framework already does this)</h3>
+<pre><code>Logger logger = LoggerManager.getLogger(LoginTest.<span class="k">class</span>);
+
+logger.info(<span class="s">"Test started"</span>);
+logger.warn(<span class="s">"Element appeared slowly"</span>);
+logger.error(<span class="s">"Click failed: "</span> + e.getMessage());
+</code></pre>
+
+      <h3>18.3 log4j2.xml structure</h3>
+      <p>Two key concepts: <strong>Appenders</strong> (where logs go) + <strong>Loggers</strong> (which classes log at what level).</p>
+<pre><code>&lt;<span class="t">Configuration</span>&gt;
+  &lt;<span class="t">Appenders</span>&gt;
+    &lt;<span class="t">Console</span> <span class="k">name</span>=<span class="s">"Console"</span>&gt; ... &lt;/<span class="t">Console</span>&gt;
+    &lt;<span class="t">File</span> <span class="k">name</span>=<span class="s">"AppLog"</span> <span class="k">fileName</span>=<span class="s">"logs/app.log"</span>&gt; ... &lt;/<span class="t">File</span>&gt;
+    &lt;<span class="t">File</span> <span class="k">name</span>=<span class="s">"ErrorLog"</span> <span class="k">fileName</span>=<span class="s">"logs/error.log"</span>&gt; ... &lt;/<span class="t">File</span>&gt;
+  &lt;/<span class="t">Appenders</span>&gt;
+  &lt;<span class="t">Loggers</span>&gt;
+    &lt;<span class="t">Root</span> <span class="k">level</span>=<span class="s">"info"</span>&gt;
+      &lt;<span class="t">AppenderRef</span> <span class="k">ref</span>=<span class="s">"Console"</span>/&gt;
+      &lt;<span class="t">AppenderRef</span> <span class="k">ref</span>=<span class="s">"AppLog"</span>/&gt;
+    &lt;/<span class="t">Root</span>&gt;
+  &lt;/<span class="t">Loggers</span>&gt;
+&lt;/<span class="t">Configuration</span>&gt;
+</code></pre>
+
+      <p>That's why your repo has <code>logs/app.log</code> and <code>logs/error.log</code> &mdash; they are written by Log4j2 every time you run tests.</p>
+
+      <div class="callout tip">
+        <span class="label">Why is logging important?</span>
+        When a test fails at 2am in CI, you can't watch the run live. The <code>logs/error.log</code> file is your only window into what happened. Logs save hours of debugging.
+      </div>
+    </section>
+
+    <!-- ============ MODULE 19: ExtentReports ============ -->
+    <section class="module" id="m19">
+      <h2>19. Reporting with ExtentReports</h2>
+
+      <p>TestNG generates a basic HTML report (in <code>test-output/</code> folder), but it's plain. <strong>ExtentReports</strong> generates a <em>beautiful</em>, interactive HTML report with:</p>
+      <ul>
+        <li>Pie charts (passed / failed / skipped)</li>
+        <li>Per-test step-by-step logs</li>
+        <li>Screenshots embedded inline</li>
+        <li>Filters, search, dark mode</li>
+        <li>System info (OS, browser, environment)</li>
+      </ul>
+
+      <h3>19.1 Setup (your repo already has it)</h3>
+<pre><code>&lt;<span class="t">dependency</span>&gt;
+  &lt;<span class="t">groupId</span>&gt;com.aventstack&lt;/<span class="t">groupId</span>&gt;
+  &lt;<span class="t">artifactId</span>&gt;extentreports&lt;/<span class="t">artifactId</span>&gt;
+  &lt;<span class="t">version</span>&gt;5.1.2&lt;/<span class="t">version</span>&gt;
+&lt;/<span class="t">dependency</span>&gt;
+</code></pre>
+
+      <h3>19.2 Core classes</h3>
+      <table>
+        <tr><th>Class</th><th>Role</th></tr>
+        <tr><td><code>ExtentSparkReporter</code></td><td>Defines the output HTML file (theme, title, dark/light)</td></tr>
+        <tr><td><code>ExtentReports</code></td><td>The main report object</td></tr>
+        <tr><td><code>ExtentTest</code></td><td>One row in the report = one test</td></tr>
+      </table>
+
+      <h3>19.3 Typical setup</h3>
+<pre><code>ExtentSparkReporter spark = <span class="k">new</span> ExtentSparkReporter(<span class="s">"./reports/Report.html"</span>);
+spark.config().setTheme(Theme.DARK);
+spark.config().setDocumentTitle(<span class="s">"OrangeHRM Tests"</span>);
+
+ExtentReports extent = <span class="k">new</span> ExtentReports();
+extent.attachReporter(spark);
+extent.setSystemInfo(<span class="s">"OS"</span>, <span class="s">"Windows 11"</span>);
+extent.setSystemInfo(<span class="s">"Browser"</span>, <span class="s">"Chrome"</span>);
+
+ExtentTest test = extent.createTest(<span class="s">"Valid Login Test"</span>);
+test.log(Status.INFO, <span class="s">"Entering credentials"</span>);
+test.log(Status.PASS, <span class="s">"Login successful"</span>);
+test.fail(<span class="s">"Element not visible"</span>, MediaEntityBuilder
+    .createScreenCaptureFromPath(<span class="s">"shot.png"</span>).build());
+
+extent.flush();   <span class="c">// IMPORTANT: writes the file</span>
+</code></pre>
+
+      <h3>19.4 Where it lives in your framework</h3>
+      <ul>
+        <li><strong><code>ExtentManager.java</code></strong> &mdash; creates and manages the report instance, has helper methods like <code>logStep()</code>, <code>logFailure()</code>, <code>logStepWithScreenShot()</code>.</li>
+        <li><strong><code>TestListener.java</code></strong> &mdash; hooks into TestNG events (<code>onTestStart</code>, <code>onTestSuccess</code>, <code>onTestFailure</code>) and writes to ExtentReports automatically. <em>You don't write report code in tests &mdash; the listener does it for you.</em></li>
+        <li>Output goes to <code>src/test/resources/ExtentReport/ExtentReport.html</code>.</li>
+      </ul>
+
+      <h3>19.5 Why screenshots matter</h3>
+      <p>When a test fails, attaching a screenshot answers the immediate question: "What did the page look like?" Look at the <code>screenshots/</code> folder in your repo &mdash; ~115 PNGs accumulated over runs.</p>
+
+      <div class="callout iv">
+        <span class="label">Interview question</span>
+        <strong>Q: What's the role of <code>extent.flush()</code>?</strong><br/>
+        ExtentReports buffers data in memory while tests run. <code>flush()</code> writes everything to the HTML file. Without it, the report file is empty. Always call <code>flush()</code> in <code>@AfterSuite</code> or <code>onFinish</code> of a listener.
+      </div>
+    </section>
+
+
+
+
+    <!-- ============ MODULE 20: Data-Driven Testing ============ -->
+    <section class="module" id="m20">
+      <h2>20. Data-Driven Testing (Excel + Apache POI)</h2>
+
+      <p>What if you want to run "login" with 50 different combinations? Hard-coding 50 <code>@Test</code> methods is silly. Better: store the data in an Excel sheet, read it, run the same test 50 times.</p>
+
+      <div class="callout real">
+        <span class="label">Real-life analogy</span>
+        Like a <strong>vending machine</strong>: same machine, different coins go in, different snacks come out. The machine (test method) is one. The coins (test data from Excel) are many.
+      </div>
+
+      <h3>20.1 Apache POI &mdash; the Excel library</h3>
+      <p>POI is the de facto Java library to read/write <code>.xls</code> and <code>.xlsx</code> files. Already in your <code>pom.xml</code>.</p>
+
+      <h3>20.2 Reading an Excel cell (your <code>ExcelReaderUtility</code>)</h3>
+<pre><code>FileInputStream fis = <span class="k">new</span> FileInputStream(<span class="s">"data/users.xlsx"</span>);
+Workbook wb = <span class="k">new</span> XSSFWorkbook(fis);   <span class="c">// .xlsx</span>
+Sheet sheet = wb.getSheet(<span class="s">"Login"</span>);
+
+<span class="k">int</span> rows = sheet.getPhysicalNumberOfRows();
+<span class="k">int</span> cols = sheet.getRow(0).getPhysicalNumberOfCells();
+
+Object[][] data = <span class="k">new</span> Object[rows-1][cols];
+<span class="k">for</span> (<span class="k">int</span> i = 1; i &lt; rows; i++) {
+    <span class="k">for</span> (<span class="k">int</span> j = 0; j &lt; cols; j++) {
+        Cell cell = sheet.getRow(i).getCell(j);
+        data[i-1][j] = cell.toString();
+    }
+}
+wb.close();
+fis.close();
+<span class="k">return</span> data;
+</code></pre>
+
+      <h3>20.3 Wire it to TestNG via @DataProvider</h3>
+<pre><code>@DataProvider(name = <span class="s">"loginData"</span>)
+<span class="k">public</span> Object[][] getLoginData() <span class="k">throws</span> Exception {
+    <span class="k">return</span> ExcelReaderUtility.readSheet(<span class="s">"users.xlsx"</span>, <span class="s">"Login"</span>);
+}
+
+@Test(dataProvider = <span class="s">"loginData"</span>)
+<span class="k">public void</span> loginTest(<span class="k">String</span> u, <span class="k">String</span> p, <span class="k">String</span> expected) {
+    <span class="c">// runs once per row in Excel</span>
+}
+</code></pre>
+
+      <h3>20.4 .xls vs .xlsx</h3>
+      <table>
+        <tr><th>Format</th><th>POI class</th><th>Notes</th></tr>
+        <tr><td>.xls (old, Excel 97-2003)</td><td><code>HSSFWorkbook</code></td><td>Max 65,536 rows</td></tr>
+        <tr><td>.xlsx (modern)</td><td><code>XSSFWorkbook</code></td><td>Max ~1M rows. Use this.</td></tr>
+      </table>
+
+      <div class="callout tip">
+        <span class="label">Alternatives to Excel</span>
+        For simpler data, use <strong>CSV files</strong> (no library needed). For rich data, use <strong>JSON or YAML</strong>. For very dynamic data, fetch from <strong>databases</strong> directly. Excel is great for non-tech testers who can edit data without code.
+      </div>
+    </section>
+
+    <!-- ============ MODULE 21: DB ============ -->
+    <section class="module" id="m21">
+      <h2>21. Database Validation</h2>
+
+      <p>UI tests check what the user sees. But sometimes the UI <em>shows</em> a value but the database <em>has</em> a different one (a bug!). To catch such bugs, we connect to the DB and compare.</p>
+
+      <div class="callout real">
+        <span class="label">Real-life analogy</span>
+        UI = the <strong>shop's display</strong>. DB = the <strong>warehouse</strong>. Sometimes the display says "20 in stock" but the warehouse has only 5. UI test alone won't catch it &mdash; you need to peek into the warehouse too.
+      </div>
+
+      <h3>21.1 JDBC &mdash; Java's DB API</h3>
+      <p>JDBC = Java Database Connectivity. Your repo uses <code>mysql-connector-j</code> as the driver to talk to MySQL.</p>
+
+      <h3>21.2 4 simple steps</h3>
+<pre><code><span class="c">// 1. Load &amp; connect</span>
+<span class="k">String</span> url = <span class="s">"jdbc:mysql://localhost:3306/orangehrm"</span>;
+Connection con = DriverManager.getConnection(url, <span class="s">"root"</span>, <span class="s">"password"</span>);
+
+<span class="c">// 2. Statement</span>
+Statement st = con.createStatement();
+
+<span class="c">// 3. Execute query</span>
+ResultSet rs = st.executeQuery(<span class="s">"SELECT first_name FROM employees WHERE id=101"</span>);
+
+<span class="c">// 4. Read &amp; close</span>
+<span class="k">while</span> (rs.next()) {
+    System.out.println(rs.getString(<span class="s">"first_name"</span>));
+}
+rs.close();
+con.close();
+</code></pre>
+
+      <h3>21.3 Use case in your framework</h3>
+      <p>Your <code>DBVerificationTest.java</code> + <code>DBConnection.java</code> let you:</p>
+      <ol>
+        <li>Search for an employee on the OrangeHRM UI by name + ID.</li>
+        <li>Read the displayed first name and last name from UI.</li>
+        <li>Query the same employee from the DB.</li>
+        <li>Assert that UI value equals DB value &rarr; ensures end-to-end data integrity.</li>
+      </ol>
+
+      <div class="callout warn">
+        <span class="label">Always close connections</span>
+        DB connections are expensive and limited. Use <code>try-with-resources</code> or always <code>finally { con.close(); }</code>. Otherwise you leak connections and crash production DBs.
+      </div>
+    </section>
+
+    <!-- ============ MODULE 22: API ============ -->
+    <section class="module" id="m22">
+      <h2>22. API Testing Basics (Rest Assured)</h2>
+
+      <p>UI tests are slow and fragile. Many bugs are at the <em>API</em> level &mdash; before the UI is even drawn. API tests are 10x faster and more stable.</p>
+
+      <h3>22.1 What is an API?</h3>
+      <p>An API (Application Programming Interface) is how two applications talk. For web apps, it's almost always <strong>HTTP + JSON</strong>. The frontend asks the backend "give me user 5", the backend replies with JSON.</p>
+
+      <div class="callout real">
+        <span class="label">Real-life analogy</span>
+        API = the <strong>waiter at a restaurant</strong>. You (frontend) say "1 dosa please." The waiter (API) goes to the kitchen (backend), comes back with the dosa. You don't need to know how the chef cooks &mdash; you just talk to the waiter.
+      </div>
+
+      <h3>22.2 HTTP methods</h3>
+      <table>
+        <tr><th>Method</th><th>Purpose</th><th>Example</th></tr>
+        <tr><td>GET</td><td>Read data</td><td>GET /users/5</td></tr>
+        <tr><td>POST</td><td>Create new</td><td>POST /users</td></tr>
+        <tr><td>PUT</td><td>Update existing (full)</td><td>PUT /users/5</td></tr>
+        <tr><td>PATCH</td><td>Update existing (partial)</td><td>PATCH /users/5</td></tr>
+        <tr><td>DELETE</td><td>Remove</td><td>DELETE /users/5</td></tr>
+      </table>
+
+      <h3>22.3 Status codes (the response number)</h3>
+      <ul>
+        <li><strong>2xx</strong> &mdash; Success (200 OK, 201 Created, 204 No Content)</li>
+        <li><strong>3xx</strong> &mdash; Redirects</li>
+        <li><strong>4xx</strong> &mdash; Client error (400 Bad Request, 401 Unauthorized, 404 Not Found)</li>
+        <li><strong>5xx</strong> &mdash; Server error (500 Internal, 502 Bad Gateway, 503 Service Unavailable)</li>
+      </ul>
+
+      <h3>22.4 Rest Assured example</h3>
+<pre><code><span class="k">import static</span> io.restassured.RestAssured.*;
+<span class="k">import static</span> org.hamcrest.Matchers.*;
+
+@Test
+<span class="k">public void</span> getUserTest() {
+    given()
+        .baseUri(<span class="s">"https://reqres.in/api"</span>)
+        .header(<span class="s">"Accept"</span>, <span class="s">"application/json"</span>)
+    .when()
+        .get(<span class="s">"/users/2"</span>)
+    .then()
+        .statusCode(200)
+        .body(<span class="s">"data.id"</span>, equalTo(2))
+        .body(<span class="s">"data.email"</span>, containsString(<span class="s">"@reqres.in"</span>));
+}
+</code></pre>
+
+      <p>That's the <strong>given-when-then</strong> pattern: <em>given</em> these conditions, <em>when</em> I make this call, <em>then</em> I expect this response.</p>
+
+      <h3>22.5 Why mix UI + API tests?</h3>
+      <ul>
+        <li>Use API to <em>set up</em> data quickly: create a user via API, then test login on UI.</li>
+        <li>Use API to <em>verify</em> after a UI action: click "Save", then call GET to confirm DB has the value.</li>
+        <li>This makes tests faster, less flaky, and more focused.</li>
+      </ul>
+    </section>
+
+    <!-- ============ MODULE 23: Git & CI/CD ============ -->
+    <section class="module" id="m23">
+      <h2>23. Git, GitHub &amp; CI/CD (Brief)</h2>
+
+      <h3>23.1 Why Git?</h3>
+      <p>Git is a <strong>time machine</strong> for your code. Every change you make can be saved as a "commit". You can go back, branch out, merge changes, collaborate with a team.</p>
+
+      <h3>23.2 Daily Git commands</h3>
+<pre><code>git clone &lt;url&gt;            <span class="c"># first time: copy a repo</span>
+git status                  <span class="c"># what changed?</span>
+git add .                   <span class="c"># stage changes</span>
+git commit -m <span class="s">"message"</span>    <span class="c"># save snapshot</span>
+git push                    <span class="c"># upload to GitHub</span>
+git pull                    <span class="c"># download teammates' changes</span>
+git branch feature/login    <span class="c"># create a branch</span>
+git checkout feature/login  <span class="c"># switch to it</span>
+git merge feature/login     <span class="c"># combine into current branch</span>
+</code></pre>
+
+      <h3>23.3 GitHub</h3>
+      <p>GitHub is a website that <em>hosts</em> Git repositories online. It also adds: pull requests, code review, issues, GitHub Actions (CI/CD).</p>
+
+      <h3>23.4 What is CI/CD?</h3>
+      <ul>
+        <li><strong>CI = Continuous Integration</strong> &mdash; every time someone pushes code, automatically build &amp; run tests.</li>
+        <li><strong>CD = Continuous Delivery / Deployment</strong> &mdash; if tests pass, automatically deploy to staging / production.</li>
+      </ul>
+
+      <div class="callout real">
+        <span class="label">Real-life analogy</span>
+        Imagine a factory with a quality-check robot at the end of the assembly line. Every product passes through it. CI is the robot &mdash; every code commit gets quality-checked automatically.
+      </div>
+
+      <h3>23.5 GitHub Actions example for this repo</h3>
+<pre><code>name: Selenium Tests
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - <span class="k">uses</span>: actions/checkout@v4
+      - <span class="k">uses</span>: actions/setup-java@v4
+        with:
+          distribution: <span class="s">'temurin'</span>
+          java-version: <span class="s">'17'</span>
+      - run: mvn -B clean test
+      - <span class="k">if</span>: always()
+        <span class="k">uses</span>: actions/upload-artifact@v4
+        with:
+          name: extent-report
+          path: src/test/resources/ExtentReport/
+</code></pre>
+
+      <p>Save as <code>.github/workflows/tests.yml</code>. Now every push to GitHub auto-runs your tests and stores the report as an artifact you can download.</p>
+
+      <div class="callout iv">
+        <span class="label">Interview question</span>
+        <strong>Q: How do you run Selenium tests in a CI server?</strong><br/>
+        Use a headless browser (no GUI needed): <code>ChromeOptions options = new ChromeOptions(); options.addArguments("--headless=new", "--no-sandbox", "--disable-dev-shm-usage");</code>. Use Maven (<code>mvn test</code>) which works on any OS. Publish the ExtentReport HTML and screenshots as build artifacts.
+      </div>
+    </section>
+
+    <!-- ============ MODULE 24: Best Practices ============ -->
+    <section class="module" id="m24">
+      <h2>24. Best Practices (Industry Standards)</h2>
+
+      <h3>24.1 Locator strategy</h3>
+      <ul>
+        <li>Prefer <strong>id &gt; name &gt; CSS &gt; XPath</strong>.</li>
+        <li>Avoid auto-generated locators (e.g., <code>id="mat-input-127"</code> &mdash; the number changes every render).</li>
+        <li>Ask developers to add <code>data-test-id="loginBtn"</code> attributes &mdash; stable, dedicated for tests.</li>
+      </ul>
+
+      <h3>24.2 Waits</h3>
+      <ul>
+        <li>NO <code>Thread.sleep()</code> in production code.</li>
+        <li>NO mixing implicit + explicit waits.</li>
+        <li>Use <code>WebDriverWait</code> with <code>ExpectedConditions</code>.</li>
+      </ul>
+
+      <h3>24.3 Test structure (AAA)</h3>
+      <ul>
+        <li><strong>Arrange</strong> &mdash; set up data, navigate to page</li>
+        <li><strong>Act</strong> &mdash; perform the user action</li>
+        <li><strong>Assert</strong> &mdash; verify the outcome</li>
+      </ul>
+
+      <h3>24.4 One assertion per test (ideally)</h3>
+      <p>Each test should validate one behavior. Easier to debug when it fails. Long tests with 10 asserts hide what truly broke.</p>
+
+      <h3>24.5 Independent tests</h3>
+      <p>Test 2 should never depend on Test 1 to pass. Each test must <em>set up</em> its own data and <em>not rely</em> on previous tests. Otherwise parallel execution is impossible.</p>
+
+      <h3>24.6 Avoid hardcoding</h3>
+      <p>Don't put URLs, credentials, file paths in code. Use <code>config.properties</code>, environment variables, or vault for secrets.</p>
+
+      <h3>24.7 Logging + reports</h3>
+      <p>Every action should log what it did. Every failure should capture a screenshot. Without these, debugging is impossible.</p>
+
+      <h3>24.8 Page Object Model</h3>
+      <p>Always. No locators in test classes.</p>
+
+      <h3>24.9 Driver lifecycle</h3>
+      <p>One driver per test method (<code>@BeforeMethod / @AfterMethod</code>) &mdash; clean state, easy parallelization, no leaks.</p>
+
+      <h3>24.10 Don't ignore flaky tests</h3>
+      <p>If a test fails 1 in 5 runs, it's not "flaky luck" &mdash; it's a real timing/data issue. Fix the root cause. Retries (<code>RetryAnalyzer</code>) are a band-aid, not a cure.</p>
+
+      <div class="callout tip">
+        <span class="label">A great framework checklist</span>
+        <ul>
+          <li>Cross-browser config in properties</li>
+          <li>Page Object Model</li>
+          <li>Reusable action driver layer</li>
+          <li>Explicit waits everywhere</li>
+          <li>Log4j logs to file</li>
+          <li>ExtentReport with screenshots on failure</li>
+          <li>Data-driven via Excel/CSV</li>
+          <li>Parallel execution with ThreadLocal</li>
+          <li>Retry analyzer for transient failures</li>
+          <li>CI integration (GitHub Actions / Jenkins)</li>
+        </ul>
+        <strong>Your repo already implements ALL of these. </strong>
+      </div>
+    </section>
+
+    <!-- ============ MODULE 25: Interview Q&A ============ -->
+    <section class="module" id="m25">
+      <h2>25. Interview Q&amp;A &mdash; The Top 30</h2>
+
+      <div class="callout iv">
+        <span class="label">1. What is Selenium WebDriver?</span>
+        An open-source library for automating web browsers. It controls the browser via the browser's native automation API and supports multiple languages.
+      </div>
+
+      <div class="callout iv">
+        <span class="label">2. Difference between driver.close() and driver.quit()?</span>
+        <code>close()</code> closes the current window. <code>quit()</code> closes all windows and ends the WebDriver session, releasing the chromedriver process.
+      </div>
+
+      <div class="callout iv">
+        <span class="label">3. Difference between findElement and findElements?</span>
+        <code>findElement</code> returns the first match or throws <code>NoSuchElementException</code>. <code>findElements</code> returns a List (empty if none, no exception).
+      </div>
+
+      <div class="callout iv">
+        <span class="label">4. What are the types of locators?</span>
+        id, name, className, tagName, linkText, partialLinkText, cssSelector, xpath. (Total 8.)
+      </div>
+
+      <div class="callout iv">
+        <span class="label">5. XPath types?</span>
+        Absolute (starts with <code>/</code>) and Relative (starts with <code>//</code>). Always prefer Relative.
+      </div>
+
+      <div class="callout iv">
+        <span class="label">6. CSS vs XPath, which is better?</span>
+        CSS is faster and shorter. XPath is more powerful (text matching, parent traversal). Use CSS when possible, XPath when necessary.
+      </div>
+
+      <div class="callout iv">
+        <span class="label">7. Difference between Implicit and Explicit Wait?</span>
+        Implicit: global timeout for findElement, only checks DOM presence. Explicit: targeted wait for a specific condition (visible, clickable, etc.) on a specific element.
+      </div>
+
+      <div class="callout iv">
+        <span class="label">8. What is FluentWait?</span>
+        A flexible explicit wait with custom polling interval and ignored exceptions. Inherits from <code>WebDriverWait</code>'s base class.
+      </div>
+
+      <div class="callout iv">
+        <span class="label">9. How do you handle alerts?</span>
+        <code>driver.switchTo().alert().accept()/dismiss()/getText()/sendKeys(...)</code>.
+      </div>
+
+      <div class="callout iv">
+        <span class="label">10. How to handle frames?</span>
+        <code>driver.switchTo().frame(index/name/element)</code>; switch back with <code>defaultContent()</code> or <code>parentFrame()</code>.
+      </div>
+
+      <div class="callout iv">
+        <span class="label">11. How to handle multiple windows?</span>
+        Save current handle with <code>getWindowHandle()</code>, iterate through <code>getWindowHandles()</code>, switch with <code>switchTo().window(handle)</code>.
+      </div>
+
+      <div class="callout iv">
+        <span class="label">12. How to handle dropdowns?</span>
+        For <code>&lt;select&gt;</code> tags use the <code>Select</code> class with <code>selectByVisibleText/Value/Index</code>. For custom dropdowns, click and select like normal elements.
+      </div>
+
+      <div class="callout iv">
+        <span class="label">13. How to perform mouse hover?</span>
+        <code>new Actions(driver).moveToElement(element).perform();</code>
+      </div>
+
+      <div class="callout iv">
+        <span class="label">14. How to take screenshot?</span>
+        <code>((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE)</code> then copy via FileUtils.
+      </div>
+
+      <div class="callout iv">
+        <span class="label">15. What is Page Object Model?</span>
+        A design pattern: each web page is a Java class containing locators + methods (actions). Tests use page methods, not raw locators. Reusable + maintainable.
+      </div>
+
+      <div class="callout iv">
+        <span class="label">16. Difference between POM and PageFactory?</span>
+        POM is the pattern. PageFactory is one Selenium implementation using <code>@FindBy</code> annotations. POM with <code>By</code> objects is the other implementation.
+      </div>
+
+      <div class="callout iv">
+        <span class="label">17. What is TestNG?</span>
+        A test framework inspired by JUnit. Provides annotations, asserts, parallel execution, dataproviders, listeners, configurable test runs via testng.xml.
+      </div>
+
+      <div class="callout iv">
+        <span class="label">18. Difference between @BeforeTest and @BeforeMethod?</span>
+        <code>@BeforeTest</code> runs once per <code>&lt;test&gt;</code> tag in testng.xml. <code>@BeforeMethod</code> runs before EACH @Test method.
+      </div>
+
+      <div class="callout iv">
+        <span class="label">19. Hard vs Soft Assert?</span>
+        Hard: stops on first failure. Soft: collects all, you call <code>assertAll()</code> at end to report.
+      </div>
+
+      <div class="callout iv">
+        <span class="label">20. How to run tests in parallel?</span>
+        In testng.xml: <code>parallel="methods/classes/tests"</code> with <code>thread-count</code>. Use <code>ThreadLocal&lt;WebDriver&gt;</code> to keep drivers thread-safe.
+      </div>
+
+      <div class="callout iv">
+        <span class="label">21. What is ThreadLocal and why?</span>
+        ThreadLocal stores a separate value per thread. WebDriver isn't thread-safe, so each thread needs its own driver instance &mdash; ThreadLocal isolates them.
+      </div>
+
+      <div class="callout iv">
+        <span class="label">22. What is JavaScriptExecutor?</span>
+        Interface to run raw JS in the browser. Used when normal Selenium fails: clicks blocked by overlays, scroll, hidden elements.
+      </div>
+
+      <div class="callout iv">
+        <span class="label">23. How to scroll a page?</span>
+        <code>js.executeScript("window.scrollBy(0,500);");</code> or <code>scrollIntoView(true)</code> on an element.
+      </div>
+
+      <div class="callout iv">
+        <span class="label">24. StaleElementReferenceException &mdash; why?</span>
+        The element you found earlier was destroyed/replaced by the page's JS. Re-find it before using.
+      </div>
+
+      <div class="callout iv">
+        <span class="label">25. ElementClickInterceptedException?</span>
+        Another element is on top of yours (modal, banner). Solutions: scroll into view, wait for the overlay, click via JS.
+      </div>
+
+      <div class="callout iv">
+        <span class="label">26. How do you handle CAPTCHA / OTP?</span>
+        Selenium can't. Strategies: ask developers for a test bypass, mock the OTP service, disable captcha in test env, or use a known dummy code.
+      </div>
+
+      <div class="callout iv">
+        <span class="label">27. How is data passed to a test?</span>
+        Via <code>@Parameters</code> from testng.xml, or <code>@DataProvider</code> from a Java method (often reading Excel/CSV/JSON).
+      </div>
+
+      <div class="callout iv">
+        <span class="label">28. What is a Listener in TestNG?</span>
+        A class implementing <code>ITestListener</code> (or others). Hooks into events (<code>onTestStart, onTestSuccess, onTestFailure, onFinish</code>) to perform actions like screenshots and reporting.
+      </div>
+
+      <div class="callout iv">
+        <span class="label">29. Headless browser execution?</span>
+        Run browser without GUI &mdash; faster, ideal for CI. <code>options.addArguments("--headless=new")</code> for Chrome.
+      </div>
+
+      <div class="callout iv">
+        <span class="label">30. How would you design a Selenium framework from scratch?</span>
+        <ol>
+          <li>Maven project with selenium, testng, log4j2, extentreports, poi.</li>
+          <li>BaseClass with ThreadLocal driver setup/teardown.</li>
+          <li>ActionDriver wrapper for click/sendKeys with waits + logs + screenshots.</li>
+          <li>Page classes (POM) per screen.</li>
+          <li>Test classes extending BaseClass.</li>
+          <li>config.properties + log4j2.xml for config.</li>
+          <li>TestNG XML + DataProviders for data-driven runs.</li>
+          <li>TestListener &amp; ExtentManager for reports.</li>
+          <li>RetryAnalyzer for flaky tests.</li>
+          <li>GitHub Actions / Jenkins for CI.</li>
+        </ol>
+        (You're literally describing this very repository!)
+      </div>
+    </section>
+
+    <!-- ============ MODULE 26: Glossary ============ -->
+    <section class="module" id="m26">
+      <h2>26. Glossary &mdash; Quick Reference</h2>
+      <table>
+        <tr><th>Term</th><th>Plain English meaning</th></tr>
+        <tr><td>Selenium</td><td>Tool to automate web browsers via code.</td></tr>
+        <tr><td>WebDriver</td><td>The Selenium library you use in code; talks to the browser.</td></tr>
+        <tr><td>Driver</td><td>The small executable (chromedriver, geckodriver) that bridges Selenium and the browser.</td></tr>
+        <tr><td>DOM</td><td>Browser's internal tree of HTML elements.</td></tr>
+        <tr><td>Locator</td><td>The "address" used to find an element (id, name, xpath, css, &hellip;).</td></tr>
+        <tr><td>WebElement</td><td>A Java object representing one element on a page.</td></tr>
+        <tr><td>By</td><td>The locator factory class &mdash; <code>By.id, By.xpath, &hellip;</code></td></tr>
+        <tr><td>Implicit Wait</td><td>Global polling timeout for findElement.</td></tr>
+        <tr><td>Explicit Wait</td><td>Wait for a specific condition before proceeding.</td></tr>
+        <tr><td>FluentWait</td><td>Configurable explicit wait with polling + ignored exceptions.</td></tr>
+        <tr><td>ExpectedConditions</td><td>A library of pre-built wait conditions (visible, clickable, &hellip;).</td></tr>
+        <tr><td>Actions</td><td>Class for hover, drag-drop, right-click, keyboard chords.</td></tr>
+        <tr><td>Alert</td><td>JS popup; switch via <code>switchTo().alert()</code>.</td></tr>
+        <tr><td>iframe</td><td>An HTML page embedded inside another; switch via <code>switchTo().frame()</code>.</td></tr>
+        <tr><td>Window handle</td><td>Unique ID per browser window/tab.</td></tr>
+        <tr><td>JavascriptExecutor</td><td>Interface to run raw JS in the page.</td></tr>
+        <tr><td>POM</td><td>Page Object Model: one class per page.</td></tr>
+        <tr><td>PageFactory</td><td>Selenium's POM helper using @FindBy annotations.</td></tr>
+        <tr><td>TestNG</td><td>Test framework: annotations, parallel runs, asserts, reports.</td></tr>
+        <tr><td>@Test</td><td>TestNG annotation marking a method as a test.</td></tr>
+        <tr><td>Assertion</td><td>A check; failure = test fail.</td></tr>
+        <tr><td>Hard Assert</td><td>Stops on first failure.</td></tr>
+        <tr><td>Soft Assert</td><td>Collects all failures; check at end.</td></tr>
+        <tr><td>Listener</td><td>A class hooking TestNG events (start/pass/fail/end).</td></tr>
+        <tr><td>RetryAnalyzer</td><td>Re-runs failed tests up to N times.</td></tr>
+        <tr><td>DataProvider</td><td>Method supplying multiple data rows to a @Test.</td></tr>
+        <tr><td>ThreadLocal</td><td>Java class storing a separate value per thread; needed for parallel.</td></tr>
+        <tr><td>Maven</td><td>Build tool + dependency manager via pom.xml.</td></tr>
+        <tr><td>pom.xml</td><td>Maven project descriptor.</td></tr>
+        <tr><td>Surefire plugin</td><td>Maven plugin that runs unit/TestNG tests.</td></tr>
+        <tr><td>Log4j2</td><td>Logging library for Java.</td></tr>
+        <tr><td>ExtentReports</td><td>Beautiful HTML report library.</td></tr>
+        <tr><td>Apache POI</td><td>Excel read/write library for Java.</td></tr>
+        <tr><td>JDBC</td><td>Java DB connectivity API.</td></tr>
+        <tr><td>Rest Assured</td><td>Java library for REST API testing.</td></tr>
+        <tr><td>Headless</td><td>Browser running without GUI; used in CI.</td></tr>
+        <tr><td>StaleElementReferenceException</td><td>The element you cached was rebuilt; re-find it.</td></tr>
+        <tr><td>NoSuchElementException</td><td>The locator didn't match anything.</td></tr>
+        <tr><td>TimeoutException</td><td>Wait expired before condition met.</td></tr>
+        <tr><td>ElementClickIntercepted</td><td>Another element is covering yours; click blocked.</td></tr>
+      </table>
+
+      <div class="callout tip">
+        <span class="label">Where to go next</span>
+        <ol>
+          <li>Practice on real sites: orangehrmlive.com, the-internet.herokuapp.com, demoblaze.com.</li>
+          <li>Read the official docs at selenium.dev.</li>
+          <li>Read your own framework code &mdash; you literally have a textbook implementation in this repo.</li>
+          <li>Add 1 new feature each week (e.g., Allure reports, Docker, Selenium Grid, Appium for mobile).</li>
+          <li>Build a personal portfolio repo and pin it on your resume.</li>
+        </ol>
+      </div>
+
+      <p style="text-align:center; margin-top:30px; color:#6b7280;">
+        <em>End of notes. Happy testing! Remember: a great tester is patient, curious, and methodical &mdash; just like a great chef.</em>
+      </p>
+    </section>
+
+  </main>
+</div>
+<footer>
+  &copy; Selenium Complete Notes &mdash; Beginner-friendly guide built around the OrangeHRM Selenium framework.
+</footer>
+</body>
+</html>

@@ -1,0 +1,2750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Selenium Deep Dive - Detailed Explanations for Trainees</title>
+<style>
+  /* =========================================================
+     Selenium Deep Dive - Stylesheet
+     Companion to Selenium-Complete-Notes.html
+     Goes much deeper. Same look-and-feel.
+     ========================================================= */
+  :root {
+    --bg: #f7f8fb;
+    --panel: #ffffff;
+    --ink: #1f2937;
+    --ink-soft: #4b5563;
+    --muted: #6b7280;
+    --brand: #0e7490;
+    --brand-dark: #155e75;
+    --accent: #f59e0b;
+    --green: #16a34a;
+    --red: #dc2626;
+    --purple: #7c3aed;
+    --code-bg: #0f172a;
+    --code-ink: #e2e8f0;
+    --code-key: #93c5fd;
+    --code-str: #fcd34d;
+    --code-com: #94a3b8;
+    --border: #e5e7eb;
+    --shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    min-height: 100vh;
+  }
+  aside.toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100vh;
+    overflow-y: auto;
+    background: #052e3a;
+    color: #cbd5e1;
+    padding: 24px 18px;
+    border-right: 1px solid #0e3a48;
+  }
+  aside.toc h2 { color: #fff; font-size: 17px; margin: 0 0 6px; }
+  aside.toc .sub { color: #94a3b8; font-size: 12px; margin-bottom: 18px; border-bottom: 1px solid #0e3a48; padding-bottom: 10px; }
+  aside.toc ol { list-style: none; padding: 0; margin: 0; counter-reset: m; }
+  aside.toc ol li { counter-increment: m; margin: 2px 0; }
+  aside.toc ol li a {
+    display: block; color: #cbd5e1; text-decoration: none; padding: 7px 10px;
+    border-radius: 6px; font-size: 13px; transition: background 0.15s;
+  }
+  aside.toc ol li a::before { content: counter(m, decimal-leading-zero) ". "; color: #64748b; font-weight: 600; margin-right: 4px; }
+  aside.toc ol li a:hover { background: #0e3a48; color: #fff; }
+
+  main { padding: 40px 56px 80px; max-width: 1100px; width: 100%; }
+
+  .hero {
+    background: linear-gradient(135deg, #0e7490 0%, #155e75 100%);
+    color: #fff; padding: 40px 36px; border-radius: 14px;
+    box-shadow: var(--shadow); margin-bottom: 36px;
+  }
+  .hero h1 { margin: 0 0 8px; font-size: 32px; line-height: 1.2; }
+  .hero p { margin: 4px 0; opacity: 0.95; }
+  .hero .badges { margin-top: 14px; }
+  .badge { display: inline-block; background: rgba(255,255,255,0.18); color: #fff; padding: 4px 10px; border-radius: 999px; font-size: 12px; margin-right: 6px; }
+
+  section.module {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 14px; padding: 32px 36px; margin-bottom: 28px;
+    box-shadow: var(--shadow); scroll-margin-top: 20px;
+  }
+  section.module h2 {
+    font-size: 26px; margin-top: 0; color: var(--brand-dark);
+    border-bottom: 2px solid var(--border); padding-bottom: 12px;
+  }
+  section.module h3 { margin-top: 30px; font-size: 19px; color: #111827; }
+  section.module h4 { margin-top: 22px; font-size: 16px; color: #1f2937; }
+  p { color: var(--ink-soft); margin: 10px 0; }
+  ul, ol { color: var(--ink-soft); }
+  ul li, ol li { margin: 6px 0; }
+  strong { color: var(--ink); }
+  a { color: var(--brand); }
+  code { background: #ecfeff; color: #155e75; padding: 2px 6px; border-radius: 4px; font-family: "JetBrains Mono", Menlo, Consolas, monospace; font-size: 13.5px; }
+  pre { background: var(--code-bg); color: var(--code-ink); padding: 16px 18px; border-radius: 10px; overflow-x: auto; line-height: 1.55; font-size: 13.5px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04); }
+  pre code { background: transparent; color: inherit; padding: 0; font-family: "JetBrains Mono", Menlo, Consolas, monospace; }
+  pre .k { color: var(--code-key); }
+  pre .s { color: var(--code-str); }
+  pre .c { color: var(--code-com); font-style: italic; }
+  pre .t { color: #6ee7b7; }
+
+  .callout { border-left: 4px solid var(--brand); background: #ecfeff; padding: 14px 18px; border-radius: 8px; margin: 16px 0; color: #134e4a; }
+  .callout.tip { border-color: var(--green); background: #ecfdf5; color: #065f46; }
+  .callout.warn { border-color: var(--red); background: #fef2f2; color: #7f1d1d; }
+  .callout.real { border-color: var(--accent); background: #fffbeb; color: #78350f; }
+  .callout.iv { border-color: var(--purple); background: #f5f3ff; color: #4c1d95; }
+  .callout .label { font-weight: 700; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; margin-bottom: 4px; display: block; }
+
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 14.5px; }
+  th, td { text-align: left; padding: 10px 12px; border: 1px solid var(--border); vertical-align: top; }
+  th { background: #ecfeff; color: #0f172a; }
+  tr:nth-child(even) td { background: #fafafa; }
+
+  .diagram { background: #0f172a; color: #cbd5e1; font-family: "JetBrains Mono", Menlo, Consolas, monospace; padding: 18px; border-radius: 10px; white-space: pre; overflow-x: auto; font-size: 13px; line-height: 1.5; margin: 14px 0; }
+
+  .twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 14px 0; }
+  .twocol .col { border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; background: #fcfcfd; }
+  .twocol .col h5 { margin: 0 0 8px; }
+
+  .worked { background: #fefce8; border: 1px solid #fde68a; border-radius: 10px; padding: 14px 18px; margin: 18px 0; }
+  .worked h5 { margin: 0 0 8px; color: #92400e; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .practice { background: #f0f9ff; border: 1px dashed #7dd3fc; border-radius: 10px; padding: 14px 18px; margin: 18px 0; }
+  .practice h5 { margin: 0 0 8px; color: #075985; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  footer { text-align: center; color: var(--muted); padding: 24px; font-size: 13px; }
+
+  @media (max-width: 1000px) {
+    .layout { grid-template-columns: 1fr; }
+    aside.toc { position: relative; height: auto; max-height: 50vh; }
+    main { padding: 24px; }
+    .twocol { grid-template-columns: 1fr; }
+  }
+  @media print { aside.toc { display: none; } main { padding: 0; } section.module { box-shadow: none; page-break-inside: avoid; } }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <aside class="toc">
+    <h2>Selenium Deep Dive</h2>
+    <div class="sub">Detailed explanations &amp; worked examples</div>
+    <ol>
+      <li><a href="#d1">How the Web Actually Works</a></li>
+      <li><a href="#d2">WebDriver Architecture</a></li>
+      <li><a href="#d3">Java for Selenium &mdash; Detailed</a></li>
+      <li><a href="#d4">HTML &amp; DOM Lab</a></li>
+      <li><a href="#d5">Locator Strategy Workshop</a></li>
+      <li><a href="#d6">XPath Complete Reference</a></li>
+      <li><a href="#d7">CSS Selectors Complete</a></li>
+      <li><a href="#d8">Synchronization Mastery</a></li>
+      <li><a href="#d9">Page Object Model &mdash; Advanced</a></li>
+      <li><a href="#d10">TestNG &mdash; Complete</a></li>
+      <li><a href="#d11">Top 25 Errors &amp; Debug Recipes</a></li>
+      <li><a href="#d12">Build a Framework Step-by-Step</a></li>
+      <li><a href="#d13">Cheat Sheet</a></li>
+    </ol>
+    <p style="font-size:11px; color:#64748b; margin-top:24px; line-height:1.5;">
+      Companion to <strong>Selenium-Complete-Notes.html</strong>. Read that first for the overview, then come here for depth.
+    </p>
+  </aside>
+
+  <main>
+    <div class="hero">
+      <h1>Selenium Deep Dive</h1>
+      <p>The detailed companion guide. Worked examples, step-by-step explanations, why-it-works.</p>
+      <div class="badges">
+        <span class="badge">Detailed</span>
+        <span class="badge">Worked Examples</span>
+        <span class="badge">Practice Exercises</span>
+        <span class="badge">Debugging Recipes</span>
+      </div>
+    </div>
+
+    <div class="callout">
+      <span class="label">How this file is organized</span>
+      Each chapter goes <strong>far deeper</strong> than the main notes. You'll find:
+      <ul>
+        <li><strong>Yellow boxes</strong> &mdash; worked examples, walked through line by line.</li>
+        <li><strong>Blue boxes</strong> &mdash; practice exercises with answers.</li>
+        <li><strong>Green / Red / Purple</strong> &mdash; tips, warnings, interview questions.</li>
+      </ul>
+      Aim: by the end of any chapter, a complete beginner should feel <em>fluent</em>, not just informed.
+    </div>
+
+    <!-- ============ DEEP 1: How the Web Works ============ -->
+    <section class="module" id="d1">
+      <h2>1. How the Web Actually Works (Foundation)</h2>
+
+      <p>Before learning Selenium, every trainee should understand <em>what's happening</em> when they open a website. This 10-minute foundation prevents 80% of confusion later.</p>
+
+      <h3>1.1 The big picture: client and server</h3>
+      <div class="diagram">
+   YOUR LAPTOP (client)              SOMEWHERE ON THE INTERNET (server)
+   +-------------------+                 +------------------------+
+   |   Chrome browser  | ---HTTP req---&gt; |  Web server (Apache,   |
+   |                   |                 |   nginx, Node, ...)    |
+   |                   | &lt;--HTML/CSS/JS--|                        |
+   +-------------------+                 +------------------------+
+      </div>
+
+      <p>When you type <code>https://orangehrmlive.com</code> and press Enter:</p>
+      <ol>
+        <li>Chrome opens a network connection to the server.</li>
+        <li>It sends an HTTP request: "GET / HTTP/1.1, Host: orangehrmlive.com".</li>
+        <li>The server responds with HTML text (and references to CSS/JS/images).</li>
+        <li>Chrome <em>parses</em> the HTML into the <strong>DOM</strong> (a tree of elements).</li>
+        <li>Chrome downloads CSS &amp; JS, applies styles, runs scripts.</li>
+        <li>Chrome <em>paints</em> the result on screen.</li>
+      </ol>
+
+      <div class="callout real">
+        <span class="label">Real-life analogy</span>
+        Opening a webpage is like ordering a flat-pack from IKEA:
+        <ul>
+          <li>You order (URL) &mdash; the truck delivers parts (HTML).</li>
+          <li>The instruction manual is the CSS (how it should look) and JS (interactive bits).</li>
+          <li>You assemble it (browser builds the DOM and renders it).</li>
+          <li>It takes a few seconds. During those seconds, things appear gradually.</li>
+        </ul>
+        That last point is critical: <strong>the page is not "ready" the moment <code>get(url)</code> returns</strong>. Selenium tests need to <em>wait</em> for things to be ready.
+      </div>
+
+      <h3>1.2 What is HTML, really?</h3>
+      <p>HTML is just <em>text</em>. The browser reads this text and builds an in-memory tree. Here's a tiny page:</p>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;&lt;title&gt;Login&lt;/title&gt;&lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Welcome&lt;/h1&gt;
+    &lt;form id=<span class="s">"loginForm"</span>&gt;
+      &lt;input name=<span class="s">"username"</span> placeholder=<span class="s">"Username"</span> /&gt;
+      &lt;input name=<span class="s">"password"</span> type=<span class="s">"password"</span> /&gt;
+      &lt;button type=<span class="s">"submit"</span>&gt;Login&lt;/button&gt;
+    &lt;/form&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+      <p>The browser builds this DOM tree:</p>
+      <div class="diagram">
+html
+ |
+ +-- head
+ |    +-- title  ("Login")
+ |
+ +-- body
+      +-- h1     ("Welcome")
+      +-- form   id="loginForm"
+            +-- input  name="username"
+            +-- input  name="password"
+            +-- button type="submit"  ("Login")
+      </div>
+
+      <p>Each rectangle in the tree is a <strong>node</strong>. Selenium's locators are queries against this tree: "find me the <code>input</code> node whose <code>name</code> attribute is <code>username</code>".</p>
+
+      <h3>1.3 Static HTML vs Dynamic JS-driven pages</h3>
+      <div class="twocol">
+        <div class="col">
+          <h5>Static page (old-school)</h5>
+          <p>Server sends complete HTML. By the time you see it, all elements exist. Easy to automate.</p>
+          <p>Examples: a simple Wikipedia article, a documentation site.</p>
+        </div>
+        <div class="col">
+          <h5>Dynamic page (modern SPA)</h5>
+          <p>Server sends mostly empty HTML + a big JS bundle. JS then fetches data and <em>builds</em> the elements <em>after</em> the page loads.</p>
+          <p>Examples: Gmail, Facebook, Jira, OrangeHRM. Most real-world apps.</p>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <span class="label">Why this matters for Selenium</span>
+        On a dynamic page, when <code>driver.get(url)</code> returns, the page is mostly <em>empty</em>. The login form doesn't exist yet &mdash; JS is still building it. If you try to find <code>username</code> immediately, you'll get <code>NoSuchElementException</code>. <strong>This is why we have waits</strong>.
+      </div>
+
+      <h3>1.4 The browser's rendering pipeline</h3>
+      <div class="diagram">
+1. Receive HTML text from server
+2. Parse HTML  -&gt;  build DOM tree
+3. Parse CSS   -&gt;  build CSSOM (style tree)
+4. Combine     -&gt;  Render Tree (DOM + styles)
+5. Layout      -&gt;  compute positions/sizes
+6. Paint       -&gt;  draw pixels on screen
+7. Run JS      -&gt;  may modify DOM, restart from step 4
+      </div>
+
+      <p>Key insight: <em>JavaScript can change the DOM at any time</em>. So an element that exists at second 0 may be gone at second 2 (replaced by JS), then reappear at second 3. This is why we get <code>StaleElementReferenceException</code>.</p>
+
+      <h3>1.5 Network: HTTP requests in DevTools</h3>
+      <p>Open DevTools &rarr; Network tab. Reload a page. You'll see dozens of requests:</p>
+      <ul>
+        <li><strong>Document</strong> &mdash; the initial HTML.</li>
+        <li><strong>Stylesheet</strong> &mdash; the CSS files.</li>
+        <li><strong>Script</strong> &mdash; the JS files.</li>
+        <li><strong>XHR / Fetch</strong> &mdash; AJAX calls (the dynamic data).</li>
+        <li><strong>Image / Font</strong> &mdash; assets.</li>
+      </ul>
+
+      <div class="callout tip">
+        <span class="label">Pro test tip</span>
+        Many flaky tests fail because a background XHR hasn't finished. Open the Network tab, find the slow XHR, and in your test wait for the <em>resulting UI element</em> rather than a fixed time.
+      </div>
+
+      <h3>1.6 What you should do as a beginner (10-minute exercise)</h3>
+      <ol>
+        <li>Press F12 right now.</li>
+        <li>Visit any website. Click the <strong>Elements</strong> tab. See the DOM tree.</li>
+        <li>Click the <strong>Network</strong> tab, reload, watch requests fly.</li>
+        <li>Click the <strong>Console</strong> tab. Type <code>document.title</code>. The browser prints the title.</li>
+        <li>Type <code>document.querySelector('input')</code>. The browser finds the first input.</li>
+      </ol>
+
+      <p>That last command &mdash; <code>document.querySelector(...)</code> &mdash; is <strong>exactly</strong> what Selenium calls under the hood when you write <code>driver.findElement(By.cssSelector(...))</code>. Selenium doesn't use magic; it uses the browser's own native APIs.</p>
+    </section>
+
+    <!-- ============ DEEP 2: WebDriver Architecture ============ -->
+    <section class="module" id="d2">
+      <h2>2. Selenium WebDriver Architecture (How It Really Works)</h2>
+
+      <p>To write reliable tests, you must understand what happens when you call <code>driver.findElement(...)</code>. Spoiler: it's an HTTP request, not a function call.</p>
+
+      <h3>2.1 The full picture</h3>
+      <div class="diagram">
++------------------+      HTTP/JSON         +------------------+      Native API     +-------------+
+|  Your Java test  |  -- POST /session ---&gt; |  Browser Driver  |  -- click(elem) --&gt; |  Browser    |
+|  (selenium-java  |                        |  (chromedriver,  |                     |  process    |
+|   client lib)    |  &lt;-- response -------- |   geckodriver)   |  &lt;-- result ------- |  (Chrome)   |
++------------------+                        +------------------+                     +-------------+
+      ^                                              ^                                       ^
+  You write this                  Separate executable that              Normal browser, controlled
+  in Java                         implements W3C WebDriver              via "automation port"
+                                  Protocol over HTTP                    the driver opens
+      </div>
+
+      <h3>2.2 What happens, step by step</h3>
+<pre><code><span class="c">// Your code:</span>
+WebDriver driver = <span class="k">new</span> ChromeDriver();
+driver.get(<span class="s">"https://orangehrm.com"</span>);
+driver.findElement(By.name(<span class="s">"username"</span>)).sendKeys(<span class="s">"Admin"</span>);
+</code></pre>
+
+      <p>Behind the scenes:</p>
+      <ol>
+        <li><code>new ChromeDriver()</code> &mdash; Java starts the <code>chromedriver</code> executable on a random local port (e.g. 9515).</li>
+        <li>Chromedriver, in turn, launches Chrome with a special flag: <code>--remote-debugging-port=...</code>.</li>
+        <li>Chrome is now controllable. Chromedriver returns a <strong>session ID</strong> to Java.</li>
+        <li><code>driver.get(url)</code> &rarr; Java sends <code>POST http://localhost:9515/session/&lt;id&gt;/url</code> with body <code>{"url":"https://..."}</code>.</li>
+        <li>Chromedriver translates that into a Chrome DevTools Protocol command: navigate to URL.</li>
+        <li>Chrome navigates, returns OK.</li>
+        <li><code>findElement(By.name("username"))</code> &rarr; Java sends <code>POST /session/&lt;id&gt;/element</code> with body <code>{"using":"css selector","value":"[name='username']"}</code>.</li>
+        <li>Chromedriver runs <code>document.querySelector("[name='username']")</code> in the page.</li>
+        <li>Chrome returns the matching DOM element. Chromedriver gives it a unique element ID and returns that to Java.</li>
+        <li><code>.sendKeys("Admin")</code> &rarr; Java sends <code>POST /session/&lt;id&gt;/element/&lt;el-id&gt;/value</code>. Driver dispatches keyboard events to that element.</li>
+      </ol>
+
+      <div class="callout tip">
+        <span class="label">Why this matters</span>
+        Every Selenium command is a network round-trip. A test with 200 commands has 200&times;~5ms = ~1s of pure overhead. It's also why parallel tests need <strong>ThreadLocal</strong> drivers &mdash; each thread needs its own session ID.
+      </div>
+
+      <h3>2.3 The W3C WebDriver Protocol</h3>
+      <p>Selenium 4 conforms to the official <strong>W3C WebDriver standard</strong>. That means:</p>
+      <ul>
+        <li>HTTP/JSON commands are standardized across all browser drivers.</li>
+        <li>You write the same Java code for Chrome, Firefox, Edge &mdash; only the driver differs.</li>
+        <li>The protocol is <strong>versioned</strong>; old "JSON Wire Protocol" (Selenium 3) is gone.</li>
+      </ul>
+
+      <p>The W3C endpoints follow a consistent pattern: <code>POST/GET/DELETE /session/{id}/path</code>. Examples:</p>
+      <table>
+        <tr><th>Selenium method</th><th>HTTP call</th></tr>
+        <tr><td><code>new ChromeDriver()</code></td><td><code>POST /session</code></td></tr>
+        <tr><td><code>driver.get(url)</code></td><td><code>POST /session/{id}/url</code></td></tr>
+        <tr><td><code>driver.getTitle()</code></td><td><code>GET /session/{id}/title</code></td></tr>
+        <tr><td><code>driver.findElement(By.id("x"))</code></td><td><code>POST /session/{id}/element</code></td></tr>
+        <tr><td><code>element.click()</code></td><td><code>POST /session/{id}/element/{el-id}/click</code></td></tr>
+        <tr><td><code>driver.quit()</code></td><td><code>DELETE /session/{id}</code></td></tr>
+      </table>
+
+      <h3>2.4 Selenium Manager (the modern win)</h3>
+      <p>Pre-Selenium 4.6, you had to manually download <code>chromedriver.exe</code> and ensure its version matched your Chrome. Pain. Selenium 4.6+ ships <strong>Selenium Manager</strong>: when you create <code>new ChromeDriver()</code>, it:</p>
+      <ol>
+        <li>Detects your Chrome version.</li>
+        <li>Downloads the matching chromedriver to a cache.</li>
+        <li>Starts it transparently.</li>
+      </ol>
+      <p>Your repo uses <code>selenium-java 4.28.1</code> &mdash; you get this for free.</p>
+
+      <h3>2.5 Capabilities &amp; Options (browser configuration)</h3>
+      <p>Before launching the driver, you can configure how the browser starts:</p>
+<pre><code>ChromeOptions options = <span class="k">new</span> ChromeOptions();
+options.addArguments(<span class="s">"--start-maximized"</span>);
+options.addArguments(<span class="s">"--incognito"</span>);
+options.addArguments(<span class="s">"--headless=new"</span>);              <span class="c">// run without UI</span>
+options.addArguments(<span class="s">"--disable-notifications"</span>);
+options.addArguments(<span class="s">"--lang=en-US"</span>);
+options.setAcceptInsecureCerts(<span class="k">true</span>);              <span class="c">// for self-signed SSL</span>
+
+WebDriver driver = <span class="k">new</span> ChromeDriver(options);
+</code></pre>
+
+      <p>Headless mode is critical for CI &mdash; servers don't have a display. Always test headless once locally before pushing to CI.</p>
+
+      <h3>2.6 Key takeaways</h3>
+      <ul>
+        <li>WebDriver is a <strong>client-server</strong> system, even on your laptop.</li>
+        <li>Every command costs a network round-trip &mdash; minimize commands when you can.</li>
+        <li>Different threads must use different sessions &rarr; <strong>ThreadLocal</strong>.</li>
+        <li>The driver executable must match the browser version, not Selenium's version.</li>
+        <li>W3C standardization makes cross-browser tests realistic.</li>
+      </ul>
+
+      <div class="callout iv">
+        <span class="label">Interview question</span>
+        <strong>Q: How does Selenium WebDriver communicate with the browser?</strong><br/>
+        Selenium uses the W3C WebDriver Protocol over HTTP. The Selenium client library serializes commands to JSON, sends them via HTTP to a browser-specific driver executable (chromedriver, geckodriver, etc.), which uses the browser's native automation API to execute and returns the result.
+      </div>
+    </section>
+
+    <!-- MORE MODULES BELOW -->
+
+
+
+    <!-- ============ DEEP 3: Java for Selenium ============ -->
+    <section class="module" id="d3">
+      <h2>3. Java for Selenium &mdash; Detailed</h2>
+
+      <p>The main notes give a 10-minute Java tour. This chapter walks through every concept slowly, with worked examples, common errors, and exercises.</p>
+
+      <h3>3.1 Variables &amp; data types</h3>
+
+      <p>A variable is a <strong>named container</strong> that stores one value. Every variable in Java has a <em>type</em> declared upfront.</p>
+
+<pre><code><span class="c">// Pattern: type   name   =   initial value;</span>
+<span class="k">String</span>  username = <span class="s">"Admin"</span>;
+<span class="k">int</span>     age      = 28;
+<span class="k">double</span>  price    = 199.50;
+<span class="k">boolean</span> isActive = <span class="k">true</span>;
+<span class="k">char</span>    grade    = <span class="s">'A'</span>;
+<span class="k">long</span>    bigNumber = 9876543210L;   <span class="c">// note the L suffix</span>
+</code></pre>
+
+      <h4>The 8 primitive types (memorize)</h4>
+      <table>
+        <tr><th>Type</th><th>Size</th><th>Range</th><th>Default</th></tr>
+        <tr><td>byte</td><td>8 bits</td><td>-128 to 127</td><td>0</td></tr>
+        <tr><td>short</td><td>16 bits</td><td>-32,768 to 32,767</td><td>0</td></tr>
+        <tr><td>int</td><td>32 bits</td><td>~&plusmn;2.1 billion</td><td>0</td></tr>
+        <tr><td>long</td><td>64 bits</td><td>~&plusmn;9.2 quintillion</td><td>0L</td></tr>
+        <tr><td>float</td><td>32 bits</td><td>decimal, low precision</td><td>0.0f</td></tr>
+        <tr><td>double</td><td>64 bits</td><td>decimal, high precision</td><td>0.0</td></tr>
+        <tr><td>boolean</td><td>1 bit</td><td>true / false</td><td>false</td></tr>
+        <tr><td>char</td><td>16 bits</td><td>single Unicode character</td><td>'\u0000'</td></tr>
+      </table>
+
+      <p>Anything not in this list (String, ArrayList, WebDriver, etc.) is a <strong>reference type</strong> &mdash; it's an object on the heap, and the variable holds a reference (pointer) to it.</p>
+
+      <div class="worked">
+        <h5>Worked Example &mdash; Why type matters</h5>
+<pre><code><span class="k">int</span> a = 5;
+<span class="k">int</span> b = 2;
+System.out.println(a / b);    <span class="c">// prints 2  (integer division!)</span>
+
+<span class="k">double</span> c = 5;
+<span class="k">double</span> d = 2;
+System.out.println(c / d);    <span class="c">// prints 2.5</span>
+</code></pre>
+        <p style="margin:8px 0 0;color:#92400e;">If both operands are <code>int</code>, Java does <em>integer</em> division and discards the fraction. New trainees lose hours to this. Use <code>double</code> if you need fractions.</p>
+      </div>
+
+      <h3>3.2 Strings &mdash; the most-used type in Selenium</h3>
+
+<pre><code><span class="k">String</span> s = <span class="s">"Hello World"</span>;
+
+s.length();                 <span class="c">// 11</span>
+s.charAt(0);                <span class="c">// 'H'</span>
+s.substring(6);             <span class="c">// "World"</span>
+s.substring(0, 5);          <span class="c">// "Hello"  (start inclusive, end exclusive)</span>
+s.toUpperCase();            <span class="c">// "HELLO WORLD"</span>
+s.toLowerCase();            <span class="c">// "hello world"</span>
+s.contains(<span class="s">"World"</span>);       <span class="c">// true</span>
+s.startsWith(<span class="s">"Hello"</span>);     <span class="c">// true</span>
+s.endsWith(<span class="s">"World"</span>);       <span class="c">// true</span>
+s.indexOf(<span class="s">"o"</span>);            <span class="c">// 4   (first occurrence)</span>
+s.replace(<span class="s">"World"</span>, <span class="s">"Java"</span>); <span class="c">// "Hello Java"</span>
+s.trim();                   <span class="c">// removes leading/trailing whitespace</span>
+s.split(<span class="s">" "</span>);              <span class="c">// String[]{"Hello","World"}</span>
+s.isEmpty();                <span class="c">// false  ("" would be true)</span>
+s.isBlank();                <span class="c">// false  ("   " would be true)</span>
+</code></pre>
+
+      <div class="callout warn">
+        <span class="label">Strings and ==</span>
+        Strings are objects. <code>==</code> tests if two variables refer to the SAME object, not equal content.
+<pre><code><span class="k">String</span> a = <span class="s">"hi"</span>;
+<span class="k">String</span> b = <span class="k">new</span> <span class="k">String</span>(<span class="s">"hi"</span>);
+a == b;          <span class="c">// false (different objects)</span>
+a.equals(b);     <span class="c">// true  (same content)</span>
+</code></pre>
+        <strong>Always use <code>.equals()</code> for Strings.</strong>
+      </div>
+
+      <h4>String formatting &mdash; for log messages</h4>
+<pre><code><span class="k">String</span> name = <span class="s">"Admin"</span>;
+<span class="k">int</span> id = 42;
+
+<span class="c">// Concatenation (works, but slow in tight loops)</span>
+<span class="k">String</span> msg1 = <span class="s">"User "</span> + name + <span class="s">" with id "</span> + id;
+
+<span class="c">// String.format (printf-style)</span>
+<span class="k">String</span> msg2 = <span class="k">String</span>.format(<span class="s">"User %s with id %d"</span>, name, id);
+</code></pre>
+
+      <h3>3.3 Conditionals (if / else / switch)</h3>
+
+<pre><code><span class="k">if</span> (age &gt;= 18 &amp;&amp; age &lt; 65) {
+    System.out.println(<span class="s">"Adult"</span>);
+} <span class="k">else if</span> (age &gt;= 65) {
+    System.out.println(<span class="s">"Senior"</span>);
+} <span class="k">else</span> {
+    System.out.println(<span class="s">"Minor"</span>);
+}
+
+<span class="c">// Ternary (one-liner if-else)</span>
+<span class="k">String</span> status = (age &gt;= 18) ? <span class="s">"Adult"</span> : <span class="s">"Minor"</span>;
+
+<span class="c">// switch (Java 14+ enhanced syntax)</span>
+<span class="k">String</span> browser = <span class="s">"chrome"</span>;
+WebDriver d = <span class="k">switch</span> (browser) {
+    <span class="k">case</span> <span class="s">"chrome"</span>  -&gt; <span class="k">new</span> ChromeDriver();
+    <span class="k">case</span> <span class="s">"firefox"</span> -&gt; <span class="k">new</span> FirefoxDriver();
+    <span class="k">case</span> <span class="s">"edge"</span>    -&gt; <span class="k">new</span> EdgeDriver();
+    <span class="k">default</span>          -&gt; <span class="k">throw new</span> RuntimeException(<span class="s">"Unknown browser: "</span> + browser);
+};
+</code></pre>
+
+      <p>Your <code>BaseClass.launchBrowser()</code> uses exactly this pattern.</p>
+
+      <h3>3.4 Loops &mdash; deep dive</h3>
+
+      <h4>3.4.1 The classical for loop</h4>
+<pre><code><span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; 10; i++) {
+    System.out.println(i);
+}
+</code></pre>
+      <p>Three parts: <strong>init</strong>; <strong>condition</strong>; <strong>increment</strong>. The condition is checked <em>before</em> each iteration. <code>i++</code> is shorthand for <code>i = i + 1</code>.</p>
+
+      <h4>3.4.2 Enhanced for-each</h4>
+<pre><code>List&lt;<span class="k">String</span>&gt; users = List.of(<span class="s">"alice"</span>, <span class="s">"bob"</span>, <span class="s">"carol"</span>);
+<span class="k">for</span> (<span class="k">String</span> u : users) {
+    System.out.println(u);
+}
+</code></pre>
+      <p>Read it as: "for each <code>String</code> u in users". Cleaner when you don't need the index.</p>
+
+      <h4>3.4.3 while &amp; do-while</h4>
+<pre><code><span class="c">// while: check first, then run</span>
+<span class="k">int</span> i = 0;
+<span class="k">while</span> (i &lt; 5) {
+    System.out.println(i);
+    i++;
+}
+
+<span class="c">// do-while: run first, then check (always runs at least once)</span>
+<span class="k">int</span> j = 10;
+<span class="k">do</span> {
+    System.out.println(j);
+    j++;
+} <span class="k">while</span> (j &lt; 5);   <span class="c">// prints 10, then exits</span>
+</code></pre>
+
+      <h4>3.4.4 break &amp; continue</h4>
+<pre><code><span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; 10; i++) {
+    <span class="k">if</span> (i == 5) <span class="k">break</span>;        <span class="c">// stop the loop entirely</span>
+    <span class="k">if</span> (i % 2 == 0) <span class="k">continue</span>;   <span class="c">// skip rest, go to next iteration</span>
+    System.out.println(i);
+}
+<span class="c">// prints: 1, 3</span>
+</code></pre>
+
+      <div class="practice">
+        <h5>Practice</h5>
+        <p><strong>Problem:</strong> Given a list of links found on a page, print each link's text, but stop as soon as you encounter a link with text "Logout".</p>
+        <p><strong>Answer:</strong></p>
+<pre><code>List&lt;WebElement&gt; links = driver.findElements(By.tagName(<span class="s">"a"</span>));
+<span class="k">for</span> (WebElement link : links) {
+    <span class="k">String</span> text = link.getText();
+    System.out.println(text);
+    <span class="k">if</span> (text.equals(<span class="s">"Logout"</span>)) <span class="k">break</span>;
+}
+</code></pre>
+      </div>
+
+      <h3>3.5 Arrays &amp; Collections</h3>
+
+      <h4>3.5.1 Arrays (fixed size)</h4>
+<pre><code><span class="c">// Declare with size</span>
+<span class="k">int</span>[] nums = <span class="k">new</span> <span class="k">int</span>[5];          <span class="c">// 5 ints, all 0</span>
+nums[0] = 10;
+nums[1] = 20;
+
+<span class="c">// Or initialize directly</span>
+<span class="k">String</span>[] browsers = {<span class="s">"chrome"</span>, <span class="s">"firefox"</span>, <span class="s">"edge"</span>};
+
+System.out.println(browsers.length);   <span class="c">// 3 (note: property, no parens!)</span>
+System.out.println(browsers[1]);       <span class="c">// "firefox"</span>
+
+<span class="c">// 2D array (Object[][] is what TestNG @DataProvider returns)</span>
+Object[][] data = {
+    {<span class="s">"Admin"</span>, <span class="s">"admin123"</span>, <span class="k">true</span>},
+    {<span class="s">"Wrong"</span>, <span class="s">"wrong"</span>, <span class="k">false</span>}
+};
+</code></pre>
+
+      <h4>3.5.2 List (dynamic array)</h4>
+<pre><code>List&lt;<span class="k">String</span>&gt; names = <span class="k">new</span> ArrayList&lt;&gt;();
+names.add(<span class="s">"alice"</span>);
+names.add(<span class="s">"bob"</span>);
+names.add(0, <span class="s">"first!"</span>);          <span class="c">// insert at index</span>
+names.size();                       <span class="c">// 3</span>
+names.get(0);                       <span class="c">// "first!"</span>
+names.contains(<span class="s">"alice"</span>);          <span class="c">// true</span>
+names.remove(<span class="s">"alice"</span>);
+names.indexOf(<span class="s">"bob"</span>);             <span class="c">// position</span>
+
+<span class="c">// Quick init</span>
+List&lt;<span class="k">String</span>&gt; cities = List.of(<span class="s">"Mumbai"</span>, <span class="s">"Delhi"</span>, <span class="s">"Bangalore"</span>);
+</code></pre>
+
+      <p><code>findElements()</code> returns a <code>List&lt;WebElement&gt;</code>. Iterate it with for-each.</p>
+
+      <h4>3.5.3 Map (key-value pairs)</h4>
+<pre><code>Map&lt;<span class="k">String</span>, <span class="k">String</span>&gt; capitals = <span class="k">new</span> HashMap&lt;&gt;();
+capitals.put(<span class="s">"India"</span>, <span class="s">"New Delhi"</span>);
+capitals.put(<span class="s">"USA"</span>, <span class="s">"Washington"</span>);
+capitals.get(<span class="s">"India"</span>);              <span class="c">// "New Delhi"</span>
+capitals.containsKey(<span class="s">"USA"</span>);         <span class="c">// true</span>
+capitals.size();                      <span class="c">// 2</span>
+
+<span class="c">// Iterate</span>
+<span class="k">for</span> (Map.Entry&lt;<span class="k">String</span>, <span class="k">String</span>&gt; e : capitals.entrySet()) {
+    System.out.println(e.getKey() + <span class="s">" -&gt; "</span> + e.getValue());
+}
+</code></pre>
+
+      <p>Your config.properties is read into a <code>Properties</code> object, which is essentially a Map.</p>
+
+      <h4>3.5.4 Set (no duplicates)</h4>
+<pre><code>Set&lt;<span class="k">String</span>&gt; windowHandles = driver.getWindowHandles();
+<span class="c">// Sets keep no duplicates and have no defined order (HashSet)</span>
+</code></pre>
+
+      <h3>3.6 Methods &mdash; the building blocks</h3>
+
+<pre><code><span class="c">// Anatomy:</span>
+<span class="c">// modifier   returnType   name(parameters)   { body }</span>
+
+<span class="k">public</span> <span class="k">int</span> add(<span class="k">int</span> a, <span class="k">int</span> b) {
+    <span class="k">return</span> a + b;
+}
+
+<span class="k">public</span> <span class="k">void</span> printGreeting(<span class="k">String</span> name) {       <span class="c">// void = returns nothing</span>
+    System.out.println(<span class="s">"Hello, "</span> + name);
+}
+
+<span class="k">public static</span> <span class="k">String</span> capitalize(<span class="k">String</span> s) {       <span class="c">// static = call without object</span>
+    <span class="k">if</span> (s == <span class="k">null</span> || s.isEmpty()) <span class="k">return</span> s;
+    <span class="k">return</span> <span class="k">Character</span>.toUpperCase(s.charAt(0)) + s.substring(1);
+}
+</code></pre>
+
+      <h4>Method overloading</h4>
+      <p>Two methods with the same name but different parameter lists. Common for "convenience" overloads:</p>
+<pre><code><span class="k">public void</span> click(By by) { ... }
+<span class="k">public void</span> click(By by, <span class="k">int</span> timeoutSeconds) { ... }
+<span class="k">public void</span> click(WebElement el) { ... }
+</code></pre>
+
+      <h3>3.7 Object-oriented programming &mdash; deeply</h3>
+
+      <h4>3.7.1 Class &amp; object</h4>
+<pre><code><span class="k">public class</span> User {
+    <span class="c">// Fields (state)</span>
+    <span class="k">private</span> <span class="k">String</span> username;
+    <span class="k">private</span> <span class="k">String</span> password;
+    <span class="k">private</span> <span class="k">boolean</span> isAdmin;
+
+    <span class="c">// Constructor</span>
+    <span class="k">public</span> User(<span class="k">String</span> username, <span class="k">String</span> password) {
+        <span class="k">this</span>.username = username;
+        <span class="k">this</span>.password = password;
+        <span class="k">this</span>.isAdmin  = <span class="k">false</span>;
+    }
+
+    <span class="c">// Methods (behavior)</span>
+    <span class="k">public</span> <span class="k">String</span> getUsername() { <span class="k">return</span> username; }
+    <span class="k">public void</span> setAdmin(<span class="k">boolean</span> v) { <span class="k">this</span>.isAdmin = v; }
+}
+
+<span class="c">// Use it:</span>
+User u1 = <span class="k">new</span> User(<span class="s">"alice"</span>, <span class="s">"pass1"</span>);
+User u2 = <span class="k">new</span> User(<span class="s">"bob"</span>,   <span class="s">"pass2"</span>);
+u1.setAdmin(<span class="k">true</span>);
+System.out.println(u1.getUsername());
+</code></pre>
+
+      <h4>3.7.2 Encapsulation</h4>
+      <p>Make fields <code>private</code>, expose them via getters/setters. Why? So you control how they're set:</p>
+<pre><code><span class="k">private</span> <span class="k">int</span> age;
+
+<span class="k">public void</span> setAge(<span class="k">int</span> age) {
+    <span class="k">if</span> (age &lt; 0) <span class="k">throw new</span> IllegalArgumentException(<span class="s">"Age cannot be negative"</span>);
+    <span class="k">this</span>.age = age;
+}
+</code></pre>
+
+      <h4>3.7.3 Inheritance</h4>
+<pre><code><span class="k">public class</span> Animal {
+    <span class="k">protected</span> <span class="k">String</span> name;
+    <span class="k">public void</span> eat() { System.out.println(name + <span class="s">" eats."</span>); }
+}
+
+<span class="k">public class</span> Dog <span class="k">extends</span> Animal {
+    <span class="k">public</span> Dog(<span class="k">String</span> n) { <span class="k">this</span>.name = n; }
+    <span class="k">public void</span> bark() { System.out.println(<span class="s">"Woof!"</span>); }
+}
+
+<span class="c">// Use:</span>
+Dog d = <span class="k">new</span> Dog(<span class="s">"Rex"</span>);
+d.eat();    <span class="c">// inherited from Animal</span>
+d.bark();   <span class="c">// own method</span>
+</code></pre>
+
+      <p>In Selenium frameworks, <code>BaseClass</code> contains driver setup; every test class extends it to inherit that setup. That's pure inheritance.</p>
+
+      <h4>3.7.4 Polymorphism</h4>
+      <p>One reference type, many possible runtime types:</p>
+<pre><code>WebDriver driver;                      <span class="c">// the interface (the abstract type)</span>
+driver = <span class="k">new</span> ChromeDriver();         <span class="c">// runtime type is ChromeDriver</span>
+driver = <span class="k">new</span> FirefoxDriver();        <span class="c">// or FirefoxDriver</span>
+driver.get(<span class="s">"https://..."</span>);          <span class="c">// works on both. Same call, different impl.</span>
+</code></pre>
+
+      <p>This is why your <code>BaseClass</code> can read <code>browser=chrome</code> from config and produce a <code>WebDriver</code> reference that the rest of the framework uses without caring which browser.</p>
+
+      <h4>3.7.5 Abstraction</h4>
+      <p>Hide complexity behind a clean interface. The <code>WebDriver</code> interface defines methods like <code>get</code>, <code>findElement</code>, <code>quit</code> &mdash; the user calls them, the implementation handles the messy details.</p>
+<pre><code><span class="k">public interface</span> Vehicle {
+    <span class="k">void</span> start();
+    <span class="k">void</span> stop();
+}
+
+<span class="k">public class</span> Car <span class="k">implements</span> Vehicle {
+    <span class="k">public void</span> start() { <span class="c">/* engine logic */</span> }
+    <span class="k">public void</span> stop()  { <span class="c">/* braking logic */</span> }
+}
+</code></pre>
+
+      <h3>3.8 Exception handling &mdash; the right way</h3>
+
+      <p>Java exceptions form a hierarchy:</p>
+      <div class="diagram">
+Throwable
+  +-- Error            (JVM-level. Don't catch.)
+  +-- Exception
+       +-- IOException, SQLException, ...   (CHECKED - must declare/catch)
+       +-- RuntimeException
+            +-- NullPointerException
+            +-- IllegalArgumentException
+            +-- NoSuchElementException        &lt;-- Selenium
+            +-- StaleElementReferenceException &lt;-- Selenium
+            +-- TimeoutException               &lt;-- Selenium
+      </div>
+
+      <h4>try / catch / finally</h4>
+<pre><code><span class="k">try</span> {
+    driver.findElement(By.id(<span class="s">"submit"</span>)).click();
+} <span class="k">catch</span> (NoSuchElementException e) {
+    logger.error(<span class="s">"Submit button missing on page"</span>);
+} <span class="k">catch</span> (Exception e) {
+    logger.error(<span class="s">"Unexpected: "</span> + e.getMessage());
+} <span class="k">finally</span> {
+    <span class="c">// always runs (success or failure). Useful for cleanup.</span>
+    driver.quit();
+}
+</code></pre>
+
+      <h4>try-with-resources (auto-cleanup)</h4>
+<pre><code><span class="k">try</span> (FileInputStream fis = <span class="k">new</span> FileInputStream(<span class="s">"data.xlsx"</span>);
+     Workbook wb = <span class="k">new</span> XSSFWorkbook(fis)) {
+    <span class="c">// use fis and wb. They auto-close at end of try block.</span>
+}
+</code></pre>
+
+      <h4>throw / throws</h4>
+<pre><code><span class="k">public void</span> login(<span class="k">String</span> u, <span class="k">String</span> p) <span class="k">throws</span> InvalidCredentialsException {
+    <span class="k">if</span> (!isValid(u, p)) {
+        <span class="k">throw new</span> InvalidCredentialsException(<span class="s">"Bad creds for: "</span> + u);
+    }
+}
+</code></pre>
+
+      <h3>3.9 Static vs instance</h3>
+
+<pre><code><span class="k">public class</span> Counter {
+    <span class="k">private</span> <span class="k">int</span> count;            <span class="c">// instance: each Counter has its own</span>
+    <span class="k">private static</span> <span class="k">int</span> total;     <span class="c">// static: shared across ALL Counters</span>
+
+    <span class="k">public void</span> increment() {
+        count++;
+        total++;
+    }
+}
+
+Counter a = <span class="k">new</span> Counter(); a.increment(); a.increment();
+Counter b = <span class="k">new</span> Counter(); b.increment();
+<span class="c">// a.count = 2, b.count = 1, Counter.total = 3</span>
+</code></pre>
+
+      <p>Static methods are called via the class: <code>Math.sqrt(9)</code>, <code>Integer.parseInt("42")</code>. Your <code>BaseClass.getDriver()</code> is static so any class can call it.</p>
+
+      <h3>3.10 The 5 Java mistakes that hurt Selenium tests most</h3>
+      <ol>
+        <li><strong>Using <code>==</code> with Strings.</strong> Use <code>.equals()</code>.</li>
+        <li><strong>Calling methods on <code>null</code>.</strong> Always check (or use <code>findElements().size()</code> instead of <code>findElement</code>).</li>
+        <li><strong>Forgetting <code>throws</code> on a method that throws checked exceptions</strong> (e.g., <code>InterruptedException</code> from <code>Thread.sleep</code>).</li>
+        <li><strong>Hardcoding indexes in arrays</strong> when the page might change. Use locators that uniquely identify, not "the 3rd input".</li>
+        <li><strong>Sharing a non-thread-safe object</strong> across threads (e.g., raw <code>WebDriver</code> instead of <code>ThreadLocal&lt;WebDriver&gt;</code>).</li>
+      </ol>
+
+      <div class="callout iv">
+        <span class="label">Interview question</span>
+        <strong>Q: Difference between abstract class and interface?</strong><br/>
+        Interface = contract only (no fields originally; from Java 8 default methods are allowed). Abstract class = a class with some abstract methods + maybe concrete methods + state. Use interface for "this can do X" (capability). Use abstract class for "this is a kind of Y" (relation).
+      </div>
+    </section>
+
+    <!-- ============ DEEP 4: HTML & DOM Lab ============ -->
+    <section class="module" id="d4">
+      <h2>4. HTML &amp; DOM Lab (Hands-On)</h2>
+
+      <p>Most trainees skip HTML and pay for it later. Spend 30 minutes here and your locator skills will jump 5x.</p>
+
+      <h3>4.1 The 15 HTML elements you'll see in tests (90% coverage)</h3>
+      <table>
+        <tr><th>Tag</th><th>Use</th><th>Common attributes</th></tr>
+        <tr><td><code>&lt;html&gt;</code></td><td>The root</td><td>lang</td></tr>
+        <tr><td><code>&lt;head&gt;</code></td><td>Metadata, not rendered</td><td>&mdash;</td></tr>
+        <tr><td><code>&lt;body&gt;</code></td><td>Visible page content</td><td>&mdash;</td></tr>
+        <tr><td><code>&lt;div&gt;</code></td><td>Generic container</td><td>id, class, data-*</td></tr>
+        <tr><td><code>&lt;span&gt;</code></td><td>Inline container</td><td>id, class</td></tr>
+        <tr><td><code>&lt;a&gt;</code></td><td>Hyperlink</td><td>href, target</td></tr>
+        <tr><td><code>&lt;img&gt;</code></td><td>Image</td><td>src, alt</td></tr>
+        <tr><td><code>&lt;input&gt;</code></td><td>Text/checkbox/radio/file/etc.</td><td>type, name, value, placeholder</td></tr>
+        <tr><td><code>&lt;textarea&gt;</code></td><td>Multi-line text input</td><td>name, rows, cols</td></tr>
+        <tr><td><code>&lt;button&gt;</code></td><td>Clickable button</td><td>type, name</td></tr>
+        <tr><td><code>&lt;select&gt;</code> + <code>&lt;option&gt;</code></td><td>Dropdown</td><td>name, value</td></tr>
+        <tr><td><code>&lt;form&gt;</code></td><td>Group of inputs</td><td>action, method</td></tr>
+        <tr><td><code>&lt;label&gt;</code></td><td>Caption for an input</td><td>for</td></tr>
+        <tr><td><code>&lt;table&gt;</code> + <code>&lt;tr&gt;</code> + <code>&lt;td&gt;</code></td><td>Tables / rows / cells</td><td>colspan, rowspan</td></tr>
+        <tr><td><code>&lt;ul&gt;</code> / <code>&lt;ol&gt;</code> + <code>&lt;li&gt;</code></td><td>Lists</td><td>&mdash;</td></tr>
+      </table>
+
+      <h3>4.2 Attributes &mdash; in detail</h3>
+      <p>Attributes are key=value pairs inside the opening tag. They store metadata used by the browser, JS, and your locators.</p>
+<pre><code>&lt;<span class="t">input</span>
+   id=<span class="s">"emailInput"</span>
+   name=<span class="s">"email"</span>
+   type=<span class="s">"email"</span>
+   class=<span class="s">"form-control required"</span>
+   placeholder=<span class="s">"Enter email"</span>
+   value=<span class="s">"alice@x.com"</span>
+   data-test-id=<span class="s">"login-email"</span>
+   maxlength=<span class="s">"50"</span>
+   required
+   autofocus /&gt;
+</code></pre>
+      <ul>
+        <li><strong>id</strong>: should be unique on the page. Best locator.</li>
+        <li><strong>name</strong>: groups form fields together when submitted. Often unique.</li>
+        <li><strong>class</strong>: visual styling. Can have multiple values separated by spaces (<code>class="btn primary large"</code>).</li>
+        <li><strong>type</strong>: kind of input (text, password, email, checkbox, radio, file, submit&hellip;).</li>
+        <li><strong>data-*</strong>: custom attributes, often added specifically for tests (<code>data-test-id</code>).</li>
+        <li><strong>Boolean attributes</strong> (<code>required</code>, <code>disabled</code>, <code>checked</code>): just present, no value.</li>
+      </ul>
+
+      <h3>4.3 The DOM &mdash; "live" vs "static"</h3>
+      <p>The DOM is <strong>live</strong>: any change made by JavaScript (or the user) is reflected. Selenium's <code>findElement</code> queries the live DOM each time. Once you have a <code>WebElement</code>, it points to a specific node. If JS replaces that node, your reference becomes <strong>stale</strong>.</p>
+
+      <div class="worked">
+        <h5>Worked example &mdash; StaleElementReferenceException</h5>
+<pre><code><span class="c">// Page A: a button that, when clicked, replaces itself with a new "Submitted" button</span>
+
+WebElement btn = driver.findElement(By.id(<span class="s">"submit"</span>));
+btn.click();                      <span class="c">// triggers JS that replaces the button</span>
+btn.click();                      <span class="c">// FAIL: btn now points to a removed DOM node</span>
+                                  <span class="c">// =&gt; StaleElementReferenceException</span>
+
+<span class="c">// Fix: re-find the element</span>
+driver.findElement(By.id(<span class="s">"submit"</span>)).click();
+driver.findElement(By.id(<span class="s">"submit"</span>)).click();   <span class="c">// fresh reference each time</span>
+</code></pre>
+      </div>
+
+      <h3>4.4 Forms in detail (because they show up everywhere)</h3>
+<pre><code>&lt;<span class="t">form</span> action=<span class="s">"/login"</span> method=<span class="s">"post"</span>&gt;
+    &lt;<span class="t">label</span> for=<span class="s">"un"</span>&gt;Username&lt;/<span class="t">label</span>&gt;
+    &lt;<span class="t">input</span> id=<span class="s">"un"</span> name=<span class="s">"username"</span> type=<span class="s">"text"</span>&gt;
+
+    &lt;<span class="t">label</span> for=<span class="s">"pw"</span>&gt;Password&lt;/<span class="t">label</span>&gt;
+    &lt;<span class="t">input</span> id=<span class="s">"pw"</span> name=<span class="s">"password"</span> type=<span class="s">"password"</span>&gt;
+
+    &lt;<span class="t">button</span> type=<span class="s">"submit"</span>&gt;Login&lt;/<span class="t">button</span>&gt;
+&lt;/<span class="t">form</span>&gt;
+</code></pre>
+      <p>Important details:</p>
+      <ul>
+        <li>The <code>label.for</code> attribute should match the <code>input.id</code>. Clicking the label focuses the input.</li>
+        <li><code>button type="submit"</code> submits the form. <code>type="button"</code> is just a clickable button (no form submit).</li>
+        <li>Pressing Enter inside a text input also submits the form.</li>
+        <li>You can use <code>element.submit()</code> in Selenium as an alternative to clicking the submit button.</li>
+      </ul>
+
+      <h3>4.5 Tables &mdash; the test pattern</h3>
+<pre><code>&lt;<span class="t">table</span> id=<span class="s">"employeesTable"</span>&gt;
+  &lt;<span class="t">thead</span>&gt;
+    &lt;<span class="t">tr</span>&gt;&lt;<span class="t">th</span>&gt;ID&lt;/<span class="t">th</span>&gt;&lt;<span class="t">th</span>&gt;Name&lt;/<span class="t">th</span>&gt;&lt;<span class="t">th</span>&gt;Action&lt;/<span class="t">th</span>&gt;&lt;/<span class="t">tr</span>&gt;
+  &lt;/<span class="t">thead</span>&gt;
+  &lt;<span class="t">tbody</span>&gt;
+    &lt;<span class="t">tr</span>&gt;&lt;<span class="t">td</span>&gt;1&lt;/<span class="t">td</span>&gt;&lt;<span class="t">td</span>&gt;Alice&lt;/<span class="t">td</span>&gt;&lt;<span class="t">td</span>&gt;&lt;<span class="t">a</span>&gt;Edit&lt;/<span class="t">a</span>&gt;&lt;/<span class="t">td</span>&gt;&lt;/<span class="t">tr</span>&gt;
+    &lt;<span class="t">tr</span>&gt;&lt;<span class="t">td</span>&gt;2&lt;/<span class="t">td</span>&gt;&lt;<span class="t">td</span>&gt;Bob&lt;/<span class="t">td</span>&gt;&lt;<span class="t">td</span>&gt;&lt;<span class="t">a</span>&gt;Edit&lt;/<span class="t">a</span>&gt;&lt;/<span class="t">td</span>&gt;&lt;/<span class="t">tr</span>&gt;
+  &lt;/<span class="t">tbody</span>&gt;
+&lt;/<span class="t">table</span>&gt;
+</code></pre>
+
+<pre><code><span class="c">// Click "Edit" for "Bob"</span>
+driver.findElement(By.xpath(
+    <span class="s">"//table[@id='employeesTable']//tr[td[text()='Bob']]//a[text()='Edit']"</span>
+)).click();
+
+<span class="c">// Read all names</span>
+List&lt;WebElement&gt; nameCells = driver.findElements(
+    By.xpath(<span class="s">"//table[@id='employeesTable']//tbody/tr/td[2]"</span>));
+<span class="k">for</span> (WebElement c : nameCells) {
+    System.out.println(c.getText());
+}
+</code></pre>
+
+      <p>This is the most-asked Selenium interview question: "How do you find Edit button for Bob in a table?" The trick is XPath chaining: <code>tr[td[text()='Bob']]</code> selects the row that contains a cell with text "Bob".</p>
+
+      <h3>4.6 DevTools tour (do this once carefully)</h3>
+      <ol>
+        <li>Open <code>https://opensource-demo.orangehrmlive.com/</code>.</li>
+        <li>Right-click on the username field &rarr; <strong>Inspect</strong>.</li>
+        <li>Note the highlighted HTML: <code>&lt;input name="username" placeholder="Username" ...&gt;</code>.</li>
+        <li>In the Elements panel press <kbd>Ctrl+F</kbd>. Type: <code>//input[@name='username']</code>. The browser highlights matches.</li>
+        <li>Try CSS too: <code>input[name='username']</code>. Same result.</li>
+        <li>Try a bad XPath: <code>//input[@id='nonexistent']</code>. "0 of 0" matches.</li>
+      </ol>
+
+      <p>This is the fastest debugging tool you have. <strong>Always test a locator in DevTools before putting it in code.</strong></p>
+
+      <h3>4.7 Shadow DOM (advanced, but coming up more)</h3>
+      <p>Some modern web components (like custom Material/Stencil components) hide their internals inside a <strong>shadow DOM</strong>. Normal CSS/XPath cannot pierce it. You need:</p>
+<pre><code>WebElement host = driver.findElement(By.cssSelector(<span class="s">"my-custom-button"</span>));
+SearchContext shadow = host.getShadowRoot();
+WebElement btn = shadow.findElement(By.cssSelector(<span class="s">"button.primary"</span>));
+btn.click();
+</code></pre>
+
+      <div class="callout iv">
+        <span class="label">Interview question</span>
+        <strong>Q: How would you handle elements inside Shadow DOM?</strong><br/>
+        Selenium 4 added <code>getShadowRoot()</code> on WebElement. You first locate the host element, then call <code>getShadowRoot()</code> to get a SearchContext, then find children inside. Note: only CSS selectors work inside the shadow root, not XPath.
+      </div>
+    </section>
+
+
+
+    <!-- ============ DEEP 5: Locator Strategy Workshop ============ -->
+    <section class="module" id="d5">
+      <h2>5. Locator Strategy Workshop</h2>
+
+      <p>Most flaky tests aren't caused by Selenium &mdash; they're caused by <strong>bad locators</strong>. This workshop teaches you to write locators that survive UI changes.</p>
+
+      <h3>5.1 The locator quality scale</h3>
+      <table>
+        <tr><th>Quality</th><th>Example</th><th>Survives</th></tr>
+        <tr><td>S-tier (best)</td><td><code>By.id("loginBtn")</code></td><td>Almost any change. <em>Stable, unique, semantic.</em></td></tr>
+        <tr><td>S-tier</td><td><code>By.cssSelector("[data-test-id='loginBtn']")</code></td><td>Custom test attributes &mdash; ideal in modern apps.</td></tr>
+        <tr><td>A-tier</td><td><code>By.name("username")</code></td><td>Form refactors, style changes.</td></tr>
+        <tr><td>B-tier</td><td><code>By.xpath("//button[text()='Login']")</code></td><td>Style changes; breaks if text changes.</td></tr>
+        <tr><td>C-tier</td><td><code>By.cssSelector("button.btn.btn-primary.large")</code></td><td>Many class lists are styling-only and change with redesigns.</td></tr>
+        <tr><td>F-tier (worst)</td><td><code>By.xpath("/html/body/div[2]/div[1]/form/button")</code></td><td>Breaks at the slightest DOM change. Avoid.</td></tr>
+      </table>
+
+      <h3>5.2 The 8 Selenium locators &mdash; with detail</h3>
+
+      <h4>5.2.1 By.id &mdash; the gold standard</h4>
+<pre><code><span class="c">// HTML: &lt;button id="loginBtn"&gt;Login&lt;/button&gt;</span>
+driver.findElement(By.id(<span class="s">"loginBtn"</span>)).click();
+</code></pre>
+      <p>Pros: fastest, unique by HTML spec, semantic.<br/>Cons: many modern apps don't add IDs (or add auto-generated ones like <code>mat-input-127</code>).</p>
+
+      <div class="callout warn">
+        <span class="label">Auto-generated IDs</span>
+        Frameworks like Angular Material can produce IDs like <code>mat-input-127</code>. The number changes on every render, breaking your locator. <strong>Don't use these.</strong> Either use <code>contains</code> in XPath/CSS to match the prefix, or ask devs to add stable <code>data-test-id</code>.
+      </div>
+
+      <h4>5.2.2 By.name</h4>
+<pre><code><span class="c">// HTML: &lt;input name="username" /&gt;</span>
+driver.findElement(By.name(<span class="s">"username"</span>)).sendKeys(<span class="s">"Admin"</span>);
+</code></pre>
+      <p>Often used by your repo's <code>LoginPage.java</code>. The <code>name</code> attribute is the form field's identity at the HTTP level &mdash; reasonably stable.</p>
+
+      <h4>5.2.3 By.className &mdash; tricky</h4>
+      <p>Limitation: only works with a SINGLE class name. <code>className("btn primary")</code> &mdash; <strong>fails</strong> (compound class).</p>
+<pre><code><span class="c">// HTML: &lt;button class="btn primary large"&gt;OK&lt;/button&gt;</span>
+driver.findElement(By.className(<span class="s">"btn"</span>));         <span class="c">// works (matches any of the 3)</span>
+driver.findElement(By.className(<span class="s">"btn primary"</span>)); <span class="c">// FAILS</span>
+
+<span class="c">// Use CSS instead for compound:</span>
+driver.findElement(By.cssSelector(<span class="s">".btn.primary"</span>));   <span class="c">// dot for each class</span>
+</code></pre>
+
+      <h4>5.2.4 By.tagName</h4>
+      <p>Mostly used to count or iterate.</p>
+<pre><code>List&lt;WebElement&gt; allInputs = driver.findElements(By.tagName(<span class="s">"input"</span>));
+List&lt;WebElement&gt; allLinks  = driver.findElements(By.tagName(<span class="s">"a"</span>));
+List&lt;WebElement&gt; allRows   = driver.findElements(By.tagName(<span class="s">"tr"</span>));
+</code></pre>
+
+      <h4>5.2.5 By.linkText &amp; By.partialLinkText</h4>
+      <p>Only for <code>&lt;a&gt;</code> tags.</p>
+<pre><code><span class="c">// HTML: &lt;a href="/logout"&gt;Logout&lt;/a&gt;</span>
+driver.findElement(By.linkText(<span class="s">"Logout"</span>)).click();          <span class="c">// exact match</span>
+driver.findElement(By.partialLinkText(<span class="s">"Log"</span>)).click();      <span class="c">// matches "Login","Logout","Logo Suite"</span>
+</code></pre>
+
+      <h4>5.2.6 By.cssSelector &mdash; powerful, fast</h4>
+      <p>See full reference in chapter 7 below.</p>
+
+      <h4>5.2.7 By.xpath &mdash; most flexible</h4>
+      <p>See full reference in chapter 6 below.</p>
+
+      <h3>5.3 Combining locators &mdash; <code>findElement</code> within <code>WebElement</code></h3>
+      <p>You can scope a search to a parent element. Useful for table rows, cards, list items.</p>
+<pre><code>WebElement card = driver.findElement(By.cssSelector(<span class="s">".employee-card[data-id='42']"</span>));
+WebElement editBtn = card.findElement(By.cssSelector(<span class="s">".btn-edit"</span>));
+editBtn.click();
+</code></pre>
+
+      <h3>5.4 The relative-locator API (Selenium 4)</h3>
+      <p>Find elements based on their visual position relative to other elements. Useful when nothing else identifies them uniquely.</p>
+<pre><code><span class="k">import static</span> org.openqa.selenium.support.locators.RelativeLocator.with;
+
+WebElement label = driver.findElement(By.tagName(<span class="s">"label"</span>));
+WebElement input = driver.findElement(with(By.tagName(<span class="s">"input"</span>)).below(label));
+
+WebElement total = driver.findElement(By.id(<span class="s">"total"</span>));
+WebElement submit = driver.findElement(with(By.tagName(<span class="s">"button"</span>)).near(total));
+</code></pre>
+      <p>Available helpers: <code>above</code>, <code>below</code>, <code>toLeftOf</code>, <code>toRightOf</code>, <code>near</code>, <code>straightAbove</code>, etc.</p>
+
+      <h3>5.5 The "right" locator decision tree</h3>
+      <div class="diagram">
+1. Does the element have a stable id?
+       YES -&gt;  By.id("...")  &lt;-- DONE
+       NO  -&gt;  step 2
+
+2. Is there a stable data-test-* attribute?
+       YES -&gt;  By.cssSelector("[data-test-id='...']")  &lt;-- DONE
+       NO  -&gt;  step 3
+
+3. Is there a unique name attribute (input/select/textarea)?
+       YES -&gt;  By.name("...")  &lt;-- DONE
+       NO  -&gt;  step 4
+
+4. Can a CSS selector with class/attribute uniquely identify it?
+       YES -&gt;  By.cssSelector("...")  &lt;-- DONE
+       NO  -&gt;  step 5
+
+5. Use XPath with text() or axes (parent/sibling/ancestor)
+       By.xpath("//label[text()='Email']/following-sibling::input")
+      </div>
+
+      <h3>5.6 Worked locator examples (real OrangeHRM patterns)</h3>
+
+      <div class="worked">
+        <h5>Example 1 &mdash; Login page username field</h5>
+<pre><code><span class="c">// HTML (simplified):</span>
+<span class="c">// &lt;input name="username" placeholder="Username" type="text" ...&gt;</span>
+
+<span class="c">// Best:  By.name("username")  -- stable, semantic.</span>
+<span class="c">// Also OK: By.cssSelector("input[name='username']")</span>
+<span class="c">// Verbose: By.xpath("//input[@name='username']")</span>
+</code></pre>
+      </div>
+
+      <div class="worked">
+        <h5>Example 2 &mdash; Login button (no id)</h5>
+<pre><code><span class="c">// HTML: &lt;button type="submit" class="orangehrm-login-button"&gt;Login&lt;/button&gt;</span>
+
+<span class="c">// Best: by visible text + role -- survives style changes</span>
+<span class="k">By</span> loginBtn = By.xpath(<span class="s">"//button[normalize-space()='Login']"</span>);
+
+<span class="c">// Or by the type attribute (only one submit on page):</span>
+<span class="k">By</span> loginBtn2 = By.cssSelector(<span class="s">"button[type='submit']"</span>);
+</code></pre>
+      </div>
+
+      <div class="worked">
+        <h5>Example 3 &mdash; The "find input next to a label" pattern</h5>
+<pre><code><span class="c">// HTML on the Add Employee page:</span>
+<span class="c">// &lt;div class="oxd-input-group"&gt;</span>
+<span class="c">//   &lt;label&gt;Employee Id&lt;/label&gt;</span>
+<span class="c">//   &lt;div class="oxd-input-field"&gt;&lt;input class="oxd-input"&gt;&lt;/div&gt;</span>
+<span class="c">// &lt;/div&gt;</span>
+
+<span class="k">By</span> empId = By.xpath(
+    <span class="s">"//label[text()='Employee Id']/parent::div/following-sibling::div//input"</span>);
+</code></pre>
+        <p style="margin:8px 0 0;color:#92400e;">
+        This is exactly the pattern in your <code>HomePage.java</code>. It's stable: even if the dev changes class names, as long as the label text "Employee Id" stays, your locator works.
+        </p>
+      </div>
+
+      <div class="worked">
+        <h5>Example 4 &mdash; Click the row that contains a specific name</h5>
+<pre><code><span class="c">// Table: &lt;tr&gt;&lt;td&gt;101&lt;/td&gt;&lt;td&gt;Alice Cooper&lt;/td&gt;&lt;td&gt;&lt;button&gt;Edit&lt;/button&gt;&lt;/td&gt;&lt;/tr&gt;</span>
+
+<span class="k">By</span> editAlice = By.xpath(<span class="s">"//tr[td[normalize-space()='Alice Cooper']]//button[text()='Edit']"</span>);
+driver.findElement(editAlice).click();
+</code></pre>
+      </div>
+
+      <div class="worked">
+        <h5>Example 5 &mdash; Dynamic ID with a stable prefix</h5>
+<pre><code><span class="c">// Angular generates: id="mat-input-7" (number changes every render)</span>
+
+<span class="c">// XPath: contains</span>
+<span class="k">By</span> input1 = By.xpath(<span class="s">"//input[contains(@id,'mat-input-')]"</span>);
+
+<span class="c">// CSS: starts-with using attribute selector</span>
+<span class="k">By</span> input2 = By.cssSelector(<span class="s">"input[id^='mat-input-']"</span>);
+</code></pre>
+      </div>
+
+      <h3>5.7 Common locator anti-patterns (don't do these)</h3>
+      <ul>
+        <li><strong>Absolute XPath:</strong> <code>/html/body/div[2]/form/input[1]</code>.</li>
+        <li><strong>Indexed XPath unless necessary:</strong> <code>(//input)[3]</code>. The "3rd input" today may be the 4th tomorrow.</li>
+        <li><strong>Long class lists:</strong> <code>.btn.btn-primary.btn-lg.shadow-md.hover\\:scale-110</code>. CSS classes drift.</li>
+        <li><strong>Locators copied from DevTools:</strong> "Copy XPath" produces absolute paths. Always rewrite by hand.</li>
+        <li><strong>Generic selectors:</strong> <code>By.tagName("input")</code> in <code>findElement</code> &mdash; will return the first input even if you wanted the 5th.</li>
+      </ul>
+
+      <h3>5.8 Practice problems (with answers)</h3>
+
+      <div class="practice">
+        <h5>Practice 1</h5>
+        <p>HTML:</p>
+<pre><code>&lt;<span class="t">div</span> class=<span class="s">"card"</span> data-employee-id=<span class="s">"42"</span>&gt;
+  &lt;<span class="t">h3</span>&gt;Alice&lt;/<span class="t">h3</span>&gt;
+  &lt;<span class="t">button</span> class=<span class="s">"btn-delete"</span>&gt;Delete&lt;/<span class="t">button</span>&gt;
+&lt;/<span class="t">div</span>&gt;
+</code></pre>
+        <p><strong>Goal:</strong> click the Delete button for employee id 42.</p>
+        <p><strong>Answer:</strong></p>
+<pre><code>By.cssSelector(<span class="s">".card[data-employee-id='42'] .btn-delete"</span>);
+<span class="c">// or:</span>
+By.xpath(<span class="s">"//div[@data-employee-id='42']//button[contains(@class,'btn-delete')]"</span>);
+</code></pre>
+      </div>
+
+      <div class="practice">
+        <h5>Practice 2</h5>
+        <p>HTML:</p>
+<pre><code>&lt;<span class="t">ul</span> class=<span class="s">"menu"</span>&gt;
+  &lt;<span class="t">li</span>&gt;&lt;<span class="t">a</span> href=<span class="s">"/admin"</span>&gt;Admin&lt;/<span class="t">a</span>&gt;&lt;/<span class="t">li</span>&gt;
+  &lt;<span class="t">li</span>&gt;&lt;<span class="t">a</span> href=<span class="s">"/pim"</span>&gt;PIM&lt;/<span class="t">a</span>&gt;&lt;/<span class="t">li</span>&gt;
+  &lt;<span class="t">li</span>&gt;&lt;<span class="t">a</span> href=<span class="s">"/leave"</span>&gt;Leave&lt;/<span class="t">a</span>&gt;&lt;/<span class="t">li</span>&gt;
+&lt;/<span class="t">ul</span>&gt;
+</code></pre>
+        <p><strong>Goal:</strong> click "Leave".</p>
+        <p><strong>Answer:</strong></p>
+<pre><code>By.linkText(<span class="s">"Leave"</span>);            <span class="c">// simplest</span>
+<span class="c">// or</span>
+By.xpath(<span class="s">"//ul[@class='menu']//a[text()='Leave']"</span>);
+</code></pre>
+      </div>
+
+      <div class="practice">
+        <h5>Practice 3 (advanced)</h5>
+        <p>HTML:</p>
+<pre><code>&lt;<span class="t">div</span> class=<span class="s">"row"</span>&gt;
+  &lt;<span class="t">label</span>&gt;Country&lt;/<span class="t">label</span>&gt;
+  &lt;<span class="t">div</span> class=<span class="s">"value"</span>&gt;India&lt;/<span class="t">div</span>&gt;
+&lt;/<span class="t">div</span>&gt;
+</code></pre>
+        <p><strong>Goal:</strong> read the value next to the label "Country".</p>
+        <p><strong>Answer:</strong></p>
+<pre><code><span class="k">String</span> country = driver.findElement(
+    By.xpath(<span class="s">"//label[normalize-space()='Country']/following-sibling::div[@class='value']"</span>)
+).getText();
+</code></pre>
+      </div>
+    </section>
+
+    <!-- ============ DEEP 6: XPath Complete Reference ============ -->
+    <section class="module" id="d6">
+      <h2>6. XPath Complete Reference</h2>
+
+      <p>XPath is a query language for navigating XML/HTML trees. Once you understand it, you can locate <em>any</em> element on <em>any</em> page.</p>
+
+      <h3>6.1 The XPath formula (memorize)</h3>
+      <div class="diagram">
+//tag[@attribute='value']
+
+  ^      ^         ^
+  |      |         |
+  |      |     literal value
+  |   attribute name (with @)
+ tag name (* = any)
+      </div>
+
+      <p>Read it as: "find any element whose tag is <em>tag</em> AND whose attribute equals <em>value</em>".</p>
+
+      <h3>6.2 Absolute vs relative XPath</h3>
+      <table>
+        <tr><th>Type</th><th>Starts</th><th>Example</th><th>Use</th></tr>
+        <tr><td>Absolute</td><td><code>/</code></td><td><code>/html/body/div[1]/form/input[1]</code></td><td>Almost never. Brittle.</td></tr>
+        <tr><td>Relative</td><td><code>//</code></td><td><code>//input[@name='username']</code></td><td>Always.</td></tr>
+      </table>
+
+      <p><code>//</code> means "search anywhere in the document". <code>/</code> means "direct child".</p>
+
+      <h3>6.3 XPath operators</h3>
+      <table>
+        <tr><th>Operator</th><th>Meaning</th><th>Example</th></tr>
+        <tr><td><code>//</code></td><td>Descendant-or-self</td><td><code>//div//input</code> (any input under any div)</td></tr>
+        <tr><td><code>/</code></td><td>Direct child</td><td><code>div/input</code> (input that is a direct child)</td></tr>
+        <tr><td><code>.</code></td><td>Current node</td><td><code>./span</code> (span inside current)</td></tr>
+        <tr><td><code>..</code></td><td>Parent</td><td><code>../div</code> (sibling div)</td></tr>
+        <tr><td><code>*</code></td><td>Any tag</td><td><code>//*[@id='x']</code></td></tr>
+        <tr><td><code>@</code></td><td>Attribute</td><td><code>@class</code></td></tr>
+        <tr><td><code>[ ]</code></td><td>Predicate (filter)</td><td><code>div[@class='card']</code></td></tr>
+        <tr><td><code>|</code></td><td>OR (union)</td><td><code>//input | //textarea</code></td></tr>
+      </table>
+
+      <h3>6.4 Predicates &mdash; the filter syntax</h3>
+<pre><code>//input[<span class="k">@type</span>=<span class="s">'text'</span>]                  <span class="c">// type is "text"</span>
+//input[<span class="k">@type</span>=<span class="s">'text'</span> <span class="k">and</span> <span class="k">@name</span>=<span class="s">'q'</span>]    <span class="c">// AND</span>
+//input[<span class="k">@type</span>=<span class="s">'text'</span> <span class="k">or</span>  <span class="k">@type</span>=<span class="s">'email'</span>] <span class="c">// OR</span>
+//input[<span class="k">not</span>(<span class="k">@disabled</span>)]              <span class="c">// NOT (disabled attribute absent)</span>
+//tr[3]                                <span class="c">// 3rd tr (1-indexed)</span>
+//tr[last()]                           <span class="c">// last tr</span>
+//tr[position()=last()-1]              <span class="c">// 2nd-to-last tr</span>
+//li[<span class="k">@class</span>=<span class="s">'item'</span>][2]              <span class="c">// 2nd item-classed li</span>
+//div[<span class="k">@class</span>=<span class="s">'a'</span>][<span class="k">@id</span>=<span class="s">'b'</span>]            <span class="c">// chained predicates</span>
+</code></pre>
+
+      <h3>6.5 The 6 essential XPath functions</h3>
+
+      <h4>6.5.1 contains()</h4>
+<pre><code>//input[contains(<span class="k">@id</span>, <span class="s">'user'</span>)]            <span class="c">// id contains "user"</span>
+//div[contains(<span class="k">@class</span>, <span class="s">'card'</span>)]           <span class="c">// any class containing "card"</span>
+//*[contains(text(), <span class="s">'Welcome'</span>)]            <span class="c">// any element whose text contains "Welcome"</span>
+</code></pre>
+
+      <h4>6.5.2 starts-with()</h4>
+<pre><code>//input[starts-with(<span class="k">@id</span>, <span class="s">'mat-input-'</span>)]   <span class="c">// id starts with the prefix</span>
+//a[starts-with(<span class="k">@href</span>, <span class="s">'mailto:'</span>)]        <span class="c">// all email links</span>
+</code></pre>
+
+      <h4>6.5.3 text() &amp; normalize-space()</h4>
+<pre><code>//button[text()=<span class="s">'Login'</span>]              <span class="c">// exact text match (no leading/trailing spaces)</span>
+//button[normalize-space()=<span class="s">'Login'</span>]   <span class="c">// trims whitespace, recommended</span>
+//h1[contains(text(), <span class="s">'Welcome'</span>)]    <span class="c">// partial match</span>
+</code></pre>
+
+      <div class="callout tip">
+        <span class="label">Always use normalize-space()</span>
+        Many real-world buttons render with extra whitespace: <code>&lt;button&gt; Login &lt;/button&gt;</code>. <code>text()='Login'</code> fails. <code>normalize-space()='Login'</code> works. Make this your default.
+      </div>
+
+      <h4>6.5.4 not()</h4>
+<pre><code>//input[<span class="k">not</span>(<span class="k">@disabled</span>)]                 <span class="c">// only enabled inputs</span>
+//tr[<span class="k">not</span>(contains(<span class="k">@class</span>, <span class="s">'header'</span>))]   <span class="c">// non-header rows</span>
+</code></pre>
+
+      <h4>6.5.5 count()</h4>
+<pre><code>//div[count(.//input) &gt; 2]              <span class="c">// divs containing more than 2 inputs</span>
+</code></pre>
+
+      <h4>6.5.6 string-length()</h4>
+<pre><code>//input[string-length(<span class="k">@value</span>) &gt; 0]      <span class="c">// inputs with non-empty value</span>
+</code></pre>
+
+      <h3>6.6 Axes &mdash; the killer feature</h3>
+      <p>Axes let you navigate <em>up, sideways, and down</em> the tree. Unique to XPath; CSS cannot do this.</p>
+
+      <table>
+        <tr><th>Axis</th><th>Meaning</th></tr>
+        <tr><td><code>parent::</code></td><td>The direct parent</td></tr>
+        <tr><td><code>child::</code></td><td>Direct children (default; rarely written)</td></tr>
+        <tr><td><code>ancestor::</code></td><td>All parents up to root</td></tr>
+        <tr><td><code>ancestor-or-self::</code></td><td>Self + all parents</td></tr>
+        <tr><td><code>descendant::</code></td><td>All descendants</td></tr>
+        <tr><td><code>descendant-or-self::</code></td><td>Same as <code>//</code></td></tr>
+        <tr><td><code>following-sibling::</code></td><td>Siblings after this one</td></tr>
+        <tr><td><code>preceding-sibling::</code></td><td>Siblings before this one</td></tr>
+        <tr><td><code>following::</code></td><td>Anything after this in document order</td></tr>
+        <tr><td><code>preceding::</code></td><td>Anything before this in document order</td></tr>
+      </table>
+
+      <div class="worked">
+        <h5>Worked examples for axes</h5>
+<pre><code><span class="c">// 1. Find the input that comes right after a specific label</span>
+//label[text()=<span class="s">'Email'</span>]/following-sibling::input
+
+<span class="c">// 2. Find the parent &lt;tr&gt; of a cell containing "Alice"</span>
+//td[text()=<span class="s">'Alice'</span>]/parent::tr
+
+<span class="c">// 3. Find the &lt;form&gt; ancestor of a button</span>
+//button[<span class="k">@id</span>=<span class="s">'submit'</span>]/ancestor::form
+
+<span class="c">// 4. Find all &lt;td&gt; preceding the cell with "Action"</span>
+//td[text()=<span class="s">'Action'</span>]/preceding-sibling::td
+</code></pre>
+      </div>
+
+      <h3>6.7 Recipes &mdash; copy &amp; adapt</h3>
+
+      <h4>Recipe 1: Click a button identified by its visible text (most common)</h4>
+<pre><code><span class="k">By</span> btn = By.xpath(<span class="s">"//button[normalize-space()='Save']"</span>);
+</code></pre>
+
+      <h4>Recipe 2: Input next to a label</h4>
+<pre><code><span class="k">By</span> phoneInput = By.xpath(
+    <span class="s">"//label[normalize-space()='Phone']/following-sibling::input"</span>);
+
+<span class="c">// If the input is inside a div sibling:</span>
+<span class="k">By</span> phoneInput2 = By.xpath(
+    <span class="s">"//label[normalize-space()='Phone']/parent::div/following-sibling::div//input"</span>);
+</code></pre>
+
+      <h4>Recipe 3: Action in a table row identified by another cell</h4>
+<pre><code><span class="k">By</span> editRow = By.xpath(
+    <span class="s">"//tr[td[normalize-space()='Alice Cooper']]//button[text()='Edit']"</span>);
+</code></pre>
+
+      <h4>Recipe 4: Element with multiple class fragments</h4>
+<pre><code><span class="c">// Element with classes "btn primary" (in any order)</span>
+<span class="k">By</span> btn = By.xpath(
+    <span class="s">"//*[contains(concat(' ', normalize-space(@class), ' '), ' btn ')"</span> +
+    <span class="s">"   and contains(concat(' ', normalize-space(@class), ' '), ' primary ')]"</span>);
+</code></pre>
+
+      <h4>Recipe 5: Last item</h4>
+<pre><code>(//ul[<span class="k">@id</span>=<span class="s">'menu'</span>]/li)[last()]
+</code></pre>
+
+      <h4>Recipe 6: Nth occurrence among matches</h4>
+<pre><code>(//input[<span class="k">@class</span>=<span class="s">'oxd-input'</span>])[3]    <span class="c">// the 3rd matching input</span>
+</code></pre>
+
+      <h4>Recipe 7: Element with NO specific class</h4>
+<pre><code>//tr[<span class="k">not</span>(contains(<span class="k">@class</span>, <span class="s">'header'</span>))]
+</code></pre>
+
+      <h4>Recipe 8: Match by partial id (for dynamic IDs)</h4>
+<pre><code>//input[starts-with(<span class="k">@id</span>, <span class="s">'mat-input-'</span>)]
+//input[contains(<span class="k">@id</span>,    <span class="s">'-username-'</span>)]
+</code></pre>
+
+      <h3>6.8 Common XPath errors</h3>
+
+      <table>
+        <tr><th>Error</th><th>Cause</th><th>Fix</th></tr>
+        <tr><td>InvalidSelectorException</td><td>Quotes mismatched, e.g. <code>"//a[text()='Foo'"</code></td><td>Match all brackets &amp; quotes.</td></tr>
+        <tr><td>NoSuchElementException</td><td>Locator looks valid but matches 0 elements</td><td>Test in DevTools Ctrl+F. Maybe inside an iframe; switch first.</td></tr>
+        <tr><td>Returns wrong element</td><td>Multiple matches, you took the first</td><td>Use <code>findElements</code> to debug, then refine locator.</td></tr>
+        <tr><td>Slow tests</td><td>Long XPath with many <code>//</code></td><td>Anchor with a unique parent: <code>//div[@id='main']//input</code>.</td></tr>
+      </table>
+
+      <h3>6.9 Quoting strings inside XPath</h3>
+      <p>What if the search text itself contains a quote? Like <code>It's me</code>:</p>
+<pre><code><span class="c">// Wrong: nested same-quote breaks the string</span>
+By.xpath(<span class="s">"//*[text()='It's me']"</span>);
+
+<span class="c">// Fix 1: alternate quotes</span>
+By.xpath(<span class="s">"//*[text()=\"It's me\"]"</span>);
+
+<span class="c">// Fix 2: concat() (works for both kinds of quote)</span>
+By.xpath(<span class="s">"//*[text()=concat('It', \"'\", 's me')]"</span>);
+</code></pre>
+
+      <div class="callout iv">
+        <span class="label">Interview question</span>
+        <strong>Q: How do you write XPath to find a parent element from a child?</strong><br/>
+        Use the <code>parent::</code> or <code>ancestor::</code> axis. Example: <code>//input[@id='email']/parent::div</code> finds the div that directly wraps the email input. <code>ancestor::form</code> walks up to the nearest form.
+      </div>
+    </section>
+
+    <!-- ============ DEEP 7: CSS Selectors Complete ============ -->
+    <section class="module" id="d7">
+      <h2>7. CSS Selectors Complete Reference</h2>
+
+      <p>CSS selectors are shorter, faster, and more readable than XPath for most cases. Selenium uses the browser's native <code>querySelector</code> &mdash; so anything Chrome supports, Selenium supports.</p>
+
+      <h3>7.1 Basic selectors</h3>
+      <table>
+        <tr><th>Pattern</th><th>Meaning</th><th>Example</th></tr>
+        <tr><td><code>tag</code></td><td>By tag name</td><td><code>input</code></td></tr>
+        <tr><td><code>#id</code></td><td>By id</td><td><code>#login</code></td></tr>
+        <tr><td><code>.class</code></td><td>By class</td><td><code>.btn-primary</code></td></tr>
+        <tr><td><code>tag.class</code></td><td>Combined</td><td><code>button.btn-primary</code></td></tr>
+        <tr><td><code>tag#id</code></td><td>Combined</td><td><code>input#search</code></td></tr>
+        <tr><td><code>.a.b</code></td><td>Element with both classes</td><td><code>.btn.primary</code></td></tr>
+        <tr><td><code>*</code></td><td>Any element</td><td><code>*</code></td></tr>
+      </table>
+
+      <h3>7.2 Attribute selectors (powerful)</h3>
+      <table>
+        <tr><th>Pattern</th><th>Meaning</th><th>Example</th></tr>
+        <tr><td><code>[attr]</code></td><td>Has attribute</td><td><code>input[required]</code></td></tr>
+        <tr><td><code>[attr='val']</code></td><td>Exact match</td><td><code>input[name='email']</code></td></tr>
+        <tr><td><code>[attr*='val']</code></td><td>Contains</td><td><code>input[id*='user']</code></td></tr>
+        <tr><td><code>[attr^='val']</code></td><td>Starts with</td><td><code>input[id^='mat-']</code></td></tr>
+        <tr><td><code>[attr$='val']</code></td><td>Ends with</td><td><code>a[href$='.pdf']</code></td></tr>
+        <tr><td><code>[attr~='val']</code></td><td>Whole-word match</td><td><code>div[class~='card']</code></td></tr>
+        <tr><td><code>[attr|='val']</code></td><td>Match or starts with "val-"</td><td><code>span[lang|='en']</code></td></tr>
+      </table>
+
+      <h3>7.3 Combinators (relationships)</h3>
+      <table>
+        <tr><th>Pattern</th><th>Meaning</th></tr>
+        <tr><td><code>A B</code></td><td>B is a descendant of A (any depth)</td></tr>
+        <tr><td><code>A &gt; B</code></td><td>B is a direct child of A</td></tr>
+        <tr><td><code>A + B</code></td><td>B is the immediate next sibling of A</td></tr>
+        <tr><td><code>A ~ B</code></td><td>B is any later sibling of A</td></tr>
+      </table>
+
+<pre><code>form input                  <span class="c">// any input descendant of a form</span>
+form &gt; input                <span class="c">// input that is a direct child of form</span>
+label + input               <span class="c">// the input immediately following a label</span>
+label ~ input               <span class="c">// any input that is a later sibling of label</span>
+</code></pre>
+
+      <h3>7.4 Pseudo-classes</h3>
+      <table>
+        <tr><th>Pattern</th><th>Meaning</th></tr>
+        <tr><td><code>:first-child</code></td><td>Element that is its parent's first child</td></tr>
+        <tr><td><code>:last-child</code></td><td>Element that is its parent's last child</td></tr>
+        <tr><td><code>:nth-child(n)</code></td><td>The nth child</td></tr>
+        <tr><td><code>:nth-of-type(n)</code></td><td>The nth of its tag</td></tr>
+        <tr><td><code>:not(selector)</code></td><td>Negation</td></tr>
+        <tr><td><code>:checked</code></td><td>Currently-checked input</td></tr>
+        <tr><td><code>:disabled</code> / <code>:enabled</code></td><td>Form state</td></tr>
+        <tr><td><code>:empty</code></td><td>No children</td></tr>
+        <tr><td><code>:focus</code></td><td>Currently focused</td></tr>
+      </table>
+
+<pre><code>li:nth-child(3)             <span class="c">// 3rd li in its parent</span>
+li:nth-of-type(2)           <span class="c">// 2nd li (counting only li, not other siblings)</span>
+li:nth-child(odd)           <span class="c">// every odd li</span>
+li:nth-child(2n+1)          <span class="c">// same: every odd li</span>
+input:not([disabled])       <span class="c">// enabled inputs only</span>
+button:disabled             <span class="c">// only disabled buttons</span>
+input[type='checkbox']:checked   <span class="c">// only checked checkboxes</span>
+</code></pre>
+
+      <h3>7.5 CSS recipes (parallel to XPath recipes)</h3>
+
+      <h4>Recipe 1: By id (the boring one)</h4>
+<pre><code>By.cssSelector(<span class="s">"#login"</span>);
+</code></pre>
+
+      <h4>Recipe 2: Element with two classes</h4>
+<pre><code>By.cssSelector(<span class="s">"button.btn.primary"</span>);
+</code></pre>
+
+      <h4>Recipe 3: Custom test attribute</h4>
+<pre><code>By.cssSelector(<span class="s">"[data-test-id='loginBtn']"</span>);
+</code></pre>
+
+      <h4>Recipe 4: Input inside a specific form</h4>
+<pre><code>By.cssSelector(<span class="s">"form#loginForm input[name='username']"</span>);
+</code></pre>
+
+      <h4>Recipe 5: First/last/3rd of a list</h4>
+<pre><code>By.cssSelector(<span class="s">"ul.menu li:first-child"</span>);
+By.cssSelector(<span class="s">"ul.menu li:last-child"</span>);
+By.cssSelector(<span class="s">"ul.menu li:nth-child(3)"</span>);
+</code></pre>
+
+      <h4>Recipe 6: Element with dynamic prefix</h4>
+<pre><code>By.cssSelector(<span class="s">"input[id^='mat-input-']"</span>);     <span class="c">// starts with</span>
+</code></pre>
+
+      <h4>Recipe 7: Sibling pattern (input immediately after label)</h4>
+<pre><code>By.cssSelector(<span class="s">"label[for='email'] + input"</span>);
+</code></pre>
+
+      <h4>Recipe 8: All visible buttons in a modal</h4>
+<pre><code>By.cssSelector(<span class="s">".modal.show button:not([disabled])"</span>);
+</code></pre>
+
+      <h3>7.6 What CSS CANNOT do (where you must switch to XPath)</h3>
+      <ul>
+        <li>Match by visible text (no <code>contains-text</code>). Use XPath: <code>//button[text()='Save']</code>.</li>
+        <li>Walk up to a parent or ancestor. Use XPath: <code>../parent::div</code>.</li>
+        <li>Walk to a previous sibling. Use XPath: <code>preceding-sibling::input</code>.</li>
+      </ul>
+
+      <p>Everything else &mdash; CSS is faster and shorter. <strong>Default to CSS, switch to XPath when you must.</strong></p>
+
+      <h3>7.7 Practical comparison</h3>
+      <table>
+        <tr><th>Goal</th><th>CSS</th><th>XPath</th></tr>
+        <tr><td>By id</td><td><code>#login</code></td><td><code>//*[@id='login']</code></td></tr>
+        <tr><td>By class</td><td><code>.btn</code></td><td><code>//*[contains(@class,'btn')]</code></td></tr>
+        <tr><td>2 classes</td><td><code>.a.b</code></td><td>(complex with concat)</td></tr>
+        <tr><td>By attribute</td><td><code>input[name='q']</code></td><td><code>//input[@name='q']</code></td></tr>
+        <tr><td>Direct child</td><td><code>ul &gt; li</code></td><td><code>//ul/li</code></td></tr>
+        <tr><td>Nth child</td><td><code>li:nth-child(3)</code></td><td><code>(//li)[3]</code></td></tr>
+        <tr><td>By visible text</td><td>(impossible)</td><td><code>//*[text()='Save']</code></td></tr>
+        <tr><td>Walk up to parent</td><td>(impossible)</td><td><code>//input/..</code></td></tr>
+      </table>
+
+      <div class="callout iv">
+        <span class="label">Interview question</span>
+        <strong>Q: When do you choose XPath over CSS?</strong><br/>
+        I default to CSS for speed and readability. I switch to XPath when I need to (a) match an element by its visible text, (b) navigate to a parent/ancestor/preceding-sibling, or (c) use functions like <code>contains</code>, <code>starts-with</code>, <code>normalize-space</code>. For everything else, CSS wins.
+      </div>
+    </section>
+
+
+
+    <!-- ============ DEEP 8: Synchronization Mastery ============ -->
+    <section class="module" id="d8">
+      <h2>8. Synchronization Mastery (Waits in Depth)</h2>
+
+      <p>If you remember nothing else from this guide, remember this: <strong>90% of flaky Selenium tests are timing problems</strong>. Master waits and your tests become rock-solid.</p>
+
+      <h3>8.1 Why pages aren't "ready" instantly</h3>
+      <p>A modern web app does this when you load a URL:</p>
+      <ol>
+        <li>Browser receives HTML &rarr; ~50ms.</li>
+        <li>Browser parses HTML, downloads CSS/JS &rarr; ~200ms.</li>
+        <li>JS framework (React/Angular/Vue) bootstraps &rarr; ~300ms.</li>
+        <li>JS calls the backend API for data &rarr; ~500ms.</li>
+        <li>JS renders elements based on the data &rarr; ~100ms.</li>
+        <li>Animations finish &rarr; ~300ms.</li>
+      </ol>
+      <p>So the login form might appear ~1.5 seconds <em>after</em> <code>driver.get()</code> returns. If you click immediately, you fail.</p>
+
+      <h3>8.2 The 4 wait strategies (in order of preference)</h3>
+
+      <h4>Strategy 1: Don't wait at all (when possible)</h4>
+      <p>If the page is fully static, no wait needed. Rare in modern apps.</p>
+
+      <h4>Strategy 2: Implicit Wait</h4>
+<pre><code>driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+</code></pre>
+      <ul>
+        <li>Set ONCE per session.</li>
+        <li>Applies to <em>all</em> <code>findElement</code> calls.</li>
+        <li>Polls the DOM every ~500ms until the element is present.</li>
+        <li><strong>Only checks "present in DOM"</strong> &mdash; not visible, not clickable.</li>
+      </ul>
+      <p>Works for static-ish pages. Falls short on dynamic UIs (element is in DOM but invisible behind a spinner).</p>
+
+      <h4>Strategy 3: Explicit Wait (the recommended default)</h4>
+<pre><code>WebDriverWait wait = <span class="k">new</span> WebDriverWait(driver, Duration.ofSeconds(10));
+
+WebElement el = wait.until(
+    ExpectedConditions.elementToBeClickable(By.id(<span class="s">"login"</span>)));
+el.click();
+</code></pre>
+      <ul>
+        <li>Targeted: wait for THIS specific condition on THIS specific element.</li>
+        <li>Polls every ~500ms by default.</li>
+        <li>Throws <code>TimeoutException</code> if the condition isn't met within timeout.</li>
+        <li><strong>Many conditions available</strong>: present, visible, clickable, text-equals, frame-available, etc.</li>
+      </ul>
+
+      <h4>Strategy 4: Fluent Wait (advanced control)</h4>
+<pre><code>Wait&lt;WebDriver&gt; wait = <span class="k">new</span> FluentWait&lt;&gt;(driver)
+    .withTimeout(Duration.ofSeconds(30))
+    .pollingEvery(Duration.ofMillis(250))
+    .ignoring(NoSuchElementException.class)
+    .ignoring(StaleElementReferenceException.class);
+
+WebElement el = wait.until(d -&gt; d.findElement(By.id(<span class="s">"result"</span>)));
+</code></pre>
+      <ul>
+        <li>Custom polling interval (faster than default).</li>
+        <li>Multiple ignored exception types.</li>
+        <li>Custom condition via lambda.</li>
+      </ul>
+
+      <h3>8.3 The complete <code>ExpectedConditions</code> catalog</h3>
+
+      <h4>Element presence/visibility</h4>
+      <table>
+        <tr><th>Condition</th><th>Meaning</th></tr>
+        <tr><td><code>presenceOfElementLocated(By)</code></td><td>Exists in DOM (may be hidden)</td></tr>
+        <tr><td><code>presenceOfAllElementsLocatedBy(By)</code></td><td>1+ elements exist</td></tr>
+        <tr><td><code>visibilityOfElementLocated(By)</code></td><td>In DOM AND visible (display!=none, opacity&gt;0, dimensions&gt;0)</td></tr>
+        <tr><td><code>visibilityOf(WebElement)</code></td><td>This element is visible</td></tr>
+        <tr><td><code>visibilityOfAllElementsLocatedBy(By)</code></td><td>All matching elements visible</td></tr>
+        <tr><td><code>invisibilityOfElementLocated(By)</code></td><td>Element is invisible OR not present (great for spinners)</td></tr>
+      </table>
+
+      <h4>Element interactability</h4>
+      <table>
+        <tr><th>Condition</th><th>Meaning</th></tr>
+        <tr><td><code>elementToBeClickable(By)</code></td><td>Visible AND enabled (not disabled)</td></tr>
+        <tr><td><code>elementSelectionStateToBe(By, true)</code></td><td>Checkbox/radio selection state</td></tr>
+      </table>
+
+      <h4>Text/attribute conditions</h4>
+      <table>
+        <tr><th>Condition</th><th>Meaning</th></tr>
+        <tr><td><code>textToBePresentInElement(WE, "Done")</code></td><td>Element's text contains "Done"</td></tr>
+        <tr><td><code>textToBe(By, "Done")</code></td><td>Element's text is exactly "Done"</td></tr>
+        <tr><td><code>attributeToBe(By, "value", "abc")</code></td><td>Attribute equals value</td></tr>
+        <tr><td><code>attributeContains(By, "class", "active")</code></td><td>Attribute contains substring</td></tr>
+      </table>
+
+      <h4>Page-level conditions</h4>
+      <table>
+        <tr><th>Condition</th><th>Meaning</th></tr>
+        <tr><td><code>titleIs("Dashboard")</code></td><td>Browser tab title is exact</td></tr>
+        <tr><td><code>titleContains("Dash")</code></td><td>Tab title contains text</td></tr>
+        <tr><td><code>urlContains("/home")</code></td><td>Current URL contains substring</td></tr>
+        <tr><td><code>urlMatches(regex)</code></td><td>URL matches regex</td></tr>
+      </table>
+
+      <h4>Frames &amp; alerts</h4>
+      <table>
+        <tr><th>Condition</th><th>Meaning</th></tr>
+        <tr><td><code>frameToBeAvailableAndSwitchToIt(By)</code></td><td>Wait for iframe AND switch into it</td></tr>
+        <tr><td><code>alertIsPresent()</code></td><td>JS alert popup present</td></tr>
+      </table>
+
+      <h4>Counts</h4>
+      <table>
+        <tr><th>Condition</th><th>Meaning</th></tr>
+        <tr><td><code>numberOfElementsToBe(By, 5)</code></td><td>Exactly 5 elements</td></tr>
+        <tr><td><code>numberOfElementsToBeMoreThan(By, 0)</code></td><td>At least 1 element (good "page populated" check)</td></tr>
+        <tr><td><code>numberOfWindowsToBe(2)</code></td><td>Wait for new tab to open</td></tr>
+      </table>
+
+      <h3>8.4 The "wait for spinner to disappear" recipe</h3>
+<pre><code>WebDriverWait wait = <span class="k">new</span> WebDriverWait(driver, Duration.ofSeconds(20));
+
+<span class="c">// Click the action that triggers a spinner</span>
+driver.findElement(By.id(<span class="s">"saveBtn"</span>)).click();
+
+<span class="c">// Wait for spinner to disappear</span>
+wait.until(ExpectedConditions.invisibilityOfElementLocated(
+    By.cssSelector(<span class="s">".loading-spinner"</span>)));
+
+<span class="c">// Now safely interact</span>
+driver.findElement(By.id(<span class="s">"successMessage"</span>)).getText();
+</code></pre>
+
+      <h3>8.5 The "wait for page fully loaded" recipe</h3>
+<pre><code><span class="k">public void</span> waitForPageLoad() {
+    WebDriverWait wait = <span class="k">new</span> WebDriverWait(driver, Duration.ofSeconds(30));
+    wait.until(d -&gt; ((JavascriptExecutor) d)
+        .executeScript(<span class="s">"return document.readyState"</span>)
+        .equals(<span class="s">"complete"</span>));
+}
+</code></pre>
+      <p>This is exactly what your <code>ActionDriver.waitForPageLoad()</code> does.</p>
+
+      <h3>8.6 Custom condition with lambda (when built-ins don't fit)</h3>
+<pre><code><span class="c">// Wait until a list has at least 5 items AND first one says "ready"</span>
+wait.until(d -&gt; {
+    List&lt;WebElement&gt; items = d.findElements(By.cssSelector(<span class="s">".list-item"</span>));
+    <span class="k">return</span> items.size() &gt;= 5
+        &amp;&amp; items.get(0).getText().contains(<span class="s">"ready"</span>);
+});
+</code></pre>
+
+      <h3>8.7 The implicit + explicit wait gotcha</h3>
+      <p>If you set BOTH:</p>
+<pre><code>driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+WebDriverWait wait = <span class="k">new</span> WebDriverWait(driver, Duration.ofSeconds(5));
+
+<span class="c">// What happens?  Could take up to 10s + 5s = 15s in worst case.</span>
+<span class="c">// Or only 5s. Behavior is documented but inconsistent in practice.</span>
+</code></pre>
+      <div class="callout warn">
+        <span class="label">Recommendation</span>
+        Don't mix. Either set implicit to 0 (no implicit wait at all) and rely fully on explicit waits, or use only implicit. <strong>Industry standard: explicit-only.</strong>
+      </div>
+
+      <h3>8.8 Page-load timeout vs script timeout</h3>
+<pre><code><span class="c">// Maximum time for driver.get() to wait before throwing TimeoutException</span>
+driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(60));
+
+<span class="c">// Maximum time for executeAsyncScript()</span>
+driver.manage().timeouts().scriptTimeout(Duration.ofSeconds(30));
+</code></pre>
+
+      <h3>8.9 Wait debugging tips</h3>
+      <ul>
+        <li>If a wait fails: turn on logging in the action driver and print the locator. You'll see what was missing.</li>
+        <li>Capture a screenshot when wait fails &mdash; you'll see if the page even loaded.</li>
+        <li>Check Network tab in DevTools while a manual repro is happening. Slow XHR? Large image?</li>
+        <li>Use <code>numberOfElementsToBeMoreThan</code> with the result list to wait for "page is populated".</li>
+      </ul>
+
+      <h3>8.10 Real example from your framework</h3>
+<pre><code><span class="c">// In ActionDriver.java (simplified)</span>
+<span class="k">public void</span> click(By by) {
+    <span class="k">try</span> {
+        wait.until(ExpectedConditions.elementToBeClickable(by));
+        applyBorder(by, <span class="s">"green"</span>);
+        driver.findElement(by).click();
+        logger.info(<span class="s">"Clicked: "</span> + by);
+    } <span class="k">catch</span> (TimeoutException e) {
+        applyBorder(by, <span class="s">"red"</span>);
+        logger.error(<span class="s">"Element not clickable: "</span> + by);
+        <span class="k">throw</span> e;
+    }
+}
+</code></pre>
+
+      <p>Because this wait is INSIDE the click helper, every click in your framework auto-waits. You never have to write <code>wait.until(...)</code> in tests.</p>
+
+      <div class="callout iv">
+        <span class="label">Interview question</span>
+        <strong>Q: A test passes locally but fails on CI &mdash; how do you debug?</strong><br/>
+        Most common cause: timing. CI machines are slower, network is slower, no display = sometimes different rendering. Steps: (1) Take screenshot on failure. (2) Increase explicit wait timeouts. (3) Wait for spinners explicitly. (4) Run headed locally + headless in CI to compare. (5) Check if test depends on window size (CI default is small). (6) Add waits for AJAX-driven UI populations.
+      </div>
+    </section>
+
+    <!-- ============ DEEP 9: POM Advanced ============ -->
+    <section class="module" id="d9">
+      <h2>9. Page Object Model &mdash; Advanced</h2>
+
+      <p>Plain POM is good. Industrial-grade POM &mdash; with composition, fluent APIs, and base pages &mdash; is great. Let's evolve through 4 stages.</p>
+
+      <h3>9.1 Stage 1: The naive page (don't do this)</h3>
+<pre><code><span class="k">public class</span> LoginTest {
+    @Test
+    <span class="k">public void</span> validLogin() {
+        WebDriver driver = <span class="k">new</span> ChromeDriver();
+        driver.get(<span class="s">"https://orangehrm.com"</span>);
+        driver.findElement(By.name(<span class="s">"username"</span>)).sendKeys(<span class="s">"Admin"</span>);
+        driver.findElement(By.name(<span class="s">"password"</span>)).sendKeys(<span class="s">"admin123"</span>);
+        driver.findElement(By.xpath(<span class="s">"//button[@type='submit']"</span>)).click();
+        Assert.assertEquals(driver.getTitle(), <span class="s">"OrangeHRM"</span>);
+        driver.quit();
+    }
+}
+</code></pre>
+      <p>Problems: locators in test, duplication, no reuse, no logs, no waits.</p>
+
+      <h3>9.2 Stage 2: Basic POM</h3>
+<pre><code><span class="k">public class</span> LoginPage {
+    <span class="k">private</span> WebDriver driver;
+    <span class="k">private</span> By userField  = By.name(<span class="s">"username"</span>);
+    <span class="k">private</span> By passField  = By.name(<span class="s">"password"</span>);
+    <span class="k">private</span> By loginBtn   = By.xpath(<span class="s">"//button[@type='submit']"</span>);
+
+    <span class="k">public</span> LoginPage(WebDriver driver) { <span class="k">this</span>.driver = driver; }
+
+    <span class="k">public void</span> enterUsername(<span class="k">String</span> u) { driver.findElement(userField).sendKeys(u); }
+    <span class="k">public void</span> enterPassword(<span class="k">String</span> p) { driver.findElement(passField).sendKeys(p); }
+    <span class="k">public void</span> clickLogin()              { driver.findElement(loginBtn).click(); }
+}
+</code></pre>
+      <p>Better. Locators centralized. But still: no waits, no error handling, lots of <code>driver.findElement</code> repetition.</p>
+
+      <h3>9.3 Stage 3: POM + ActionDriver layer (your framework)</h3>
+<pre><code><span class="k">public class</span> LoginPage {
+    <span class="k">private</span> ActionDriver actionDriver;
+
+    <span class="k">private</span> By userField  = By.name(<span class="s">"username"</span>);
+    <span class="k">private</span> By passField  = By.name(<span class="s">"password"</span>);
+    <span class="k">private</span> By loginBtn   = By.xpath(<span class="s">"//button[@type='submit']"</span>);
+    <span class="k">private</span> By errorMsg   = By.xpath(<span class="s">"//p[text()='Invalid credentials']"</span>);
+
+    <span class="k">public</span> LoginPage(WebDriver driver) {
+        <span class="k">this</span>.actionDriver = BaseClass.getActionDriver();
+    }
+
+    <span class="c">// One method per business action</span>
+    <span class="k">public void</span> login(<span class="k">String</span> u, <span class="k">String</span> p) {
+        actionDriver.enterText(userField, u);
+        actionDriver.enterText(passField, p);
+        actionDriver.click(loginBtn);
+    }
+
+    <span class="k">public</span> <span class="k">String</span> getErrorMessage() {
+        <span class="k">return</span> actionDriver.getText(errorMsg);
+    }
+
+    <span class="k">public boolean</span> isErrorMessageDisplayed() {
+        <span class="k">return</span> actionDriver.isDisplayed(errorMsg);
+    }
+}
+</code></pre>
+      <p>Why this is better: every <code>actionDriver.enterText / click / getText</code> internally waits, logs, screenshots-on-failure. The page class focuses on the <em>business meaning</em>, not the mechanics.</p>
+
+      <h3>9.4 Stage 4: Fluent POM (next-level readability)</h3>
+      <p>Make page methods <em>return the next page</em>. Tests read like English:</p>
+<pre><code><span class="k">public class</span> LoginPage {
+    <span class="c">// ... fields ...</span>
+
+    <span class="k">public</span> HomePage loginAs(<span class="k">String</span> u, <span class="k">String</span> p) {
+        actionDriver.enterText(userField, u);
+        actionDriver.enterText(passField, p);
+        actionDriver.click(loginBtn);
+        <span class="k">return new</span> HomePage(driver);    <span class="c">// transition to next page</span>
+    }
+
+    <span class="k">public</span> LoginPage loginExpectingFailure(<span class="k">String</span> u, <span class="k">String</span> p) {
+        <span class="c">// stays on same page on bad creds</span>
+        actionDriver.enterText(userField, u);
+        actionDriver.enterText(passField, p);
+        actionDriver.click(loginBtn);
+        <span class="k">return this</span>;
+    }
+}
+
+<span class="c">// In your test:</span>
+@Test
+<span class="k">public void</span> validLoginShowsDashboard() {
+    <span class="k">new</span> LoginPage(driver)
+        .loginAs(<span class="s">"Admin"</span>, <span class="s">"admin123"</span>)
+        .verifyAdminTabVisible();
+}
+
+@Test
+<span class="k">public void</span> invalidLoginShowsError() {
+    <span class="k">String</span> err = <span class="k">new</span> LoginPage(driver)
+        .loginExpectingFailure(<span class="s">"x"</span>, <span class="s">"y"</span>)
+        .getErrorMessage();
+    Assert.assertEquals(err, <span class="s">"Invalid credentials"</span>);
+}
+</code></pre>
+
+      <h3>9.5 BasePage (reuse across pages)</h3>
+      <p>Some operations apply everywhere &mdash; logout, get page title, dismiss notifications. Put them in a BasePage that all pages extend:</p>
+<pre><code><span class="k">public class</span> BasePage {
+    <span class="k">protected</span> ActionDriver actionDriver;
+    <span class="k">protected</span> WebDriver driver;
+
+    <span class="k">private</span> By userMenu  = By.cssSelector(<span class="s">".oxd-userdropdown"</span>);
+    <span class="k">private</span> By logoutLink= By.xpath(<span class="s">"//a[text()='Logout']"</span>);
+
+    <span class="k">public</span> BasePage(WebDriver driver) {
+        <span class="k">this</span>.driver = driver;
+        <span class="k">this</span>.actionDriver = BaseClass.getActionDriver();
+    }
+
+    <span class="k">public</span> LoginPage logout() {
+        actionDriver.click(userMenu);
+        actionDriver.click(logoutLink);
+        <span class="k">return new</span> LoginPage(driver);
+    }
+
+    <span class="k">public</span> <span class="k">String</span> getPageTitle() {
+        <span class="k">return</span> driver.getTitle();
+    }
+}
+
+<span class="k">public class</span> HomePage <span class="k">extends</span> BasePage {
+    <span class="k">public</span> HomePage(WebDriver driver) { <span class="k">super</span>(driver); }
+    <span class="c">// HomePage-specific stuff</span>
+}
+</code></pre>
+
+      <h3>9.6 Component pattern (huge time-saver)</h3>
+      <p>If your app has reusable widgets (a date picker, a complex dropdown, a table), make each its own class. Pages compose components.</p>
+<pre><code><span class="k">public class</span> EmployeeTable {
+    <span class="k">private</span> ActionDriver actionDriver;
+    <span class="k">private</span> By rowByName(<span class="k">String</span> name) {
+        <span class="k">return</span> By.xpath(<span class="s">"//tr[td[normalize-space()='"</span> + name + <span class="s">"']]"</span>);
+    }
+    <span class="k">private</span> By editBtnInRow = By.xpath(<span class="s">".//button[@title='Edit']"</span>);
+
+    <span class="k">public</span> EmployeeTable(WebDriver driver) { ... }
+
+    <span class="k">public void</span> editEmployee(<span class="k">String</span> name) {
+        WebElement row = driver.findElement(rowByName(name));
+        row.findElement(editBtnInRow).click();
+    }
+}
+
+<span class="k">public class</span> AdminPage <span class="k">extends</span> BasePage {
+    <span class="k">public</span> EmployeeTable getEmployeeTable() {
+        <span class="k">return new</span> EmployeeTable(driver);
+    }
+}
+</code></pre>
+
+      <h3>9.7 Things to AVOID in page classes</h3>
+      <ul>
+        <li><strong>Assertions</strong> &mdash; pages should expose state, tests should assert. (One exception: tiny pre-conditions like "is on this page" can be in pages.)</li>
+        <li><strong>Test data</strong> &mdash; never hardcode <code>"Admin", "admin123"</code> inside a page class. Tests pass them in.</li>
+        <li><strong>Sleeps</strong> &mdash; if a page method needs a sleep, fix the wait inside <code>actionDriver</code>.</li>
+        <li><strong>Public locators</strong> &mdash; keep <code>By</code> objects private. Expose only behavior.</li>
+        <li><strong>Driver passed all the way down</strong> &mdash; better to use the framework's <code>BaseClass.getDriver()</code> static accessor.</li>
+      </ul>
+
+      <h3>9.8 Quick checklist for a "great" page class</h3>
+      <ul>
+        <li>One class per logical page or component</li>
+        <li>Locators are <code>private final By</code></li>
+        <li>Methods describe business actions ("login", "search", "addEmployee")</li>
+        <li>No <code>findElement</code> / <code>sendKeys</code> in tests &mdash; only page-method calls</li>
+        <li>No assertions inside the page (except pre-conditions)</li>
+        <li>Returns next page object when navigating</li>
+        <li>Uses the action-driver layer for all interaction</li>
+      </ul>
+
+      <div class="callout iv">
+        <span class="label">Interview question</span>
+        <strong>Q: Should page methods return WebElements or page objects?</strong><br/>
+        Page methods should expose <em>behavior</em>, not raw elements. They return a Page Object (the next one if navigation, the same one otherwise) or a primitive (String, boolean) when reading state. Returning WebElements leaks implementation and tempts test code to call <code>findElement</code>/<code>click</code> directly &mdash; defeating POM.
+      </div>
+    </section>
+
+    <!-- ============ DEEP 10: TestNG Complete ============ -->
+    <section class="module" id="d10">
+      <h2>10. TestNG &mdash; Complete Reference</h2>
+
+      <h3>10.1 The complete annotation reference</h3>
+      <table>
+        <tr><th>Annotation</th><th>Runs</th><th>Common use</th></tr>
+        <tr><td><code>@BeforeSuite</code></td><td>Once, before everything in suite</td><td>Start grid, init DB pool</td></tr>
+        <tr><td><code>@AfterSuite</code></td><td>Once, at very end</td><td>Tear down DB, flush reports</td></tr>
+        <tr><td><code>@BeforeTest</code></td><td>Before all tests in <code>&lt;test&gt;</code> tag</td><td>Set environment, browser</td></tr>
+        <tr><td><code>@AfterTest</code></td><td>After all tests in <code>&lt;test&gt;</code></td><td>Clean env</td></tr>
+        <tr><td><code>@BeforeClass</code></td><td>Once before tests in current class</td><td>Class-level setup (rare in Selenium)</td></tr>
+        <tr><td><code>@AfterClass</code></td><td>Once after tests in current class</td><td>Class-level cleanup</td></tr>
+        <tr><td><code>@BeforeMethod</code></td><td>Before EACH @Test method</td><td>Open browser, login</td></tr>
+        <tr><td><code>@AfterMethod</code></td><td>After EACH @Test method</td><td>Close browser, screenshot on fail</td></tr>
+        <tr><td><code>@BeforeGroups</code> / <code>@AfterGroups</code></td><td>Around tests in named groups</td><td>Group-specific setup</td></tr>
+        <tr><td><code>@Test</code></td><td>The test itself</td><td>Your scenario</td></tr>
+        <tr><td><code>@DataProvider</code></td><td>Supplies data to tests</td><td>Data-driven testing</td></tr>
+        <tr><td><code>@Parameters</code></td><td>Reads from testng.xml</td><td>Cross-environment params</td></tr>
+        <tr><td><code>@Listeners</code></td><td>Class-level listener attachment</td><td>Reporting, retries</td></tr>
+        <tr><td><code>@Factory</code></td><td>Generates multiple test instances</td><td>Same class, many configs</td></tr>
+      </table>
+
+      <h3>10.2 The execution order with parallel="false"</h3>
+      <div class="diagram">
+@BeforeSuite
+   @BeforeTest
+      @BeforeClass
+         @BeforeMethod &rarr; @Test1 &rarr; @AfterMethod
+         @BeforeMethod &rarr; @Test2 &rarr; @AfterMethod
+         @BeforeMethod &rarr; @Test3 &rarr; @AfterMethod
+      @AfterClass
+   @AfterTest
+@AfterSuite
+      </div>
+
+      <h3>10.3 @Test attributes in detail</h3>
+<pre><code>@Test(
+    priority = 1,                    <span class="c">// run order (lower runs first)</span>
+    description = <span class="s">"Verify login"</span>,    <span class="c">// shows up in reports</span>
+    enabled = <span class="k">true</span>,                  <span class="c">// false = skip</span>
+    timeOut = 30000,                 <span class="c">// fail if &gt; 30s</span>
+    invocationCount = 3,             <span class="c">// run 3 times (smoke / flaky checks)</span>
+    threadPoolSize = 3,              <span class="c">// run those 3 in parallel</span>
+    groups = {<span class="s">"smoke"</span>, <span class="s">"login"</span>},   <span class="c">// tag for selective runs</span>
+    dependsOnMethods = {<span class="s">"loginTest"</span>},<span class="c">// run only after another test</span>
+    expectedExceptions = NoSuchElementException.<span class="k">class</span>,  <span class="c">// must throw this</span>
+    retryAnalyzer = RetryAnalyzer.<span class="k">class</span>          <span class="c">// retry strategy</span>
+)
+<span class="k">public void</span> myTest() { ... }
+</code></pre>
+
+      <h3>10.4 Assertions in detail</h3>
+
+      <h4>Hard assertions (Assert)</h4>
+<pre><code><span class="k">import</span> org.testng.Assert;
+
+Assert.assertEquals(actual, expected);                    <span class="c">// strict equals</span>
+Assert.assertEquals(actual, expected, <span class="s">"failure msg"</span>);
+Assert.assertNotEquals(actual, expected);
+Assert.assertTrue(condition);
+Assert.assertFalse(condition);
+Assert.assertNull(object);
+Assert.assertNotNull(object);
+Assert.assertSame(a, b);                                  <span class="c">// same reference</span>
+Assert.assertNotSame(a, b);
+Assert.assertContains(s1, s2);                            <span class="c">// (TestNG 7+)</span>
+Assert.fail(<span class="s">"force fail"</span>);
+</code></pre>
+
+      <h4>Soft assertions (collect failures, report at end)</h4>
+<pre><code>SoftAssert sa = <span class="k">new</span> SoftAssert();
+
+sa.assertEquals(actualA, expectedA, <span class="s">"check A"</span>);
+sa.assertEquals(actualB, expectedB, <span class="s">"check B"</span>);
+sa.assertTrue(condition,            <span class="s">"check C"</span>);
+
+<span class="c">// Without this, failures are silently swallowed!</span>
+sa.assertAll();
+</code></pre>
+
+      <p>Use soft asserts when you want all assertions evaluated even if one fails (e.g., "check 10 fields on a form, report all bad ones").</p>
+
+      <h3>10.5 @DataProvider in depth</h3>
+
+      <h4>Inline data</h4>
+<pre><code>@DataProvider(name = <span class="s">"loginData"</span>)
+<span class="k">public</span> Object[][] loginData() {
+    <span class="k">return new</span> Object[][] {
+        {<span class="s">"Admin"</span>,    <span class="s">"admin123"</span>, <span class="k">true</span>},
+        {<span class="s">"WrongUser"</span>,<span class="s">"wrong"</span>,    <span class="k">false</span>},
+        {<span class="s">""</span>,         <span class="s">""</span>,         <span class="k">false</span>}
+    };
+}
+
+@Test(dataProvider = <span class="s">"loginData"</span>)
+<span class="k">public void</span> testLogin(<span class="k">String</span> u, <span class="k">String</span> p, <span class="k">boolean</span> expected) {
+    <span class="c">// runs once per row</span>
+}
+</code></pre>
+
+      <h4>Data from Excel (using Apache POI)</h4>
+<pre><code>@DataProvider(name = <span class="s">"loginData"</span>)
+<span class="k">public</span> Object[][] loginData() <span class="k">throws</span> Exception {
+    <span class="k">return</span> ExcelReaderUtility.readSheet(
+        <span class="s">"src/test/resources/data/users.xlsx"</span>, <span class="s">"Login"</span>);
+}
+</code></pre>
+
+      <h4>Parallel data provider</h4>
+<pre><code>@DataProvider(name = <span class="s">"d"</span>, parallel = <span class="k">true</span>)
+<span class="k">public</span> Object[][] data() { ... }
+</code></pre>
+      <p>Each row runs in its own thread. Combine with <code>parallel="methods"</code> in testng.xml + <code>ThreadLocal&lt;WebDriver&gt;</code>.</p>
+
+      <h3>10.6 testng.xml &mdash; the complete shape</h3>
+<pre><code>&lt;<span class="t">suite</span> <span class="k">name</span>=<span class="s">"OrangeHRMSuite"</span>
+       <span class="k">parallel</span>=<span class="s">"methods"</span>
+       <span class="k">thread-count</span>=<span class="s">"3"</span>&gt;
+
+  &lt;<span class="t">listeners</span>&gt;
+    &lt;<span class="t">listener</span> <span class="k">class-name</span>=<span class="s">"com.orangehrm.listeners.TestListener"</span>/&gt;
+  &lt;/<span class="t">listeners</span>&gt;
+
+  &lt;<span class="t">parameter</span> <span class="k">name</span>=<span class="s">"browser"</span> <span class="k">value</span>=<span class="s">"chrome"</span>/&gt;
+
+  &lt;<span class="t">test</span> <span class="k">name</span>=<span class="s">"SmokeTests"</span>&gt;
+    &lt;<span class="t">groups</span>&gt;
+      &lt;<span class="t">run</span>&gt;
+        &lt;<span class="t">include</span> <span class="k">name</span>=<span class="s">"smoke"</span>/&gt;
+        &lt;<span class="t">exclude</span> <span class="k">name</span>=<span class="s">"slow"</span>/&gt;
+      &lt;/<span class="t">run</span>&gt;
+    &lt;/<span class="t">groups</span>&gt;
+    &lt;<span class="t">classes</span>&gt;
+      &lt;<span class="t">class</span> <span class="k">name</span>=<span class="s">"com.orangeHRM.test.LoginPageTest"</span>/&gt;
+      &lt;<span class="t">class</span> <span class="k">name</span>=<span class="s">"com.orangeHRM.test.HomePageTest"</span>/&gt;
+    &lt;/<span class="t">classes</span>&gt;
+  &lt;/<span class="t">test</span>&gt;
+&lt;/<span class="t">suite</span>&gt;
+</code></pre>
+
+      <h4>parallel modes</h4>
+      <table>
+        <tr><th>Value</th><th>Effect</th></tr>
+        <tr><td><code>methods</code></td><td>Each @Test method runs in its own thread (most parallel)</td></tr>
+        <tr><td><code>classes</code></td><td>Each test class runs in its own thread; methods sequentially</td></tr>
+        <tr><td><code>tests</code></td><td>Each <code>&lt;test&gt;</code> tag runs in its own thread</td></tr>
+        <tr><td><code>instances</code></td><td>Used with @Factory; each instance in its own thread</td></tr>
+        <tr><td><code>none</code> (default)</td><td>Sequential</td></tr>
+      </table>
+
+      <h3>10.7 Listeners &mdash; what each method receives</h3>
+<pre><code><span class="k">public class</span> TestListener <span class="k">implements</span> ITestListener {
+
+    @Override
+    <span class="k">public void</span> onTestStart(ITestResult result) {
+        <span class="k">String</span> name = result.getMethod().getMethodName();
+        ExtentManager.createTest(name);
+    }
+
+    @Override
+    <span class="k">public void</span> onTestSuccess(ITestResult result) {
+        ExtentManager.getTest().pass(<span class="s">"Passed"</span>);
+    }
+
+    @Override
+    <span class="k">public void</span> onTestFailure(ITestResult result) {
+        Throwable err = result.getThrowable();
+        <span class="k">String</span> screenshotPath = ScreenshotUtility.capture(
+            BaseClass.getDriver(),
+            result.getMethod().getMethodName());
+        ExtentManager.getTest().fail(err,
+            MediaEntityBuilder.createScreenCaptureFromPath(screenshotPath).build());
+    }
+
+    @Override
+    <span class="k">public void</span> onTestSkipped(ITestResult result) {
+        ExtentManager.getTest().skip(result.getThrowable());
+    }
+
+    @Override
+    <span class="k">public void</span> onFinish(ITestContext context) {
+        ExtentManager.flush();   <span class="c">// VERY IMPORTANT &mdash; writes the HTML</span>
+    }
+}
+</code></pre>
+
+      <h3>10.8 RetryAnalyzer &mdash; full implementation</h3>
+<pre><code><span class="k">public class</span> RetryAnalyzer <span class="k">implements</span> IRetryAnalyzer {
+    <span class="k">private static final int</span> MAX_RETRIES = 2;
+    <span class="k">private int</span> attempt = 0;
+
+    @Override
+    <span class="k">public boolean</span> retry(ITestResult result) {
+        <span class="k">if</span> (attempt &lt; MAX_RETRIES) {
+            attempt++;
+            logger.warn(<span class="s">"Retrying "</span> + result.getName() + <span class="s">" attempt "</span> + attempt);
+            <span class="k">return true</span>;
+        }
+        <span class="k">return false</span>;
+    }
+}
+
+<span class="c">// Apply to a single test:</span>
+@Test(retryAnalyzer = RetryAnalyzer.<span class="k">class</span>)
+<span class="k">public void</span> flakyTest() { ... }
+
+<span class="c">// Apply to ALL tests via IAnnotationTransformer (cleaner):</span>
+<span class="k">public class</span> RetryListener <span class="k">implements</span> IAnnotationTransformer {
+    <span class="k">public void</span> transform(ITestAnnotation annotation, ...) {
+        annotation.setRetryAnalyzer(RetryAnalyzer.<span class="k">class</span>);
+    }
+}
+</code></pre>
+
+      <h3>10.9 Groups &mdash; selective runs</h3>
+<pre><code>@Test(groups = {<span class="s">"smoke"</span>})
+<span class="k">public void</span> criticalLoginTest() { ... }
+
+@Test(groups = {<span class="s">"regression"</span>, <span class="s">"profile"</span>})
+<span class="k">public void</span> updateProfileTest() { ... }
+</code></pre>
+
+      <p>In testng.xml: only run "smoke":</p>
+<pre><code>&lt;<span class="t">groups</span>&gt;
+  &lt;<span class="t">run</span>&gt;
+    &lt;<span class="t">include</span> <span class="k">name</span>=<span class="s">"smoke"</span>/&gt;
+  &lt;/<span class="t">run</span>&gt;
+&lt;/<span class="t">groups</span>&gt;
+</code></pre>
+
+      <h3>10.10 Parameters from testng.xml</h3>
+<pre><code>&lt;<span class="t">suite</span>&gt;
+  &lt;<span class="t">parameter</span> <span class="k">name</span>=<span class="s">"browser"</span> <span class="k">value</span>=<span class="s">"chrome"</span>/&gt;
+  &lt;<span class="t">parameter</span> <span class="k">name</span>=<span class="s">"env"</span>     <span class="k">value</span>=<span class="s">"qa"</span>/&gt;
+  ...
+&lt;/<span class="t">suite</span>&gt;
+
+@BeforeMethod
+@Parameters({<span class="s">"browser"</span>, <span class="s">"env"</span>})
+<span class="k">public void</span> setup(<span class="k">String</span> browser, <span class="k">String</span> env) {
+    <span class="c">// use the values</span>
+}
+</code></pre>
+
+      <h3>10.11 Common TestNG mistakes</h3>
+      <ul>
+        <li>Forgetting <code>sa.assertAll()</code> on a SoftAssert &rarr; failures vanish.</li>
+        <li>Hard-coding browser inside test &rarr; can't run cross-browser. Use parameters.</li>
+        <li>Sharing state between tests via static fields &rarr; tests aren't independent.</li>
+        <li>Putting login inside every <code>@Test</code> &rarr; slow. Put in <code>@BeforeMethod</code> if all tests need it (or use API/cookie shortcut).</li>
+        <li>Setting <code>parallel="methods"</code> without <code>ThreadLocal&lt;WebDriver&gt;</code> &rarr; tests crash.</li>
+      </ul>
+
+      <div class="callout iv">
+        <span class="label">Interview question</span>
+        <strong>Q: How do <code>priority</code> and <code>dependsOnMethods</code> differ?</strong><br/>
+        <code>priority</code> just orders test execution &mdash; it doesn't enforce success. If priority-1 fails, priority-2 still runs. <code>dependsOnMethods</code> creates an actual dependency: if the dependency fails, the dependent test is skipped (not failed). Use dependsOn sparingly &mdash; tests should be independent.
+      </div>
+    </section>
+
+
+
+    <!-- ============ DEEP 11: Top 25 Errors ============ -->
+    <section class="module" id="d11">
+      <h2>11. Top 25 Selenium Errors &amp; How to Fix Them</h2>
+
+      <p>Save this chapter for the day a test fails at 11pm. Each entry: the error, the cause, the fix.</p>
+
+      <h3>11.1 NoSuchElementException</h3>
+      <p><strong>Cause:</strong> Selenium couldn't find the element matching your locator.</p>
+      <p><strong>Fixes:</strong></p>
+      <ol>
+        <li>Test the locator in DevTools (Ctrl+F in Elements panel). 0 matches? Bad locator.</li>
+        <li>Element might be inside an iframe. Switch first: <code>driver.switchTo().frame(...)</code>.</li>
+        <li>Page might not have loaded yet. Add explicit wait.</li>
+        <li>Element might be in a Shadow DOM &mdash; use <code>getShadowRoot()</code>.</li>
+      </ol>
+
+      <h3>11.2 StaleElementReferenceException</h3>
+      <p><strong>Cause:</strong> The DOM element your <code>WebElement</code> points to was removed or replaced (usually by JS re-render).</p>
+      <p><strong>Fixes:</strong></p>
+      <ol>
+        <li>Re-find the element right before using it: <code>driver.findElement(by).click()</code> instead of caching.</li>
+        <li>Use <code>FluentWait</code> with <code>.ignoring(StaleElementReferenceException.class)</code>.</li>
+        <li>Inside loops over <code>findElements</code> results, refresh the list after each action that mutates the DOM.</li>
+      </ol>
+
+      <h3>11.3 ElementClickInterceptedException</h3>
+      <p><strong>Cause:</strong> Another element (modal, banner, sticky header) is on top of the target.</p>
+      <p><strong>Fixes:</strong></p>
+      <ol>
+        <li>Wait for the overlay to disappear: <code>wait.until(invisibilityOfElementLocated(By.css(".overlay")))</code>.</li>
+        <li>Scroll the element into view: <code>js.executeScript("arguments[0].scrollIntoView(true);", el)</code>.</li>
+        <li>Click via JS as a workaround: <code>js.executeScript("arguments[0].click();", el)</code>.</li>
+        <li>Dismiss the cookie banner / popup explicitly.</li>
+      </ol>
+
+      <h3>11.4 ElementNotInteractableException</h3>
+      <p><strong>Cause:</strong> Element is in DOM but not visible / not enabled / not in viewport.</p>
+      <p><strong>Fixes:</strong></p>
+      <ol>
+        <li>Use <code>elementToBeClickable</code> condition.</li>
+        <li>Scroll into view.</li>
+        <li>Some hidden form fields can be set via JS instead.</li>
+      </ol>
+
+      <h3>11.5 TimeoutException</h3>
+      <p><strong>Cause:</strong> Wait condition wasn't met within timeout.</p>
+      <p><strong>Fixes:</strong></p>
+      <ol>
+        <li>Check the locator (most common cause).</li>
+        <li>Increase the timeout.</li>
+        <li>Verify the page actually reaches the expected state (manual repro).</li>
+        <li>Capture screenshot at the moment of timeout.</li>
+      </ol>
+
+      <h3>11.6 SessionNotCreatedException ("This version of ChromeDriver only supports&hellip;")</h3>
+      <p><strong>Cause:</strong> Chromedriver version doesn't match your installed Chrome.</p>
+      <p><strong>Fix:</strong> Use Selenium 4.6+ (you do). Selenium Manager auto-fetches matching driver. Alternatively, update to latest selenium-java.</p>
+
+      <h3>11.7 InvalidSelectorException</h3>
+      <p><strong>Cause:</strong> Bad XPath/CSS syntax (unmatched brackets, bad quotes).</p>
+      <p><strong>Fix:</strong> Test the selector in DevTools Ctrl+F first. Always.</p>
+
+      <h3>11.8 WebDriverException ("chrome not reachable")</h3>
+      <p><strong>Cause:</strong> Chrome process crashed or didn't start. Common in headless CI without enough resources.</p>
+      <p><strong>Fixes:</strong></p>
+      <ol>
+        <li>Add <code>--no-sandbox</code> and <code>--disable-dev-shm-usage</code> options on Linux CI.</li>
+        <li>Increase Docker container memory.</li>
+        <li>Restart the test pipeline.</li>
+      </ol>
+
+      <h3>11.9 NullPointerException on <code>driver</code></h3>
+      <p><strong>Cause:</strong> <code>driver</code> is null. Almost always: forgot <code>@BeforeMethod</code> or test class doesn't extend BaseClass, OR ThreadLocal returned null in another thread.</p>
+      <p><strong>Fix:</strong> Verify class extends BaseClass; verify <code>@BeforeMethod</code> sets up driver; verify ThreadLocal stores per thread.</p>
+
+      <h3>11.10 NoSuchWindowException</h3>
+      <p><strong>Cause:</strong> Trying to switch to a window/tab that's already closed.</p>
+      <p><strong>Fix:</strong> Track <code>getWindowHandle()</code> immediately after opening, switch using fresh <code>getWindowHandles()</code>.</p>
+
+      <h3>11.11 NoSuchFrameException</h3>
+      <p><strong>Cause:</strong> Frame index/name/element doesn't exist or you're already inside a different frame.</p>
+      <p><strong>Fix:</strong> Call <code>driver.switchTo().defaultContent()</code> first to reset, then switch in.</p>
+
+      <h3>11.12 UnexpectedAlertPresentException</h3>
+      <p><strong>Cause:</strong> A JS alert popped up but you didn't handle it; subsequent commands fail.</p>
+      <p><strong>Fix:</strong> Add <code>driver.switchTo().alert().accept()</code> or set <code>UnexpectedAlertBehaviour</code> in capabilities.</p>
+
+      <h3>11.13 Test passes locally, fails in CI</h3>
+      <p><strong>Common causes:</strong></p>
+      <ol>
+        <li>Different window size in CI (default headless is 800&times;600 &rarr; some elements are off-screen).</li>
+        <li>CI is slower &rarr; need longer waits.</li>
+        <li>Animations not disabled headless.</li>
+        <li>Cookies/cached state different.</li>
+      </ol>
+      <p><strong>Fixes:</strong></p>
+<pre><code>options.addArguments(<span class="s">"--window-size=1920,1080"</span>);
+options.addArguments(<span class="s">"--no-sandbox"</span>);
+options.addArguments(<span class="s">"--disable-dev-shm-usage"</span>);
+options.addArguments(<span class="s">"--disable-gpu"</span>);
+</code></pre>
+
+      <h3>11.14 sendKeys not typing</h3>
+      <p><strong>Causes:</strong> hidden input, masked input, custom JS handler not picking up.</p>
+      <p><strong>Fix:</strong> Try <code>actions.click(el).sendKeys(text).perform()</code>, or set value via JS: <code>js.executeScript("arguments[0].value=arguments[1];", el, "abc")</code>; remember to dispatch input event afterwards.</p>
+
+      <h3>11.15 Click not registered</h3>
+      <p>Element is reachable but the click does nothing. Often happens with overly-quick clicks before JS handlers attach.</p>
+      <p><strong>Fix:</strong> Wait for clickable; or use <code>actions.moveToElement(el).pause(200).click().perform()</code>; or click via JS.</p>
+
+      <h3>11.16 Dropdown not selectable with Select class</h3>
+      <p><strong>Cause:</strong> It's not a real <code>&lt;select&gt;</code> &mdash; it's a fancy div-based dropdown.</p>
+      <p><strong>Fix:</strong> Click to open, click the matching option element.</p>
+
+      <h3>11.17 Test starts fast, slows down over runs</h3>
+      <p><strong>Cause:</strong> chromedriver processes leaking. Common when <code>quit()</code> isn't called.</p>
+      <p><strong>Fix:</strong> Always call <code>driver.quit()</code> in <code>@AfterMethod</code>, even on failure (use <code>finally</code> or <code>@AfterMethod(alwaysRun = true)</code>).</p>
+
+      <h3>11.18 InterruptedException not handled</h3>
+      <p><strong>Cause:</strong> <code>Thread.sleep</code> throws checked exception.</p>
+      <p><strong>Fix:</strong> Wrap in try/catch or declare <code>throws</code>. Better: don't use Thread.sleep.</p>
+
+      <h3>11.19 IFrame element invisible</h3>
+      <p><strong>Cause:</strong> Element is inside an iframe; you're in the main frame.</p>
+      <p><strong>Fix:</strong> <code>driver.switchTo().frame("frameName")</code> first.</p>
+
+      <h3>11.20 Element with display:none returns isDisplayed() = false even after JS shows it</h3>
+      <p><strong>Cause:</strong> Cached WebElement &mdash; the JS change happened after you got the reference.</p>
+      <p><strong>Fix:</strong> Re-find the element after the JS action.</p>
+
+      <h3>11.21 File upload doesn't work</h3>
+      <p><strong>Cause:</strong> The "upload" element is not a real <code>&lt;input type="file"&gt;</code>.</p>
+      <p><strong>Fixes:</strong></p>
+      <ol>
+        <li>If real input: <code>driver.findElement(uploadInput).sendKeys("/full/path/file.pdf")</code>.</li>
+        <li>If hidden file input behind a fancy button: still send-keys to the input directly.</li>
+        <li>If OS-level dialog: use Robot class or AutoIT (last resort).</li>
+      </ol>
+
+      <h3>11.22 ConnectionRefused on chromedriver</h3>
+      <p><strong>Cause:</strong> chromedriver crashed or port conflict.</p>
+      <p><strong>Fix:</strong> Restart your IDE; check that no zombie chromedriver.exe is running.</p>
+
+      <h3>11.23 ScreenshotException ("Could not take screenshot")</h3>
+      <p><strong>Cause:</strong> Page navigation in progress, alert open, or browser already closed.</p>
+      <p><strong>Fix:</strong> Take screenshots before <code>quit()</code>, dismiss alerts first, wrap in try-catch.</p>
+
+      <h3>11.24 Tests run in wrong order</h3>
+      <p><strong>Cause:</strong> Forgot <code>priority</code> or relying on alphabetic order which changed.</p>
+      <p><strong>Fix:</strong> Don't depend on order. Each test should be independent. If sequencing is essential, use <code>dependsOnMethods</code>.</p>
+
+      <h3>11.25 ExtentReport is empty</h3>
+      <p><strong>Cause:</strong> Forgot <code>extent.flush()</code>. Or the listener isn't registered. Or the test crashed before <code>onFinish</code>.</p>
+      <p><strong>Fix:</strong> Call <code>flush()</code> in <code>@AfterSuite</code> or <code>onFinish</code> of the listener. Verify <code>&lt;listeners&gt;</code> in testng.xml.</p>
+
+      <div class="callout tip">
+        <span class="label">General debugging recipe</span>
+        <ol>
+          <li>Read the FULL stack trace, not just the top line.</li>
+          <li>Check the locator in DevTools.</li>
+          <li>Take a screenshot at the failure moment.</li>
+          <li>Try a manual repro at the same speed.</li>
+          <li>Add a wait if timing-related.</li>
+          <li>If still stuck, run with extra Chrome flags: <code>--enable-logging --v=1</code>.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============ DEEP 12: Build a Framework Step-by-Step ============ -->
+    <section class="module" id="d12">
+      <h2>12. Build a Framework Step-by-Step</h2>
+
+      <p>Building from scratch teaches more than reading. Here's the same framework as your repo, built in 12 steps. Each step is small enough to do in 30 minutes.</p>
+
+      <h3>Step 1: Maven project</h3>
+      <ol>
+        <li>Eclipse / IntelliJ &rarr; New Maven Project &rarr; <code>maven-archetype-quickstart</code>.</li>
+        <li>groupId: <code>com.yourname</code>, artifactId: <code>selenium-framework</code>, version: <code>1.0-SNAPSHOT</code>.</li>
+        <li>Make sure JDK 17+ is set in pom: <code>&lt;maven.compiler.source&gt;17&lt;/maven.compiler.source&gt;</code>.</li>
+      </ol>
+
+      <h3>Step 2: Add dependencies to pom.xml</h3>
+<pre><code>&lt;<span class="t">dependencies</span>&gt;
+  &lt;<span class="t">dependency</span>&gt;
+    &lt;<span class="t">groupId</span>&gt;org.seleniumhq.selenium&lt;/<span class="t">groupId</span>&gt;
+    &lt;<span class="t">artifactId</span>&gt;selenium-java&lt;/<span class="t">artifactId</span>&gt;
+    &lt;<span class="t">version</span>&gt;4.28.1&lt;/<span class="t">version</span>&gt;
+  &lt;/<span class="t">dependency</span>&gt;
+  &lt;<span class="t">dependency</span>&gt;
+    &lt;<span class="t">groupId</span>&gt;org.testng&lt;/<span class="t">groupId</span>&gt;
+    &lt;<span class="t">artifactId</span>&gt;testng&lt;/<span class="t">artifactId</span>&gt;
+    &lt;<span class="t">version</span>&gt;7.10.2&lt;/<span class="t">version</span>&gt;
+  &lt;/<span class="t">dependency</span>&gt;
+  &lt;<span class="t">dependency</span>&gt;
+    &lt;<span class="t">groupId</span>&gt;org.apache.logging.log4j&lt;/<span class="t">groupId</span>&gt;
+    &lt;<span class="t">artifactId</span>&gt;log4j-core&lt;/<span class="t">artifactId</span>&gt;
+    &lt;<span class="t">version</span>&gt;2.24.3&lt;/<span class="t">version</span>&gt;
+  &lt;/<span class="t">dependency</span>&gt;
+  &lt;<span class="t">dependency</span>&gt;
+    &lt;<span class="t">groupId</span>&gt;com.aventstack&lt;/<span class="t">groupId</span>&gt;
+    &lt;<span class="t">artifactId</span>&gt;extentreports&lt;/<span class="t">artifactId</span>&gt;
+    &lt;<span class="t">version</span>&gt;5.1.2&lt;/<span class="t">version</span>&gt;
+  &lt;/<span class="t">dependency</span>&gt;
+  &lt;<span class="t">dependency</span>&gt;
+    &lt;<span class="t">groupId</span>&gt;commons-io&lt;/<span class="t">groupId</span>&gt;
+    &lt;<span class="t">artifactId</span>&gt;commons-io&lt;/<span class="t">artifactId</span>&gt;
+    &lt;<span class="t">version</span>&gt;2.18.0&lt;/<span class="t">version</span>&gt;
+  &lt;/<span class="t">dependency</span>&gt;
+  &lt;<span class="t">dependency</span>&gt;
+    &lt;<span class="t">groupId</span>&gt;org.apache.poi&lt;/<span class="t">groupId</span>&gt;
+    &lt;<span class="t">artifactId</span>&gt;poi-ooxml&lt;/<span class="t">artifactId</span>&gt;
+    &lt;<span class="t">version</span>&gt;5.4.0&lt;/<span class="t">version</span>&gt;
+  &lt;/<span class="t">dependency</span>&gt;
+&lt;/<span class="t">dependencies</span>&gt;
+</code></pre>
+
+      <h3>Step 3: Create config.properties</h3>
+      <p>Create <code>src/main/resources/config.properties</code>:</p>
+<pre><code>browser=chrome
+url=https://opensource-demo.orangehrmlive.com/web/index.php/auth/login
+implicit.wait.time=10
+explicit.wait.time=20
+page.load.time=60
+</code></pre>
+
+      <h3>Step 4: Create log4j2.xml</h3>
+      <p>In <code>src/main/resources/log4j2.xml</code>:</p>
+<pre><code>&lt;?xml version=<span class="s">"1.0"</span> encoding=<span class="s">"UTF-8"</span>?&gt;
+&lt;<span class="t">Configuration</span>&gt;
+  &lt;<span class="t">Appenders</span>&gt;
+    &lt;<span class="t">Console</span> <span class="k">name</span>=<span class="s">"Console"</span>&gt;
+      &lt;<span class="t">PatternLayout</span> <span class="k">pattern</span>=<span class="s">"%d{HH:mm:ss} [%t] %-5level %c{1} - %msg%n"</span>/&gt;
+    &lt;/<span class="t">Console</span>&gt;
+    &lt;<span class="t">File</span> <span class="k">name</span>=<span class="s">"AppLog"</span> <span class="k">fileName</span>=<span class="s">"logs/app.log"</span>&gt;
+      &lt;<span class="t">PatternLayout</span> <span class="k">pattern</span>=<span class="s">"%d %-5level %c{1} - %msg%n"</span>/&gt;
+    &lt;/<span class="t">File</span>&gt;
+  &lt;/<span class="t">Appenders</span>&gt;
+  &lt;<span class="t">Loggers</span>&gt;
+    &lt;<span class="t">Root</span> <span class="k">level</span>=<span class="s">"info"</span>&gt;
+      &lt;<span class="t">AppenderRef</span> <span class="k">ref</span>=<span class="s">"Console"</span>/&gt;
+      &lt;<span class="t">AppenderRef</span> <span class="k">ref</span>=<span class="s">"AppLog"</span>/&gt;
+    &lt;/<span class="t">Root</span>&gt;
+  &lt;/<span class="t">Loggers</span>&gt;
+&lt;/<span class="t">Configuration</span>&gt;
+</code></pre>
+
+      <h3>Step 5: BaseClass with ThreadLocal driver</h3>
+<pre><code><span class="k">public class</span> BaseClass {
+    <span class="k">private static</span> ThreadLocal&lt;WebDriver&gt; driver = <span class="k">new</span> ThreadLocal&lt;&gt;();
+    <span class="k">private static</span> Properties config;
+
+    @BeforeSuite
+    <span class="k">public void</span> loadConfig() <span class="k">throws</span> IOException {
+        config = <span class="k">new</span> Properties();
+        config.load(<span class="k">new</span> FileInputStream(<span class="s">"src/main/resources/config.properties"</span>));
+    }
+
+    @BeforeMethod
+    <span class="k">public void</span> launchBrowser() {
+        WebDriver d = <span class="k">switch</span> (config.getProperty(<span class="s">"browser"</span>)) {
+            <span class="k">case</span> <span class="s">"chrome"</span>  -&gt; <span class="k">new</span> ChromeDriver();
+            <span class="k">case</span> <span class="s">"firefox"</span> -&gt; <span class="k">new</span> FirefoxDriver();
+            <span class="k">default</span>          -&gt; <span class="k">throw new</span> RuntimeException(<span class="s">"Unknown browser"</span>);
+        };
+        d.manage().window().maximize();
+        d.manage().timeouts().pageLoadTimeout(
+            Duration.ofSeconds(<span class="k">Integer</span>.parseInt(config.getProperty(<span class="s">"page.load.time"</span>))));
+        d.get(config.getProperty(<span class="s">"url"</span>));
+        driver.set(d);
+    }
+
+    @AfterMethod
+    <span class="k">public void</span> tearDown() {
+        <span class="k">if</span> (driver.get() != <span class="k">null</span>) {
+            driver.get().quit();
+            driver.remove();
+        }
+    }
+
+    <span class="k">public static</span> WebDriver getDriver() { <span class="k">return</span> driver.get(); }
+}
+</code></pre>
+
+      <h3>Step 6: ActionDriver wrapper layer</h3>
+<pre><code><span class="k">public class</span> ActionDriver {
+    <span class="k">private</span> WebDriver driver;
+    <span class="k">private</span> WebDriverWait wait;
+    <span class="k">private static final</span> Logger log = LogManager.getLogger(ActionDriver.<span class="k">class</span>);
+
+    <span class="k">public</span> ActionDriver(WebDriver driver) {
+        <span class="k">this</span>.driver = driver;
+        <span class="k">this</span>.wait = <span class="k">new</span> WebDriverWait(driver, Duration.ofSeconds(20));
+    }
+
+    <span class="k">public void</span> click(By by) {
+        wait.until(ExpectedConditions.elementToBeClickable(by));
+        driver.findElement(by).click();
+        log.info(<span class="s">"Clicked: "</span> + by);
+    }
+
+    <span class="k">public void</span> enterText(By by, <span class="k">String</span> value) {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(by));
+        WebElement el = driver.findElement(by);
+        el.clear();
+        el.sendKeys(value);
+        log.info(<span class="s">"Typed into "</span> + by + <span class="s">": "</span> + value);
+    }
+
+    <span class="k">public</span> <span class="k">String</span> getText(By by) {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(by));
+        <span class="k">return</span> driver.findElement(by).getText();
+    }
+
+    <span class="k">public boolean</span> isDisplayed(By by) {
+        <span class="k">try</span> {
+            <span class="k">return</span> wait.until(ExpectedConditions.visibilityOfElementLocated(by)).isDisplayed();
+        } <span class="k">catch</span> (TimeoutException e) {
+            <span class="k">return false</span>;
+        }
+    }
+}
+</code></pre>
+
+      <h3>Step 7: Page Object example</h3>
+<pre><code><span class="k">public class</span> LoginPage {
+    <span class="k">private</span> ActionDriver actionDriver;
+
+    <span class="k">private final</span> By userField  = By.name(<span class="s">"username"</span>);
+    <span class="k">private final</span> By passField  = By.name(<span class="s">"password"</span>);
+    <span class="k">private final</span> By loginBtn   = By.xpath(<span class="s">"//button[@type='submit']"</span>);
+    <span class="k">private final</span> By errorMsg   = By.xpath(<span class="s">"//p[text()='Invalid credentials']"</span>);
+
+    <span class="k">public</span> LoginPage(WebDriver driver) {
+        <span class="k">this</span>.actionDriver = <span class="k">new</span> ActionDriver(driver);
+    }
+
+    <span class="k">public void</span> login(<span class="k">String</span> u, <span class="k">String</span> p) {
+        actionDriver.enterText(userField, u);
+        actionDriver.enterText(passField, p);
+        actionDriver.click(loginBtn);
+    }
+
+    <span class="k">public boolean</span> isErrorDisplayed() { <span class="k">return</span> actionDriver.isDisplayed(errorMsg); }
+    <span class="k">public</span> <span class="k">String</span> getErrorText() { <span class="k">return</span> actionDriver.getText(errorMsg); }
+}
+</code></pre>
+
+      <h3>Step 8: First test class</h3>
+<pre><code><span class="k">public class</span> LoginPageTest <span class="k">extends</span> BaseClass {
+    @Test(priority = 1)
+    <span class="k">public void</span> validLoginTest() {
+        LoginPage login = <span class="k">new</span> LoginPage(getDriver());
+        login.login(<span class="s">"Admin"</span>, <span class="s">"admin123"</span>);
+        Assert.assertTrue(getDriver().getCurrentUrl().contains(<span class="s">"/dashboard"</span>));
+    }
+
+    @Test(priority = 2)
+    <span class="k">public void</span> invalidLoginTest() {
+        LoginPage login = <span class="k">new</span> LoginPage(getDriver());
+        login.login(<span class="s">"x"</span>, <span class="s">"y"</span>);
+        Assert.assertEquals(login.getErrorText(), <span class="s">"Invalid credentials"</span>);
+    }
+}
+</code></pre>
+
+      <h3>Step 9: testng.xml</h3>
+<pre><code>&lt;?xml version=<span class="s">"1.0"</span>?&gt;
+&lt;<span class="t">suite</span> <span class="k">name</span>=<span class="s">"OrangeHRM Suite"</span>&gt;
+  &lt;<span class="t">test</span> <span class="k">name</span>=<span class="s">"Smoke"</span>&gt;
+    &lt;<span class="t">classes</span>&gt;
+      &lt;<span class="t">class</span> <span class="k">name</span>=<span class="s">"com.yourname.tests.LoginPageTest"</span>/&gt;
+    &lt;/<span class="t">classes</span>&gt;
+  &lt;/<span class="t">test</span>&gt;
+&lt;/<span class="t">suite</span>&gt;
+</code></pre>
+
+      <h3>Step 10: ExtentManager + TestListener</h3>
+      <p>Add ExtentSparkReporter, attach to ExtentReports. In TestListener, on <code>onTestStart/Success/Failure/onFinish</code> log to extent + take screenshots on failure. (See your repo's actual implementation.)</p>
+
+      <h3>Step 11: Run!</h3>
+      <p>Right-click testng.xml &rarr; Run As &rarr; TestNG Suite. Or from terminal: <code>mvn clean test</code>.</p>
+
+      <h3>Step 12: Add CI</h3>
+      <p>Create <code>.github/workflows/tests.yml</code>:</p>
+<pre><code>name: tests
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - <span class="k">uses</span>: actions/checkout@v4
+      - <span class="k">uses</span>: actions/setup-java@v4
+        with:
+          distribution: <span class="s">'temurin'</span>
+          java-version: <span class="s">'17'</span>
+      - run: mvn -B clean test
+      - <span class="k">if</span>: always()
+        <span class="k">uses</span>: actions/upload-artifact@v4
+        with:
+          name: extent-report
+          path: src/test/resources/ExtentReport/
+</code></pre>
+
+      <p>Push, watch the green check mark on GitHub. You now have a fully professional automation framework.</p>
+
+      <div class="callout tip">
+        <span class="label">Where to grow next</span>
+        <ul>
+          <li>Add data-driven tests via Excel.</li>
+          <li>Add API tests using Rest Assured.</li>
+          <li>Run on Selenium Grid in Docker for parallel/cross-browser.</li>
+          <li>Add Allure or Cucumber for BDD-style reporting.</li>
+          <li>Add visual-regression with Percy or Applitools.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ DEEP 13: Cheat Sheet ============ -->
+    <section class="module" id="d13">
+      <h2>13. The Selenium Cheat Sheet</h2>
+
+      <p>One-page reference for daily use. Print it, pin it.</p>
+
+      <h3>Setup</h3>
+<pre><code>WebDriver driver = <span class="k">new</span> ChromeDriver();
+driver.manage().window().maximize();
+driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(60));
+driver.get(<span class="s">"https://..."</span>);
+</code></pre>
+
+      <h3>Locators</h3>
+<pre><code>By.id(<span class="s">"x"</span>);
+By.name(<span class="s">"x"</span>);
+By.className(<span class="s">"x"</span>);
+By.tagName(<span class="s">"x"</span>);
+By.linkText(<span class="s">"x"</span>);
+By.partialLinkText(<span class="s">"x"</span>);
+By.cssSelector(<span class="s">"#x.y[attr='v']"</span>);
+By.xpath(<span class="s">"//tag[@attr='val']"</span>);
+</code></pre>
+
+      <h3>Element actions</h3>
+<pre><code>el.click();
+el.sendKeys(<span class="s">"text"</span>);
+el.clear();
+el.submit();
+el.getText();
+el.getAttribute(<span class="s">"href"</span>);
+el.getCssValue(<span class="s">"color"</span>);
+el.isDisplayed();   el.isEnabled();   el.isSelected();
+</code></pre>
+
+      <h3>Browser actions</h3>
+<pre><code>driver.getTitle();
+driver.getCurrentUrl();
+driver.getPageSource();
+driver.navigate().to(url);
+driver.navigate().back();
+driver.navigate().forward();
+driver.navigate().refresh();
+driver.close();   driver.quit();
+</code></pre>
+
+      <h3>Waits</h3>
+<pre><code>WebDriverWait w = <span class="k">new</span> WebDriverWait(driver, Duration.ofSeconds(15));
+
+w.until(ExpectedConditions.visibilityOfElementLocated(by));
+w.until(ExpectedConditions.elementToBeClickable(by));
+w.until(ExpectedConditions.invisibilityOfElementLocated(by));
+w.until(ExpectedConditions.titleIs(<span class="s">"Dashboard"</span>));
+w.until(ExpectedConditions.urlContains(<span class="s">"/home"</span>));
+w.until(ExpectedConditions.alertIsPresent());
+w.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(by));
+w.until(ExpectedConditions.numberOfElementsToBeMoreThan(by, 0));
+w.until(ExpectedConditions.textToBe(by, <span class="s">"Done"</span>));
+</code></pre>
+
+      <h3>Frames / windows / alerts</h3>
+<pre><code>driver.switchTo().frame(0);
+driver.switchTo().frame(<span class="s">"name"</span>);
+driver.switchTo().defaultContent();
+
+<span class="k">String</span> main = driver.getWindowHandle();
+<span class="k">for</span> (<span class="k">String</span> h : driver.getWindowHandles()) {
+    <span class="k">if</span> (!h.equals(main)) driver.switchTo().window(h);
+}
+
+Alert a = driver.switchTo().alert();
+a.accept(); a.dismiss(); a.getText(); a.sendKeys(<span class="s">"x"</span>);
+</code></pre>
+
+      <h3>Dropdown</h3>
+<pre><code>Select s = <span class="k">new</span> Select(driver.findElement(by));
+s.selectByVisibleText(<span class="s">"India"</span>);
+s.selectByValue(<span class="s">"IN"</span>);
+s.selectByIndex(2);
+</code></pre>
+
+      <h3>Mouse / keyboard</h3>
+<pre><code>Actions a = <span class="k">new</span> Actions(driver);
+a.moveToElement(el).perform();
+a.contextClick(el).perform();
+a.doubleClick(el).perform();
+a.dragAndDrop(src, dst).perform();
+a.keyDown(Keys.CONTROL).sendKeys(<span class="s">"a"</span>).keyUp(Keys.CONTROL).perform();
+</code></pre>
+
+      <h3>JavaScript</h3>
+<pre><code>JavascriptExecutor js = (JavascriptExecutor) driver;
+js.executeScript(<span class="s">"arguments[0].click();"</span>, el);
+js.executeScript(<span class="s">"arguments[0].scrollIntoView(true);"</span>, el);
+js.executeScript(<span class="s">"window.scrollTo(0, document.body.scrollHeight);"</span>);
+</code></pre>
+
+      <h3>Screenshot</h3>
+<pre><code>File src = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+FileUtils.copyFile(src, <span class="k">new</span> File(<span class="s">"./shot.png"</span>));
+</code></pre>
+
+      <h3>TestNG essentials</h3>
+<pre><code>@BeforeSuite / @BeforeTest / @BeforeClass / @BeforeMethod
+@Test(priority=1, description=<span class="s">"..."</span>, groups={<span class="s">"smoke"</span>}, dataProvider=<span class="s">"x"</span>)
+@DataProvider(name=<span class="s">"x"</span>)  Object[][] data() { ... }
+@Listeners(MyListener.<span class="k">class</span>)
+@AfterMethod / @AfterClass / @AfterTest / @AfterSuite
+
+Assert.assertEquals / assertTrue / assertNotNull / fail / ...
+SoftAssert sa = <span class="k">new</span> SoftAssert(); sa.assertEquals(...); sa.assertAll();
+</code></pre>
+
+      <h3>Headless Chrome (CI)</h3>
+<pre><code>ChromeOptions o = <span class="k">new</span> ChromeOptions();
+o.addArguments(<span class="s">"--headless=new"</span>, <span class="s">"--no-sandbox"</span>,
+               <span class="s">"--disable-dev-shm-usage"</span>, <span class="s">"--window-size=1920,1080"</span>);
+WebDriver driver = <span class="k">new</span> ChromeDriver(o);
+</code></pre>
+
+      <p style="text-align:center; margin-top:40px; color:#6b7280;">
+        <em>End of deep dive. The journey from "what is Selenium" to "I built a framework" is short with practice. Good luck!</em>
+      </p>
+    </section>
+
+  </main>
+</div>
+<footer>
+  &copy; Selenium Deep Dive &mdash; Companion to Selenium-Complete-Notes.html
+</footer>
+</body>
+</html>
