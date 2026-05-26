@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Selenium Deep-Dive Notes - Complete Guide</title>
+<style>
+@page { size: A4; margin: 1.5cm; }
+body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.7; color: #1a1a1a; max-width: 900px; margin: 0 auto; padding: 20px; }
+h1 { color: #1565c0; border-bottom: 3px solid #1565c0; padding-bottom: 10px; page-break-before: always; }
+h1:first-of-type { page-break-before: avoid; }
+h2 { color: #2e7d32; margin-top: 30px; border-left: 4px solid #2e7d32; padding-left: 12px; }
+h3 { color: #e65100; margin-top: 20px; }
+pre { background: #263238; color: #eeffff; padding: 15px; border-radius: 6px; overflow-x: auto; font-size: 13px; line-height: 1.5; }
+code { background: #e8eaf6; padding: 2px 6px; border-radius: 3px; font-size: 13px; color: #283593; }
+pre code { background: none; color: #eeffff; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 15px 0; font-size: 14px; }
+th { background: #1565c0; color: white; padding: 10px 12px; text-align: left; }
+td { border: 1px solid #ccc; padding: 8px 12px; }
+tr:nth-child(even) { background: #f5f5f5; }
+.demo-box { background: #e8f5e9; border: 2px solid #4caf50; border-radius: 8px; padding: 15px; margin: 15px 0; }
+.demo-box h4 { color: #2e7d32; margin-top: 0; }
+.problem-box { background: #fff3e0; border: 2px solid #ff9800; border-radius: 8px; padding: 15px; margin: 15px 0; }
+.problem-box h4 { color: #e65100; margin-top: 0; }
+.tip-box { background: #e3f2fd; border: 2px solid #1976d2; border-radius: 8px; padding: 15px; margin: 15px 0; }
+.tip-box h4 { color: #1565c0; margin-top: 0; }
+.interview-box { background: #fce4ec; border: 2px solid #c62828; border-radius: 8px; padding: 15px; margin: 15px 0; }
+.interview-box h4 { color: #c62828; margin-top: 0; }
+.toc { background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0; }
+.toc a { text-decoration: none; color: #1565c0; }
+.toc li { margin: 8px 0; }
+.header-section { text-align: center; padding: 40px 0; border-bottom: 3px solid #1565c0; margin-bottom: 30px; }
+.header-section h1 { border: none; page-break-before: avoid; color: #0d47a1; font-size: 2.2em; }
+.header-section p { color: #555; font-size: 1.1em; }
+</style>
+</head>
+<body>
+
+
+<div class="header-section">
+<h1>Selenium WebDriver - Complete Deep-Dive Notes</h1>
+<p><strong>Author:</strong> Prabhakar | <strong>Framework:</strong> OrangeHRM Selenium Framework</p>
+<p><strong>Topics:</strong> Dropdowns | Web Tables | Frames | Waits | JavaScript Executor</p>
+<p>With Real Demo Site URLs &amp; Production Code Examples</p>
+</div>
+
+<div class="toc">
+<h2 style="border:none; padding:0; color:#333;">Table of Contents</h2>
+<ol>
+<li><a href="#dropdowns">Handling Dropdowns (Select, Custom div, Salesforce Lightning, Auto-suggest, Multi-select)</a></li>
+<li><a href="#tables">Handling Web Tables &amp; Dynamic Tables (Pagination, Search, Sort, Infinite Scroll)</a></li>
+<li><a href="#frames">Handling Frames / iFrames (Static, Nested, Dynamic)</a></li>
+<li><a href="#waits">Waits in Selenium (Implicit, Explicit, Fluent, Custom)</a></li>
+<li><a href="#jsexecutor">JavaScriptExecutor (Click, Scroll, Highlight, Shadow DOM, Set Value)</a></li>
+</ol>
+</div>
+
+<!-- ============================== TOPIC 1: DROPDOWNS ============================== -->
+<h1 id="dropdowns">1. Handling Dropdowns in Selenium</h1>
+
+<p>Most modern UIs (Salesforce Lightning, ServiceNow, Angular/React Material UI, Ant Design, PrimeNG) 
+<strong>do not use the HTML &lt;select&gt; tag anymore</strong>. They render dropdowns as <code>&lt;div&gt;</code>, 
+<code>&lt;ul&gt;&lt;li&gt;</code> or <code>&lt;input role="combobox"&gt;</code> for styling flexibility. 
+The classic <code>Select</code> class <strong>will not work</strong> on them.</p>
+
+<div class="demo-box">
+<h4>&#128279; Demo Sites for Practicing Dropdowns</h4>
+<table>
+<tr><th>Site URL</th><th>What to Practice</th></tr>
+<tr><td>https://the-internet.herokuapp.com/dropdown</td><td>Native &lt;select&gt; dropdown</td></tr>
+<tr><td>https://demoqa.com/select-menu</td><td>React-select, multi-select, old-style select</td></tr>
+<tr><td>https://demoqa.com/auto-complete</td><td>Auto-suggest / typeahead dropdown</td></tr>
+<tr><td>https://www.jquery-az.com/boots/demo.php?ex=63.0_2</td><td>Bootstrap dropdown (hidden select)</td></tr>
+<tr><td>https://practice.expandtesting.com/dropdown</td><td>Standard dropdown practice</td></tr>
+<tr><td>https://ultimateqa.com/filling-out-forms/</td><td>Country cascading dropdowns</td></tr>
+<tr><td>https://opensource-demo.orangehrmlive.com/</td><td>Custom div dropdowns in real app (Login: Admin/admin123)</td></tr>
+</table>
+</div>
+
+
+<h2>1.1 Types of Dropdowns in Real Projects</h2>
+<table>
+<tr><th>Type</th><th>HTML Pattern</th><th>Example Apps</th></tr>
+<tr><td><strong>Standard / native</strong></td><td><code>&lt;select&gt;&lt;option&gt;...&lt;/option&gt;&lt;/select&gt;</code></td><td>OrangeHRM old screens, simple PHP/JSP apps</td></tr>
+<tr><td><strong>Custom div dropdown</strong></td><td><code>&lt;div class="dropdown"&gt;&lt;ul&gt;&lt;li&gt;...&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;</code></td><td>Most React/Angular admin panels</td></tr>
+<tr><td><strong>Combobox (typeable)</strong></td><td><code>&lt;input role="combobox"&gt; + &lt;ul role="listbox"&gt;</code></td><td>Salesforce Lightning, ServiceNow</td></tr>
+<tr><td><strong>Auto-suggest / search</strong></td><td>input fires AJAX, options appear after typing</td><td>Google search, Amazon, Flipkart</td></tr>
+<tr><td><strong>Multi-select with chips</strong></td><td>Each selected value shown as a removable chip</td><td>Jira labels, Salesforce multi-picklist</td></tr>
+<tr><td><strong>Hidden select (Bootstrap-select)</strong></td><td>Real &lt;select&gt; is hidden, fake UI shown</td><td>Older Bootstrap apps</td></tr>
+<tr><td><strong>Cascading dropdown</strong></td><td>Second dropdown depends on first</td><td>Country &rarr; State &rarr; City</td></tr>
+</table>
+
+<h2>1.2 Native &lt;select&gt; - The Easy Case</h2>
+<p>Use the <code>Select</code> class from <code>org.openqa.selenium.support.ui.Select</code>.</p>
+
+<div class="demo-box">
+<h4>&#128187; Live Example: https://the-internet.herokuapp.com/dropdown</h4>
+<pre><code>import org.openqa.selenium.support.ui.Select;
+
+driver.get("https://the-internet.herokuapp.com/dropdown");
+
+WebElement dropdownEl = driver.findElement(By.id("dropdown"));
+Select dropdown = new Select(dropdownEl);
+
+// 3 ways to select
+dropdown.selectByVisibleText("Option 1");
+dropdown.selectByValue("2");
+dropdown.selectByIndex(1);
+
+// Useful APIs
+System.out.println("Is Multiple? " + dropdown.isMultiple());
+System.out.println("Selected: " + dropdown.getFirstSelectedOption().getText());
+List&lt;WebElement&gt; allOptions = dropdown.getOptions();
+System.out.println("Total options: " + allOptions.size());</code></pre>
+</div>
+
+<p><strong>How to confirm it is a native &lt;select&gt;:</strong><br>
+Inspect element &rarr; if the <strong>tag name is literally <code>select</code></strong>, use <code>Select</code>. 
+If it is <code>div</code>, <code>ul</code>, <code>input</code> or anything else &rarr; it is a <strong>custom dropdown</strong>.</p>
+
+
+<h2>1.3 Custom div / ul / li Dropdowns (The Real-World Case)</h2>
+<p>The recipe is <strong>always 2 steps</strong>: Click to open &rarr; Wait &amp; select the option.</p>
+
+<div class="demo-box">
+<h4>&#128187; Live Example: https://demoqa.com/select-menu (React-Select "Select One" dropdown)</h4>
+<pre><code>driver.get("https://demoqa.com/select-menu");
+
+// The "Select One" dropdown on demoqa is a react-select widget (div-based)
+By toggle = By.id("withOptGroup");  // the container div
+By input = By.cssSelector("#withOptGroup input");
+
+// Step 1: Click to open
+driver.findElement(toggle).click();
+
+// Step 2: Wait for options, click desired one via text
+By option = By.xpath("//div[contains(@class,'option') and text()='Group 1, option 1']");
+new WebDriverWait(driver, Duration.ofSeconds(10))
+    .until(ExpectedConditions.elementToBeClickable(option)).click();</code></pre>
+</div>
+
+<h3>Generic Reusable Method</h3>
+<pre><code>public void selectFromCustomDropdown(By dropdownToggle, By optionsLocator, String value) {
+    WebDriver driver = BaseClass.getDriver();
+    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+    // Step 1: open the dropdown
+    wait.until(ExpectedConditions.elementToBeClickable(dropdownToggle)).click();
+
+    // Step 2: wait for ALL options to render, then iterate
+    List&lt;WebElement&gt; options =
+        wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(optionsLocator));
+
+    for (WebElement option : options) {
+        if (option.getText().trim().equalsIgnoreCase(value)) {
+            option.click();
+            return;
+        }
+    }
+    throw new NoSuchElementException("Option [" + value + "] not found in dropdown");
+}</code></pre>
+
+<h2>1.4 Salesforce Lightning Combobox - The Famous One</h2>
+<p>In Salesforce Lightning the dropdown is rendered as:</p>
+<pre><code>&lt;lightning-combobox&gt;
+   &lt;input role="combobox" aria-controls="dropdown-element-7" aria-expanded="false"/&gt;
+   &lt;div id="dropdown-element-7" role="listbox" style="display:none"&gt;
+       &lt;lightning-base-combobox-item data-value="hot"&gt; Hot &lt;/lightning-base-combobox-item&gt;
+       &lt;lightning-base-combobox-item data-value="warm"&gt; Warm &lt;/lightning-base-combobox-item&gt;
+   &lt;/div&gt;
+&lt;/lightning-combobox&gt;</code></pre>
+
+<p><strong>Key differences:</strong></p>
+<ul>
+<li>The <code>&lt;input&gt;</code> is <strong>read-only</strong> &mdash; you cannot <code>sendKeys</code>. You <strong>must click</strong> to open.</li>
+<li>Uses <code>role="listbox"</code> / <code>role="option"</code> (great locator hints).</li>
+<li><code>aria-expanded</code> flips <code>false &rarr; true</code> when opened. <strong>Use that as your wait condition.</strong></li>
+</ul>
+
+<h3>Production Code for Salesforce Lightning</h3>
+<pre><code>public void selectLightningCombobox(String label, String optionText) {
+    WebDriver driver = BaseClass.getDriver();
+    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+
+    // 1. Locate combobox via its label
+    By combo = By.xpath(
+        "//lightning-combobox[.//label[normalize-space()='" + label + "']]" +
+        "//input[@role='combobox']");
+    WebElement comboEl = wait.until(ExpectedConditions.elementToBeClickable(combo));
+    comboEl.click();
+
+    // 2. Wait for aria-expanded='true' (listbox is open)
+    wait.until(ExpectedConditions.attributeToBe(comboEl, "aria-expanded", "true"));
+
+    // 3. Click the option
+    By option = By.xpath(
+        "//lightning-base-combobox-item[.//span[normalize-space()='" + optionText + "']]");
+    wait.until(ExpectedConditions.elementToBeClickable(option)).click();
+
+    // 4. Verify selection
+    wait.until(ExpectedConditions.attributeContains(comboEl, "value", optionText));
+}</code></pre>
+
+<div class="interview-box">
+<h4>&#127897; Interview Answer for "How do you handle Salesforce dropdowns?"</h4>
+<p><em>"Lightning components don't expose a real &lt;select&gt;; they render a div with role='combobox' and a 
+portal listbox. I click the combobox, wait for aria-expanded='true', then click the option using 
+role='option' or lightning-base-combobox-item. I never use the Select class for Lightning."</em></p>
+</div>
+
+
+<h2>1.5 Auto-suggest / Typeahead Dropdowns</h2>
+<p>Behavior: You <strong>must type</strong> something first &rarr; AJAX returns suggestions dynamically.</p>
+
+<div class="demo-box">
+<h4>&#128187; Live Example: https://demoqa.com/auto-complete</h4>
+<pre><code>driver.get("https://demoqa.com/auto-complete");
+
+WebElement input = driver.findElement(By.id("autoCompleteMultipleInput"));
+input.sendKeys("re");  // triggers suggestions
+
+// Wait for suggestion list
+By suggestion = By.xpath(
+    "//div[contains(@class,'auto-complete__option') and contains(text(),'Red')]");
+new WebDriverWait(driver, Duration.ofSeconds(10))
+    .until(ExpectedConditions.elementToBeClickable(suggestion)).click();</code></pre>
+</div>
+
+<div class="problem-box">
+<h4>&#9888;&#65039; Problem: Suggestion never appears in headless mode</h4>
+<p><strong>Root Cause:</strong> Some sites debounce input &mdash; they fire AJAX only after 300ms of no typing.</p>
+<p><strong>Solution:</strong> Type character by character with a tiny pause:</p>
+<pre><code>for (char c : "sel".toCharArray()) {
+    input.sendKeys(String.valueOf(c));
+    Thread.sleep(80);  // or Actions.pause(Duration.ofMillis(80))
+}</code></pre>
+</div>
+
+<h2>1.6 Multi-select Dropdowns</h2>
+
+<div class="demo-box">
+<h4>&#128187; Live Example: https://demoqa.com/select-menu (Multi-select on same page)</h4>
+<pre><code>driver.get("https://demoqa.com/select-menu");
+
+// Native multi-select ("Standard multi select")
+WebElement multiSelectEl = driver.findElement(By.id("cars"));
+Select multiSelect = new Select(multiSelectEl);
+multiSelect.selectByVisibleText("Volvo");
+multiSelect.selectByVisibleText("Audi");
+multiSelect.selectByVisibleText("Saab");
+
+// Deselect
+multiSelect.deselectByVisibleText("Audi");
+multiSelect.deselectAll();</code></pre>
+</div>
+
+<h2>1.7 Hidden / Bootstrap-select Dropdowns</h2>
+<pre><code>// The real &lt;select&gt; has style="display:none". Selenium refuses to interact.
+// Fix: Make it visible via JS, then use Select class
+WebElement hiddenSelect = driver.findElement(By.id("country"));
+JavascriptExecutor js = (JavascriptExecutor) driver;
+js.executeScript("arguments[0].style.display='block';", hiddenSelect);
+new Select(hiddenSelect).selectByVisibleText("India");</code></pre>
+
+<h2>1.8 Cascading Dropdowns (Country &rarr; State &rarr; City)</h2>
+<pre><code>// Select country first
+selectFromCustomDropdown(countryToggle, countryOpts, "India");
+
+// WAIT for state dropdown to be populated (key step!)
+wait.until(driver -&gt; driver.findElements(stateOpts).size() &gt; 1);
+
+// Now select state
+selectFromCustomDropdown(stateToggle, stateOpts, "Karnataka");</code></pre>
+
+<h2>1.9 Common Problems &amp; Solutions</h2>
+<table>
+<tr><th>Problem</th><th>Root Cause</th><th>Fix</th></tr>
+<tr><td><code>ElementNotInteractableException</code></td><td>Element hidden / behind overlay</td><td>Wait for <code>elementToBeClickable</code>, scroll via JS</td></tr>
+<tr><td><code>StaleElementReferenceException</code></td><td>DOM re-rendered (auto-suggest)</td><td>Re-locate using <code>By</code>, never cache <code>WebElement</code></td></tr>
+<tr><td>Option not found although visible</td><td>Whitespace / &amp;nbsp; in text</td><td>Use <code>normalize-space()</code> in XPath</td></tr>
+<tr><td><code>UnexpectedTagNameException</code></td><td>Element is not &lt;select&gt;</td><td>It's a custom dropdown &mdash; use div/li approach</td></tr>
+<tr><td>Dropdown closes before option click</td><td>React-select auto-close</td><td>Re-open inside loop for each pick</td></tr>
+<tr><td>Works locally, fails in headless</td><td>UI not fully painted</td><td>Use explicit waits, set window size</td></tr>
+</table>
+
+
+<!-- ============================== TOPIC 2: WEB TABLES ============================== -->
+<h1 id="tables">2. Handling Web Tables &amp; Dynamic Web Tables</h1>
+
+<p>The challenge is rarely the <em>static</em> table. Real projects always have <strong>pagination, sorting, 
+filtering, lazy loading and dynamic column counts</strong>.</p>
+
+<div class="demo-box">
+<h4>&#128279; Demo Sites for Practicing Web Tables</h4>
+<table>
+<tr><th>Site URL</th><th>What to Practice</th></tr>
+<tr><td>https://the-internet.herokuapp.com/tables</td><td>Sortable tables with edit/delete buttons</td></tr>
+<tr><td>https://demoqa.com/webtables</td><td>Dynamic table with add/edit/delete + pagination</td></tr>
+<tr><td>https://datatables.net/examples/basic_init/zero_configuration.html</td><td>jQuery DataTables with search, sort, pagination</td></tr>
+<tr><td>https://www.w3schools.com/html/html_tables.asp</td><td>Simple static table for basics</td></tr>
+<tr><td>https://practice.expandtesting.com/tables</td><td>Multiple sortable tables</td></tr>
+<tr><td>https://demo.guru99.com/test/web-table-element.php</td><td>Nested tables, complex structures</td></tr>
+<tr><td>https://www.ag-grid.com/example/</td><td>AG-Grid virtualized table (real enterprise widget)</td></tr>
+</table>
+</div>
+
+<h2>2.1 Anatomy of an HTML Table</h2>
+<pre><code>&lt;table id="employees"&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;&lt;th&gt;ID&lt;/th&gt;&lt;th&gt;Name&lt;/th&gt;&lt;th&gt;Dept&lt;/th&gt;&lt;th&gt;Action&lt;/th&gt;&lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;&lt;td&gt;1&lt;/td&gt;&lt;td&gt;Prabhakar&lt;/td&gt;&lt;td&gt;QA&lt;/td&gt;&lt;td&gt;&lt;button&gt;Edit&lt;/button&gt;&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;2&lt;/td&gt;&lt;td&gt;John&lt;/td&gt;&lt;td&gt;Dev&lt;/td&gt;&lt;td&gt;&lt;button&gt;Edit&lt;/button&gt;&lt;/td&gt;&lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;</code></pre>
+
+<table>
+<tr><th>HTML Tag</th><th>Meaning</th><th>Typical Locator</th></tr>
+<tr><td><code>&lt;table&gt;</code></td><td>The whole table</td><td><code>//table[@id='employees']</code></td></tr>
+<tr><td><code>&lt;tr&gt;</code></td><td>A row</td><td><code>//table//tbody/tr</code></td></tr>
+<tr><td><code>&lt;th&gt;</code></td><td>Header cell</td><td><code>//table//thead//th</code></td></tr>
+<tr><td><code>&lt;td&gt;</code></td><td>Data cell</td><td><code>//tr/td[2]</code></td></tr>
+</table>
+
+<h2>2.2 Static Table - Read All Data</h2>
+
+<div class="demo-box">
+<h4>&#128187; Live Example: https://the-internet.herokuapp.com/tables</h4>
+<pre><code>driver.get("https://the-internet.herokuapp.com/tables");
+
+// Get total rows and columns
+List&lt;WebElement&gt; rows = driver.findElements(By.cssSelector("#table1 tbody tr"));
+List&lt;WebElement&gt; headers = driver.findElements(By.cssSelector("#table1 thead th"));
+System.out.println("Rows: " + rows.size() + ", Columns: " + headers.size());
+
+// Read specific cell (row 2, column 3)
+String cellValue = driver.findElement(
+    By.cssSelector("#table1 tbody tr:nth-child(2) td:nth-child(3)")).getText();
+System.out.println("Cell [2,3] = " + cellValue);
+
+// Read ALL data into a 2D list
+List&lt;List&lt;String&gt;&gt; tableData = new ArrayList&lt;&gt;();
+for (WebElement row : rows) {
+    List&lt;WebElement&gt; cells = row.findElements(By.tagName("td"));
+    List&lt;String&gt; rowData = new ArrayList&lt;&gt;();
+    for (WebElement cell : cells) {
+        rowData.add(cell.getText().trim());
+    }
+    tableData.add(rowData);
+}</code></pre>
+</div>
+
+
+<h2>2.3 Find Row by Value &amp; Click Action Button</h2>
+<p><strong>Classic Interview Question:</strong> <em>"Find the row where Last Name is 'Bach' and click its Edit link."</em></p>
+
+<div class="demo-box">
+<h4>&#128187; Live Example: https://the-internet.herokuapp.com/tables</h4>
+<pre><code>driver.get("https://the-internet.herokuapp.com/tables");
+
+// Method 1: Direct XPath (find row with "Bach" in Last Name column and click edit)
+By editLink = By.xpath(
+    "//table[@id='table1']//tbody//tr[td[1][normalize-space()='Bach']]//a[text()='edit']");
+driver.findElement(editLink).click();
+
+// Method 2: Dynamic column index (production-grade)
+public void clickActionInTable(String tableId, String colHeader, String cellVal, String action) {
+    // Step 1: Find column index from header text
+    List&lt;WebElement&gt; headers = driver.findElements(
+        By.xpath("//table[@id='" + tableId + "']//thead//th"));
+    int colIdx = -1;
+    for (int i = 0; i &lt; headers.size(); i++) {
+        if (headers.get(i).getText().trim().equalsIgnoreCase(colHeader)) {
+            colIdx = i + 1; break;  // XPath is 1-based
+        }
+    }
+
+    // Step 2: Click action in the matching row
+    By btn = By.xpath("//table[@id='" + tableId + "']//tbody" +
+        "//tr[td[" + colIdx + "][normalize-space()='" + cellVal + "']]" +
+        "//a[normalize-space()='" + action + "']");
+    new WebDriverWait(driver, Duration.ofSeconds(10))
+        .until(ExpectedConditions.elementToBeClickable(btn)).click();
+}
+
+// Usage:
+clickActionInTable("table1", "Last Name", "Bach", "edit");</code></pre>
+</div>
+
+<div class="tip-box">
+<h4>&#128161; Why Dynamic Column Index?</h4>
+<p>UI teams love to reorder columns. Hardcoding <code>td[3]</code> will break next sprint. 
+Looking up the column by header name keeps the test stable across UI changes.</p>
+</div>
+
+<h2>2.4 Dynamic Web Tables with PAGINATION</h2>
+<p><strong>Real scenario:</strong> <em>The value you need is NOT on the first page. It appears only when you click page 2 or 3.</em></p>
+
+<div class="demo-box">
+<h4>&#128187; Live Example: https://demoqa.com/webtables</h4>
+<pre><code>driver.get("https://demoqa.com/webtables");
+
+// First, add enough entries to create pagination (or use a site with existing pagination)
+// On DataTables: https://datatables.net/examples/basic_init/zero_configuration.html
+
+driver.get("https://datatables.net/examples/basic_init/zero_configuration.html");
+
+public boolean findAndClickAcrossPages(String searchName) {
+    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+    while (true) {
+        // Search current page
+        List&lt;WebElement&gt; rows = driver.findElements(By.cssSelector("#example tbody tr"));
+        for (WebElement row : rows) {
+            List&lt;WebElement&gt; cells = row.findElements(By.tagName("td"));
+            if (cells.get(0).getText().trim().equalsIgnoreCase(searchName)) {
+                // Found! Click or extract data
+                System.out.println("Found: " + searchName + " on current page");
+                return true;
+            }
+        }
+
+        // Check if "Next" button is available/enabled
+        WebElement nextBtn = driver.findElement(By.id("example_next"));
+        if (nextBtn.getAttribute("class").contains("disabled")) {
+            return false;  // Exhausted all pages
+        }
+
+        // Capture first row to detect page change
+        String firstRowBefore = rows.get(0).getText();
+
+        // Click Next
+        nextBtn.click();
+
+        // CRITICAL: Wait until page actually changes
+        wait.until(ExpectedConditions.not(
+            ExpectedConditions.textToBe(
+                By.cssSelector("#example tbody tr:first-child"), firstRowBefore)));
+    }
+}</code></pre>
+</div>
+
+<div class="problem-box">
+<h4>&#9888;&#65039; Problem: StaleElementReferenceException after clicking Next</h4>
+<p><strong>Root Cause:</strong> The DOM is completely rebuilt when you navigate pages. All previously located WebElements become stale.</p>
+<p><strong>Solution:</strong> NEVER cache WebElement references across pages. Always re-locate inside the loop using <code>By</code> locators.</p>
+</div>
+
+<div class="problem-box">
+<h4>&#9888;&#65039; Problem: Loop scans same page twice (misses data)</h4>
+<p><strong>Root Cause:</strong> After clicking Next, the AJAX call hasn't completed yet. The loop immediately re-scans the old page.</p>
+<p><strong>Solution:</strong> Wait until "first row text changed" OR "loading spinner disappeared" before re-scanning. This is the most common pagination bug in automation.</p>
+</div>
+
+
+<h2>2.5 Infinite Scroll / "Load More" Tables</h2>
+<pre><code>public boolean findInInfiniteScroll(String searchText) {
+    JavascriptExecutor js = (JavascriptExecutor) driver;
+    int previousCount = -1;
+
+    while (true) {
+        List&lt;WebElement&gt; rows = driver.findElements(By.cssSelector("table tbody tr"));
+
+        // Search visible rows
+        for (WebElement row : rows) {
+            if (row.getText().contains(searchText)) {
+                js.executeScript("arguments[0].scrollIntoView({block:'center'});", row);
+                row.findElement(By.tagName("button")).click();
+                return true;
+            }
+        }
+
+        // If no new rows loaded, we've reached the end
+        if (rows.size() == previousCount) return false;
+        previousCount = rows.size();
+
+        // Scroll last row into view to trigger lazy-load
+        js.executeScript("arguments[0].scrollIntoView();", rows.get(rows.size() - 1));
+
+        // Wait for new rows to appear
+        int finalCount = rows.size();
+        new WebDriverWait(driver, Duration.ofSeconds(5))
+            .until(d -&gt; d.findElements(By.cssSelector("table tbody tr")).size() &gt; finalCount);
+    }
+}</code></pre>
+
+<h2>2.6 Using Table's Search/Filter (Best Practice)</h2>
+
+<div class="demo-box">
+<h4>&#128187; Live Example: https://datatables.net/examples/basic_init/zero_configuration.html</h4>
+<pre><code>driver.get("https://datatables.net/examples/basic_init/zero_configuration.html");
+
+// Use the built-in search box (ALWAYS prefer this over walking pages!)
+WebElement searchBox = driver.findElement(By.cssSelector("input[type='search']"));
+searchBox.clear();
+searchBox.sendKeys("Tiger Nixon");
+
+// Wait for filtered results
+new WebDriverWait(driver, Duration.ofSeconds(5))
+    .until(d -&gt; d.findElements(By.cssSelector("#example tbody tr")).size() == 1);
+
+// Now interact with the single filtered row
+String position = driver.findElement(
+    By.cssSelector("#example tbody tr td:nth-child(2)")).getText();
+System.out.println("Position: " + position);</code></pre>
+</div>
+
+<div class="tip-box">
+<h4>&#128161; Best Practice</h4>
+<p>If the table has a search/filter feature, <strong>ALWAYS use it</strong> in tests. It's one network call 
+vs N pagination clicks. Faster, more stable, less flaky.</p>
+</div>
+
+<h2>2.7 AG-Grid / Virtualized Tables (Enterprise Apps)</h2>
+<p>AG-Grid only renders <strong>visible rows</strong> (virtualization). Rows below the fold literally don't exist in DOM.</p>
+
+<div class="demo-box">
+<h4>&#128187; Live Example: https://www.ag-grid.com/example/</h4>
+<pre><code>// AG-Grid uses role attributes instead of &lt;tr&gt;/&lt;td&gt;
+List&lt;WebElement&gt; rows = driver.findElements(By.cssSelector("[role='row']"));
+for (WebElement r : rows) {
+    List&lt;WebElement&gt; cells = r.findElements(By.cssSelector("[role='gridcell']"));
+    // process cells...
+}
+
+// To reach rows below visible area, scroll the grid body:
+JavascriptExecutor js = (JavascriptExecutor) driver;
+js.executeScript("document.querySelector('.ag-body-viewport').scrollTop += 400;");
+
+// Then re-query rows (new ones now exist in DOM)</code></pre>
+</div>
+
+<h2>2.8 Real Problems &amp; Solutions</h2>
+<table>
+<tr><th>#</th><th>Problem</th><th>Why</th><th>Solution</th></tr>
+<tr><td>1</td><td><code>StaleElementReferenceException</code> after Next</td><td>DOM rebuilt</td><td>Re-locate inside loop, never cache rows</td></tr>
+<tr><td>2</td><td>Search returns 0 results</td><td>Debounced (300ms)</td><td>Wait for spinner gone / row count > 0</td></tr>
+<tr><td>3</td><td>XPath <code>td[3]</code> breaks</td><td>Column reordered</td><td>Compute index dynamically from header</td></tr>
+<tr><td>4</td><td>AG-Grid row 100 not found</td><td>Virtualized</td><td>Scroll body via JS until row appears</td></tr>
+<tr><td>5</td><td>Pagination loop never ends</td><td>"Next" never disabled</td><td>Compare current page content to previous</td></tr>
+<tr><td>6</td><td>Passes locally, fails Jenkins</td><td>Different page size</td><td>Set <code>--window-size=1920,1080</code></td></tr>
+<tr><td>7</td><td><code>getText()</code> returns ""</td><td>Value in input, not text</td><td>Use <code>getAttribute("value")</code></td></tr>
+</table>
+
+
+<!-- ============================== TOPIC 3: FRAMES ============================== -->
+<h1 id="frames">3. Handling Frames / iFrames in Selenium</h1>
+
+<p>A <strong>frame / iframe</strong> is "a page inside a page". Selenium's driver only sees the 
+<strong>top-level document</strong> by default. To interact with elements inside a frame, you must 
+explicitly <strong>switch context</strong> into it.</p>
+
+<div class="demo-box">
+<h4>&#128279; Demo Sites for Practicing Frames</h4>
+<table>
+<tr><th>Site URL</th><th>What to Practice</th></tr>
+<tr><td>https://the-internet.herokuapp.com/frames</td><td>Nested frames &amp; iFrame with TinyMCE editor</td></tr>
+<tr><td>https://the-internet.herokuapp.com/iframe</td><td>TinyMCE rich-text editor inside iframe</td></tr>
+<tr><td>https://the-internet.herokuapp.com/nested_frames</td><td>Frame inside a frame (nested)</td></tr>
+<tr><td>https://demoqa.com/frames</td><td>Multiple iframes on same page</td></tr>
+<tr><td>https://demoqa.com/nestedframes</td><td>Parent frame containing child frame</td></tr>
+<tr><td>https://practice.expandtesting.com/iframe</td><td>Simple iframe practice</td></tr>
+<tr><td>https://ui.vision/demo/webtest/frames/</td><td>Complex multi-frame page</td></tr>
+</table>
+</div>
+
+<h2>3.1 Why iFrames Exist</h2>
+<ul>
+<li>Embedding 3rd-party widgets (Stripe/PayPal payments, reCAPTCHA, YouTube, Google Maps)</li>
+<li>Sandboxing cross-origin content (Salesforce Visualforce, TinyMCE/CKEditor)</li>
+<li>Module isolation in enterprise apps (ServiceNow, JIRA)</li>
+</ul>
+
+<div class="tip-box">
+<h4>&#128161; Symptom that SCREAMS "frame!"</h4>
+<p>Your locator is correct (works in browser console), but Selenium throws <code>NoSuchElementException</code>. 
+9 times out of 10, the element is inside an iframe.</p>
+</div>
+
+<h2>3.2 All Ways to Switch INTO a Frame</h2>
+
+<h3>a) By index (least preferred)</h3>
+<pre><code>driver.switchTo().frame(0);   // first iframe
+driver.switchTo().frame(2);   // third iframe</code></pre>
+
+<h3>b) By name or id attribute</h3>
+<pre><code>driver.switchTo().frame("paymentFrame");  // matches id OR name</code></pre>
+
+<h3>c) By WebElement (most reliable)</h3>
+<pre><code>WebElement frameEl = driver.findElement(By.cssSelector("iframe[src*='payments']"));
+driver.switchTo().frame(frameEl);</code></pre>
+
+<h3>d) Wait + switch (RECOMMENDED)</h3>
+<pre><code>new WebDriverWait(driver, Duration.ofSeconds(15))
+   .until(ExpectedConditions.frameToBeAvailableAndSwitchTo(
+        By.cssSelector("iframe[src*='editor']")));</code></pre>
+
+<h2>3.3 Switching OUT of a Frame</h2>
+<pre><code>driver.switchTo().parentFrame();    // goes 1 level up
+driver.switchTo().defaultContent(); // jumps to top-level page (ALWAYS USE THIS)</code></pre>
+
+<h2>3.4 Complete Working Example - TinyMCE Editor</h2>
+
+<div class="demo-box">
+<h4>&#128187; Live Example: https://the-internet.herokuapp.com/iframe</h4>
+<pre><code>driver.get("https://the-internet.herokuapp.com/iframe");
+
+// The TinyMCE editor surface is inside an iframe with id "mce_0_ifr"
+WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+// Step 1: Switch to the editor iframe
+wait.until(ExpectedConditions.frameToBeAvailableAndSwitchTo(By.id("mce_0_ifr")));
+
+// Step 2: Clear existing text and type new content
+WebElement body = driver.findElement(By.tagName("body"));
+body.clear();
+body.sendKeys("Hello from Selenium Automation!");
+
+// Step 3: ALWAYS come back to default content
+driver.switchTo().defaultContent();
+
+// Now you can interact with main page elements again
+String heading = driver.findElement(By.tagName("h3")).getText();
+System.out.println("Heading: " + heading);</code></pre>
+</div>
+
+<h2>3.5 Nested Frames Example</h2>
+
+<div class="demo-box">
+<h4>&#128187; Live Example: https://the-internet.herokuapp.com/nested_frames</h4>
+<pre><code>driver.get("https://the-internet.herokuapp.com/nested_frames");
+
+// Structure: frameset &gt; frame[name='frame-top'] &gt; frameset &gt; frame[name='frame-middle']
+// Switch to top frame first, then to middle
+driver.switchTo().frame("frame-top");
+driver.switchTo().frame("frame-middle");
+
+String text = driver.findElement(By.id("content")).getText();
+System.out.println("Middle frame text: " + text);  // "MIDDLE"
+
+// Go back: level by level or straight to top
+driver.switchTo().defaultContent();  // back to root
+
+// Now switch to bottom frame
+driver.switchTo().frame("frame-bottom");
+String bottomText = driver.findElement(By.tagName("body")).getText();
+System.out.println("Bottom frame text: " + bottomText);  // "BOTTOM"
+
+driver.switchTo().defaultContent();  // ALWAYS come back</code></pre>
+</div>
+
+<div class="tip-box">
+<h4>&#128161; Golden Rule</h4>
+<p>You <strong>cannot</strong> jump from one frame directly to a sibling frame. You must go up to 
+<code>defaultContent()</code> first, then switch down to the sibling.</p>
+</div>
+
+
+<h2>3.6 Reusable Framework Helper</h2>
+<pre><code>/** Switch into a frame with explicit wait. */
+public void switchToFrame(By by) {
+    try {
+        wait.until(ExpectedConditions.frameToBeAvailableAndSwitchTo(by));
+        logger.info("Switched to frame: " + by);
+    } catch (Exception e) {
+        logger.error("Unable to switch to frame: " + e.getMessage());
+    }
+}
+
+/** Always pair switchToFrame() with this in a finally block. */
+public void switchToDefaultContent() {
+    driver.switchTo().defaultContent();
+    logger.info("Switched back to default content");
+}
+
+// Usage pattern (ALWAYS use try/finally):
+try {
+    actionDriver.switchToFrame(By.id("paymentFrame"));
+    actionDriver.enterText(By.id("cardNumber"), "4111111111111111");
+    actionDriver.click(By.id("payNow"));
+} finally {
+    actionDriver.switchToDefaultContent();
+}</code></pre>
+
+<h2>3.7 Real Problems &amp; Solutions</h2>
+<table>
+<tr><th>#</th><th>Problem</th><th>Cause</th><th>Fix</th></tr>
+<tr><td>1</td><td><code>NoSuchFrameException</code></td><td>Iframe not yet in DOM</td><td>Use <code>frameToBeAvailableAndSwitchTo</code></td></tr>
+<tr><td>2</td><td>Can't click main page button after frame work</td><td>Still inside iframe</td><td>Always call <code>defaultContent()</code></td></tr>
+<tr><td>3</td><td>Iframe has no id/name</td><td>Angular generates random ids</td><td>Locate by <code>src</code>, <code>title</code>, pass WebElement</td></tr>
+<tr><td>4</td><td>Switched to wrong frame</td><td>Multiple frames, same id</td><td>Use more specific locator (<code>src*=</code>)</td></tr>
+<tr><td>5</td><td>TinyMCE not accepting text</td><td>Editor body is inside iframe</td><td><code>switchTo().frame("tinymce_ifr")</code> then sendKeys to body</td></tr>
+<tr><td>6</td><td>Salesforce Classic fails</td><td>Nested Visualforce iframes</td><td>Inspect carefully, switch level by level</td></tr>
+<tr><td>7</td><td>reCAPTCHA can't be clicked</td><td>Cross-origin iframe</td><td>Switch to recaptcha iframe; disable in QA env</td></tr>
+</table>
+
+<div class="interview-box">
+<h4>&#127897; Interview Answer</h4>
+<p><em>"Selenium operates at one DOM at a time. If the element is inside an iframe, I switch context 
+using driver.switchTo().frame(). I prefer frameToBeAvailableAndSwitchTo because it waits until 
+the frame is present. Once done, I ALWAYS call defaultContent() to come back. For nested frames 
+I switch level by level; for siblings I go back to default content first."</em></p>
+</div>
+
+<!-- ============================== TOPIC 4: WAITS ============================== -->
+<h1 id="waits">4. Waits in Selenium</h1>
+
+<p><strong>Most flaky tests are caused by a missing or wrong wait.</strong> Modern web apps are asynchronous &mdash; 
+AJAX calls, animations, SPA routing &mdash; so Selenium (which runs at JVM speed) often tries to 
+interact with elements that don't exist yet.</p>
+
+<div class="demo-box">
+<h4>&#128279; Demo Sites for Practicing Waits</h4>
+<table>
+<tr><th>Site URL</th><th>What to Practice</th></tr>
+<tr><td>https://the-internet.herokuapp.com/dynamic_loading</td><td>Element hidden/not rendered until triggered</td></tr>
+<tr><td>https://the-internet.herokuapp.com/dynamic_controls</td><td>Elements appear/disappear dynamically</td></tr>
+<tr><td>https://demoqa.com/dynamic-properties</td><td>Button becomes visible/clickable after delay</td></tr>
+<tr><td>https://the-internet.herokuapp.com/disappearing_elements</td><td>Elements that randomly disappear</td></tr>
+<tr><td>https://practice.expandtesting.com/dynamic-loading</td><td>Loading spinner then content</td></tr>
+<tr><td>https://the-internet.herokuapp.com/javascript_alerts</td><td>JS alerts requiring waits</td></tr>
+</table>
+</div>
+
+<h2>4.1 Types of Waits</h2>
+<table>
+<tr><th>Wait Type</th><th>Scope</th><th>What it waits for</th><th>When to use</th></tr>
+<tr><td><strong>Implicit</strong></td><td>Global (all findElement calls)</td><td>Element presence in DOM only</td><td>Set once, basic safety net</td></tr>
+<tr><td><strong>Explicit (WebDriverWait)</strong></td><td>Specific element/condition</td><td>Any condition (visible, clickable, text, attribute...)</td><td>DEFAULT CHOICE for everything</td></tr>
+<tr><td><strong>Fluent</strong></td><td>Custom polling + ignore</td><td>Same as explicit + custom poll interval</td><td>Stale elements, custom timeouts</td></tr>
+<tr><td><strong>Thread.sleep</strong></td><td>Blocks thread</td><td>Nothing (just waits)</td><td>AVOID (last resort only)</td></tr>
+</table>
+
+
+<h2>4.2 Implicit Wait</h2>
+<pre><code>driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+// Applies to EVERY findElement call. Polls DOM every ~500ms.</code></pre>
+<p><strong>Cons:</strong> Only checks DOM presence. Does NOT wait for visibility/clickability. 
+Selenium docs warn against mixing with explicit waits.</p>
+
+<h2>4.3 Explicit Wait (WebDriverWait) - THE WORKHORSE</h2>
+
+<div class="demo-box">
+<h4>&#128187; Live Example: https://the-internet.herokuapp.com/dynamic_loading/1</h4>
+<pre><code>driver.get("https://the-internet.herokuapp.com/dynamic_loading/1");
+
+// Click "Start" button
+driver.findElement(By.cssSelector("#start button")).click();
+
+// Wait for loading to finish and text to appear
+WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+// Wait for spinner to disappear
+wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("loading")));
+
+// Wait for result text to be visible
+WebElement result = wait.until(
+    ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#finish h4")));
+System.out.println("Result: " + result.getText());  // "Hello World!"</code></pre>
+</div>
+
+<h3>ExpectedConditions You Use 90% of the Time</h3>
+<table>
+<tr><th>Condition</th><th>When to Use</th></tr>
+<tr><td><code>presenceOfElementLocated(by)</code></td><td>Element exists in DOM (might be hidden)</td></tr>
+<tr><td><code>visibilityOfElementLocated(by)</code></td><td>Exists AND is visible</td></tr>
+<tr><td><code>elementToBeClickable(by)</code></td><td>Visible AND enabled &mdash; use before click()</td></tr>
+<tr><td><code>invisibilityOfElementLocated(by)</code></td><td>Spinner/modal disappears</td></tr>
+<tr><td><code>textToBe(by, "Done")</code></td><td>Wait until text matches</td></tr>
+<tr><td><code>attributeToBe(el, "aria-expanded", "true")</code></td><td>Combobox/accordion open</td></tr>
+<tr><td><code>frameToBeAvailableAndSwitchTo(by)</code></td><td>iframes</td></tr>
+<tr><td><code>numberOfElementsToBeMoreThan(by, 0)</code></td><td>Table rows loaded</td></tr>
+<tr><td><code>urlContains("dashboard")</code></td><td>After navigation</td></tr>
+<tr><td><code>alertIsPresent()</code></td><td>JS alerts</td></tr>
+<tr><td><code>stalenessOf(element)</code></td><td>Old DOM element dies (page transition)</td></tr>
+</table>
+
+<h3>Custom Lambda Condition</h3>
+<pre><code>// Wait until table has more than 5 rows
+wait.until(d -&gt; d.findElements(By.cssSelector("table tbody tr")).size() &gt; 5);</code></pre>
+
+<h2>4.4 Fluent Wait</h2>
+<pre><code>Wait&lt;WebDriver&gt; fluent = new FluentWait&lt;&gt;(driver)
+    .withTimeout(Duration.ofSeconds(30))
+    .pollingEvery(Duration.ofMillis(250))          // faster polling
+    .ignoring(NoSuchElementException.class)
+    .ignoring(StaleElementReferenceException.class) // ignore stale!
+    .withMessage("Dashboard tile never loaded");
+
+WebElement tile = fluent.until(d -&gt; d.findElement(By.id("kpi-tile")));</code></pre>
+
+<div class="tip-box">
+<h4>&#128161; When to use FluentWait over WebDriverWait?</h4>
+<ul>
+<li>Need <strong>shorter polling interval</strong> (100-250ms instead of default 500ms)</li>
+<li>Need to <strong>ignore StaleElementReferenceException</strong> (tables rebuilding)</li>
+<li>Need a <strong>custom failure message</strong></li>
+</ul>
+</div>
+
+<h2>4.5 Dynamic Controls Example</h2>
+
+<div class="demo-box">
+<h4>&#128187; Live Example: https://the-internet.herokuapp.com/dynamic_controls</h4>
+<pre><code>driver.get("https://the-internet.herokuapp.com/dynamic_controls");
+WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+// Remove checkbox example
+driver.findElement(By.cssSelector("#checkbox-example button")).click();
+
+// Wait for checkbox to disappear
+wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("checkbox")));
+System.out.println("Checkbox removed!");
+
+// Wait for "It's gone!" message
+wait.until(ExpectedConditions.textToBe(By.id("message"), "It's gone!"));
+
+// Enable input example
+driver.findElement(By.cssSelector("#input-example button")).click();
+
+// Wait for input to become enabled/clickable
+WebElement input = wait.until(
+    ExpectedConditions.elementToBeClickable(By.cssSelector("#input-example input")));
+input.sendKeys("Now I can type!");</code></pre>
+</div>
+
+<h2>4.6 The Implicit + Explicit Trap</h2>
+<div class="problem-box">
+<h4>&#9888;&#65039; NEVER Mix Implicit and Explicit Waits!</h4>
+<p>When explicit wait polls and hits <code>findElement</code>, the implicit wait ALSO kicks in for 
+<strong>each poll</strong>. So WebDriverWait(10s) + implicit(10s) can take up to <strong>100 seconds</strong> before timing out!</p>
+<p><strong>Fix:</strong> Set implicit wait to <code>0</code> and rely fully on explicit waits.</p>
+</div>
+
+<h2>4.7 Real Problems &amp; Solutions</h2>
+<table>
+<tr><th>#</th><th>Problem</th><th>Fix</th></tr>
+<tr><td>1</td><td><code>ElementClickInterceptedException</code></td><td>Wait for overlay/spinner to disappear first</td></tr>
+<tr><td>2</td><td><code>StaleElementReferenceException</code> repeatedly</td><td>FluentWait with <code>.ignoring(StaleElement...)</code></td></tr>
+<tr><td>3</td><td>Test super slow on CI</td><td>Remove implicit wait, use explicit only</td></tr>
+<tr><td>4</td><td>Page loaded but data not ready</td><td>Wait on business element, not readyState</td></tr>
+<tr><td>5</td><td>Random TimeoutException on Jenkins</td><td>Increase timeout via config.properties</td></tr>
+<tr><td>6</td><td><code>presenceOf</code> works but click fails</td><td>Element in DOM but <code>display:none</code>. Use <code>elementToBeClickable</code></td></tr>
+</table>
+
+
+<!-- ============================== TOPIC 5: JAVASCRIPT EXECUTOR ============================== -->
+<h1 id="jsexecutor">5. JavaScriptExecutor in Selenium</h1>
+
+<p><code>JavascriptExecutor</code> lets you run <strong>arbitrary JavaScript</strong> inside the browser. 
+It is the ultimate "fallback weapon" when normal Selenium actions fail &mdash; and a 
+great helper for scrolling, highlighting, and reading page state.</p>
+
+<div class="demo-box">
+<h4>&#128279; Demo Sites for Practicing JavaScriptExecutor</h4>
+<table>
+<tr><th>Site URL</th><th>What to Practice</th></tr>
+<tr><td>https://the-internet.herokuapp.com/infinite_scroll</td><td>Scroll via JS to load more content</td></tr>
+<tr><td>https://the-internet.herokuapp.com/javascript_alerts</td><td>Trigger/handle JS alerts</td></tr>
+<tr><td>https://the-internet.herokuapp.com/shadowdom</td><td>Shadow DOM access via JS</td></tr>
+<tr><td>https://demoqa.com/buttons</td><td>JS click when normal click is intercepted</td></tr>
+<tr><td>https://demoqa.com/date-picker</td><td>Set date value via JS (sendKeys won't work)</td></tr>
+<tr><td>https://practice.expandtesting.com/infinite-scroll</td><td>Infinite scroll practice</td></tr>
+<tr><td>https://the-internet.herokuapp.com/drag_and_drop</td><td>HTML5 drag-drop (needs JS helper)</td></tr>
+</table>
+</div>
+
+<h2>5.1 Basic Setup</h2>
+<pre><code>JavascriptExecutor js = (JavascriptExecutor) driver;
+js.executeScript("alert('Hello from JS!');");
+
+// Two methods:
+// executeScript(script, args...)       - synchronous, returns value or null
+// executeAsyncScript(script, args...)  - async, must invoke callback</code></pre>
+
+<h2>5.2 When to Use (and When NOT to)</h2>
+<table>
+<tr><th>USE JS When...</th><th>DO NOT Use JS When...</th></tr>
+<tr><td>Normal click intercepted by overlay</td><td>Normal click() would work fine</td></tr>
+<tr><td>Need to scroll to element</td><td>You're "JS-ing away" a flaky test</td></tr>
+<tr><td>Date/masked inputs reject sendKeys</td><td>You haven't tried fixing the wait first</td></tr>
+<tr><td>Reading scrollHeight, custom attributes</td><td>Standard getAttribute() works</td></tr>
+<tr><td>Shadow DOM access (pre-Selenium 4)</td><td>Selenium 4 getShadowRoot() is available</td></tr>
+<tr><td>Highlighting elements for reports</td><td>&mdash;</td></tr>
+</table>
+
+<h2>5.3 All Common Recipes with Live Examples</h2>
+
+<h3>a) JS Click (bypasses overlays)</h3>
+<div class="demo-box">
+<h4>&#128187; Live Example: https://demoqa.com/buttons</h4>
+<pre><code>driver.get("https://demoqa.com/buttons");
+
+// The "Click Me" button might be obscured by ads/overlays on demoqa
+WebElement clickBtn = driver.findElement(
+    By.xpath("//button[text()='Click Me']"));
+
+// Normal click might fail due to overlay:
+// clickBtn.click();  // ElementClickInterceptedException!
+
+// JS click bypasses the overlay:
+JavascriptExecutor js = (JavascriptExecutor) driver;
+js.executeScript("arguments[0].click();", clickBtn);
+
+// Verify
+String msg = driver.findElement(By.id("dynamicClickMessage")).getText();
+System.out.println(msg);  // "You have done a dynamic click"</code></pre>
+</div>
+
+<h3>b) Scroll Into View</h3>
+<div class="demo-box">
+<h4>&#128187; Live Example: https://the-internet.herokuapp.com/infinite_scroll</h4>
+<pre><code>driver.get("https://the-internet.herokuapp.com/infinite_scroll");
+JavascriptExecutor js = (JavascriptExecutor) driver;
+
+// Scroll down multiple times to load content
+for (int i = 0; i &lt; 5; i++) {
+    js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+    Thread.sleep(1000);  // wait for new content to load
+}
+
+// Scroll specific element into view
+WebElement someElement = driver.findElement(By.cssSelector(".jscroll-added:last-child"));
+js.executeScript("arguments[0].scrollIntoView({block:'center'});", someElement);</code></pre>
+</div>
+
+<h3>c) Set Value on Date Picker</h3>
+<div class="demo-box">
+<h4>&#128187; Live Example: https://demoqa.com/date-picker</h4>
+<pre><code>driver.get("https://demoqa.com/date-picker");
+JavascriptExecutor js = (JavascriptExecutor) driver;
+
+WebElement dateInput = driver.findElement(By.id("datePickerMonthYearInput"));
+
+// sendKeys on date pickers often doesn't work (read-only or masked)
+// Use JS to set value AND trigger React events:
+js.executeScript(
+    "arguments[0].value = arguments[1];" +
+    "arguments[0].dispatchEvent(new Event('input', {bubbles: true}));" +
+    "arguments[0].dispatchEvent(new Event('change', {bubbles: true}));",
+    dateInput, "05/26/2026");
+
+System.out.println("Date set: " + dateInput.getAttribute("value"));</code></pre>
+</div>
+
+<div class="tip-box">
+<h4>&#128161; Why dispatch input/change events?</h4>
+<p>React/Angular don't notice raw <code>value=</code> writes. They listen to events. 
+Firing <code>input</code> and <code>change</code> events makes the framework re-render correctly.</p>
+</div>
+
+
+<h3>d) Highlight Element (for debugging/reports)</h3>
+<pre><code>public void highlightElement(WebElement el, String color) {
+    JavascriptExecutor js = (JavascriptExecutor) driver;
+    js.executeScript("arguments[0].style.border='3px solid " + color + "'", el);
+}
+// Usage:
+highlightElement(driver.findElement(By.id("submit")), "green");  // pass
+highlightElement(driver.findElement(By.id("error")), "red");     // fail</code></pre>
+
+<h3>e) Read Page Info</h3>
+<pre><code>String title = (String) js.executeScript("return document.title;");
+String url = (String) js.executeScript("return window.location.href;");
+Long height = (Long) js.executeScript("return document.body.scrollHeight;");
+String readyState = (String) js.executeScript("return document.readyState;");</code></pre>
+
+<h3>f) Wait for Page Load via JS</h3>
+<pre><code>new WebDriverWait(driver, Duration.ofSeconds(15))
+    .until(d -&gt; Boolean.TRUE.equals(
+        ((JavascriptExecutor) d).executeScript(
+            "return document.readyState === 'complete';")));</code></pre>
+
+<h3>g) Shadow DOM Access</h3>
+<div class="demo-box">
+<h4>&#128187; Live Example: https://the-internet.herokuapp.com/shadowdom</h4>
+<pre><code>driver.get("https://the-internet.herokuapp.com/shadowdom");
+
+// Pre-Selenium 4: JS is the only way to pierce shadow DOM
+JavascriptExecutor js = (JavascriptExecutor) driver;
+WebElement shadowHost = driver.findElement(By.cssSelector("my-paragraph:nth-child(1)"));
+WebElement shadowContent = (WebElement) js.executeScript(
+    "return arguments[0].shadowRoot.querySelector('slot')", shadowHost);
+System.out.println("Shadow text: " + shadowContent.getText());
+
+// Selenium 4 native way:
+SearchContext shadow = shadowHost.getShadowRoot();
+WebElement slotEl = shadow.findElement(By.cssSelector("slot"));
+System.out.println("Shadow text: " + slotEl.getText());</code></pre>
+</div>
+
+<h3>h) Open New Tab / Window</h3>
+<pre><code>js.executeScript("window.open('https://google.com', '_blank');");
+// Switch to new tab:
+ArrayList&lt;String&gt; tabs = new ArrayList&lt;&gt;(driver.getWindowHandles());
+driver.switchTo().window(tabs.get(1));</code></pre>
+
+<h3>i) Zoom Page (fix overlapping elements in CI)</h3>
+<pre><code>js.executeScript("document.body.style.zoom='80%';");</code></pre>
+
+<h3>j) Remove Element (dismiss sticky footers/banners)</h3>
+<pre><code>js.executeScript("arguments[0].remove();",
+    driver.findElement(By.id("cookie-banner")));</code></pre>
+
+<h2>5.4 Framework Integration Methods</h2>
+<pre><code>/** JS-click fallback when normal click is intercepted. */
+public void jsClick(By by) {
+    WebElement el = driver.findElement(by);
+    ((JavascriptExecutor) driver).executeScript("arguments[0].click();", el);
+    logger.info("JS-clicked: " + by);
+}
+
+/** Set value + trigger events (date/masked inputs). */
+public void jsSetValue(By by, String value) {
+    WebElement el = driver.findElement(by);
+    ((JavascriptExecutor) driver).executeScript(
+        "arguments[0].value=arguments[1];" +
+        "arguments[0].dispatchEvent(new Event('input',{bubbles:true}));" +
+        "arguments[0].dispatchEvent(new Event('change',{bubbles:true}));", el, value);
+    logger.info("JS-set value: " + value);
+}
+
+/** Scroll container to bottom (AG-Grid/virtualized). */
+public void jsScrollToBottom(By container) {
+    WebElement c = driver.findElement(container);
+    ((JavascriptExecutor) driver).executeScript(
+        "arguments[0].scrollTop = arguments[0].scrollHeight;", c);
+}</code></pre>
+
+<h2>5.5 Real Problems &amp; Solutions</h2>
+<table>
+<tr><th>#</th><th>Problem</th><th>Solution</th></tr>
+<tr><td>1</td><td><code>ElementClickInterceptedException</code> (cookie banner)</td><td>Dismiss banner OR <code>jsClick</code></td></tr>
+<tr><td>2</td><td>Date picker rejects sendKeys</td><td><code>jsSetValue</code> with dispatchEvent</td></tr>
+<tr><td>3</td><td>Element below fold, click fails headless</td><td><code>scrollIntoView({block:'center'})</code> first</td></tr>
+<tr><td>4</td><td>Test passes but user can't actually click</td><td>Don't use jsClick blindly &mdash; fix the real issue</td></tr>
+<tr><td>5</td><td><code>executeAsyncScript</code> hangs forever</td><td>Forgot to call <code>arguments[arguments.length-1]</code> callback</td></tr>
+<tr><td>6</td><td>"Cannot read properties of null"</td><td>Element not in DOM &mdash; add WebDriverWait first</td></tr>
+<tr><td>7</td><td>Shadow DOM not accessible</td><td>Use <code>shadowRoot.querySelector()</code> or Selenium 4 native</td></tr>
+</table>
+
+<div class="interview-box">
+<h4>&#127897; Interview Answer</h4>
+<p><em>"JavascriptExecutor runs JS in the browser via Selenium. I use it for scrolling (scrollIntoView), 
+highlighting elements for reports, waiting for document.readyState, and as a fallback for clicks 
+intercepted by overlays or for date inputs where sendKeys doesn't trigger React state. I avoid 
+using JS click as a default because it bypasses real-user checks and can hide actual UI bugs."</em></p>
+</div>
+
+
+<!-- ============================== SUMMARY & CHEAT SHEET ============================== -->
+<h1 style="page-break-before: always;">Quick Reference Cheat Sheet</h1>
+
+<h2>Dropdowns Summary</h2>
+<table>
+<tr><th>Scenario</th><th>Approach</th></tr>
+<tr><td><code>&lt;select&gt;</code> tag</td><td><code>Select</code> class</td></tr>
+<tr><td><code>&lt;div&gt;</code> / <code>&lt;ul&gt;&lt;li&gt;</code></td><td>Click toggle &rarr; wait options &rarr; iterate/XPath text</td></tr>
+<tr><td><code>role="combobox"</code> (Salesforce)</td><td>Click &rarr; wait <code>aria-expanded='true'</code> &rarr; click option</td></tr>
+<tr><td>Auto-suggest</td><td><code>sendKeys</code> partial &rarr; wait &rarr; click suggestion</td></tr>
+<tr><td>Multi-select (custom)</td><td>Loop, re-open between picks</td></tr>
+<tr><td>Cascading</td><td>Wait until child dropdown populated/enabled</td></tr>
+</table>
+
+<h2>Tables Summary</h2>
+<table>
+<tr><th>Scenario</th><th>Approach</th></tr>
+<tr><td>Read row/column count</td><td><code>findElements().size()</code></td></tr>
+<tr><td>Specific cell</td><td><code>tr:nth-child(N) td:nth-child(M)</code></td></tr>
+<tr><td>Find row by value</td><td>XPath <code>[td[idx][normalize-space()='val']]</code></td></tr>
+<tr><td>Pagination (page 2/3)</td><td>Loop, re-locate, wait for first-row text change</td></tr>
+<tr><td>Infinite scroll</td><td>JS scroll last row, wait new rows</td></tr>
+<tr><td>AG-Grid virtualized</td><td>Scroll <code>.ag-body-viewport</code>, re-query</td></tr>
+</table>
+
+<h2>Frames Summary</h2>
+<table>
+<tr><th>Scenario</th><th>Approach</th></tr>
+<tr><td>Switch into frame</td><td><code>frameToBeAvailableAndSwitchTo(by)</code></td></tr>
+<tr><td>Switch out</td><td><code>driver.switchTo().defaultContent()</code></td></tr>
+<tr><td>Nested frames</td><td>Switch level by level; go to default for siblings</td></tr>
+<tr><td>No id/name</td><td>Locate by src/title, pass WebElement</td></tr>
+</table>
+
+<h2>Waits Summary</h2>
+<table>
+<tr><th>Scenario</th><th>Best Wait</th></tr>
+<tr><td>Before clicking</td><td><code>elementToBeClickable</code></td></tr>
+<tr><td>Before reading text</td><td><code>visibilityOfElementLocated</code></td></tr>
+<tr><td>Spinner disappearing</td><td><code>invisibilityOfElementLocated</code></td></tr>
+<tr><td>Table loaded</td><td><code>numberOfElementsToBeMoreThan(rows, 0)</code></td></tr>
+<tr><td>Navigation complete</td><td><code>urlContains("target")</code></td></tr>
+<tr><td>Stale elements</td><td>FluentWait + <code>.ignoring(StaleElement...)</code></td></tr>
+</table>
+
+<h2>JavaScriptExecutor Summary</h2>
+<table>
+<tr><th>Scenario</th><th>JS Script</th></tr>
+<tr><td>Click bypass</td><td><code>arguments[0].click();</code></td></tr>
+<tr><td>Scroll to element</td><td><code>arguments[0].scrollIntoView({block:'center'});</code></td></tr>
+<tr><td>Set value + events</td><td><code>arguments[0].value=...; dispatchEvent(new Event('change'));</code></td></tr>
+<tr><td>Scroll to bottom</td><td><code>window.scrollTo(0, document.body.scrollHeight);</code></td></tr>
+<tr><td>Page ready</td><td><code>return document.readyState === 'complete';</code></td></tr>
+<tr><td>Shadow DOM</td><td><code>arguments[0].shadowRoot.querySelector(...);</code></td></tr>
+</table>
+
+<hr>
+<p style="text-align:center; color:#666; margin-top:40px;">
+<strong>End of Notes</strong> | Generated for SeleniumFramework by Kiro | May 2026<br>
+<em>To save as PDF: Open this HTML in Chrome &rarr; Ctrl+P &rarr; Save as PDF</em>
+</p>
+
+</body>
+</html>
