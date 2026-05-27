@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Handling Dropdowns in Selenium WebDriver - Complete Guide</title>
+<style>
+  /* ---------- Base ---------- */
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.7;
+    color: #1f2937;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 40px 32px;
+    background: #ffffff;
+  }
+  h1, h2, h3, h4 { color: #0f172a; line-height: 1.3; }
+  h1 { font-size: 2.4rem; border-bottom: 4px solid #2563eb; padding-bottom: 12px; }
+  h2 { font-size: 1.8rem; border-bottom: 2px solid #cbd5e1; padding-bottom: 8px; margin-top: 56px; }
+  h3 { font-size: 1.3rem; color: #1e40af; margin-top: 32px; }
+  h4 { font-size: 1.05rem; color: #334155; margin-top: 20px; }
+  p, li { font-size: 1rem; }
+  a { color: #2563eb; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ---------- Cover ---------- */
+  .cover {
+    text-align: center;
+    padding: 80px 20px 60px;
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    color: #fff;
+    border-radius: 12px;
+    margin-bottom: 56px;
+  }
+  .cover h1 { color: #fff; border: none; font-size: 2.8rem; margin: 0; }
+  .cover .sub { font-size: 1.2rem; opacity: 0.92; margin-top: 12px; }
+  .cover .meta { margin-top: 24px; font-size: 0.95rem; opacity: 0.85; }
+
+  /* ---------- Code ---------- */
+  code {
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: "Fira Code", Consolas, Monaco, monospace;
+    font-size: 0.92em;
+    color: #be185d;
+  }
+  pre {
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: "Fira Code", Consolas, Monaco, monospace;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    border-left: 4px solid #2563eb;
+  }
+  pre code { background: transparent; color: inherit; padding: 0; }
+  .lang-html pre { border-left-color: #f59e0b; }
+  .lang-java pre { border-left-color: #2563eb; }
+
+  /* ---------- Tables ---------- */
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0 24px;
+    font-size: 0.94rem;
+  }
+  th, td { border: 1px solid #cbd5e1; padding: 10px 12px; text-align: left; vertical-align: top; }
+  th { background: #1e40af; color: #fff; }
+  tr:nth-child(even) td { background: #f8fafc; }
+
+  /* ---------- Callouts ---------- */
+  .callout {
+    border-left: 5px solid;
+    padding: 14px 18px;
+    margin: 20px 0;
+    border-radius: 6px;
+    font-size: 0.97rem;
+  }
+  .callout strong { display: block; margin-bottom: 4px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .tip     { background: #ecfdf5; border-color: #10b981; color: #064e3b; }
+  .warn    { background: #fffbeb; border-color: #f59e0b; color: #78350f; }
+  .danger  { background: #fef2f2; border-color: #ef4444; color: #7f1d1d; }
+  .info    { background: #eff6ff; border-color: #3b82f6; color: #1e3a8a; }
+  .story   { background: #faf5ff; border-color: #a855f7; color: #581c87; }
+
+  /* ---------- TOC ---------- */
+  .toc {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 18px 28px;
+    margin: 24px 0 48px;
+  }
+  .toc h2 { margin-top: 0; border: none; }
+  .toc ol { padding-left: 24px; }
+  .toc li { margin: 6px 0; }
+
+  /* ---------- Visual structure ---------- */
+  .anatomy {
+    background: #f1f5f9;
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-family: "Fira Code", Consolas, monospace;
+    font-size: 0.9rem;
+    margin: 16px 0;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  .scenario {
+    background: linear-gradient(135deg, #ecfeff, #f0f9ff);
+    border: 1px solid #67e8f9;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 24px 0;
+  }
+  .scenario .scenario-title {
+    font-weight: 700; color: #155e75; font-size: 1.1rem;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    margin-bottom: 10px;
+  }
+
+  .qa {
+    background: #fffbeb;
+    border-left: 4px solid #f59e0b;
+    padding: 14px 18px;
+    margin: 14px 0;
+    border-radius: 6px;
+  }
+  .qa .q { font-weight: 700; color: #78350f; }
+  .qa .a { margin-top: 6px; }
+
+  /* ---------- Print ---------- */
+  @media print {
+    body { padding: 12px 18px; max-width: 100%; font-size: 11pt; }
+    .cover { background: #1e3a8a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .callout, .scenario, .qa, pre, table { page-break-inside: avoid; }
+    h2 { page-break-before: auto; }
+    h2.page-break { page-break-before: always; }
+    pre { font-size: 9pt; background: #0f172a !important; color: #e2e8f0 !important;
+          -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    th { background: #1e40af !important; color: #fff !important;
+         -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    a { color: #1e40af; }
+    a::after { content: " (" attr(href) ")"; font-size: 0.78em; color: #64748b; }
+    .no-print, .toc { page-break-after: always; }
+  }
+
+  .print-hint {
+    background: #fef3c7; border: 1px dashed #f59e0b; padding: 10px 14px;
+    border-radius: 6px; font-size: 0.9rem; margin: 16px 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============= COVER ============= -->
+<div class="cover">
+  <h1>Handling Dropdowns in Selenium WebDriver</h1>
+  <div class="sub">A complete, in-depth guide with real-world examples, end-to-end tests, and interview Q&amp;A</div>
+  <div class="meta">Version 2.0 &middot; Java &middot; Page Object Friendly</div>
+</div>
+
+<div class="print-hint no-print">
+   <strong>To save as PDF:</strong> Press <code>Ctrl + P</code> (Windows / Linux) or <code>Cmd + P</code> (Mac), then choose
+  <em>"Save as PDF"</em> as the destination. Background colors will be preserved.
+</div>
+
+<!-- ============= TOC ============= -->
+<div class="toc">
+  <h2>What you will learn</h2>
+  <ol>
+    <li><a href="#intro">A mental model: what a "dropdown" really is</a></li>
+    <li><a href="#anatomy">Anatomy of every dropdown - inspect like a pro</a></li>
+    <li><a href="#select">Type 1 - Native <code>&lt;select&gt;</code> Dropdown (deep dive + Facebook E2E)</a></li>
+    <li><a href="#bootstrap">Type 2 - Bootstrap / Lightbox Dropdown (LambdaTest E2E)</a></li>
+    <li><a href="#div">Type 3 - Custom Div Dropdown (MakeMyTrip booking E2E)</a></li>
+    <li><a href="#autosuggest">Type 4 - Auto-Suggest Dropdown (Google search E2E)</a></li>
+    <li><a href="#multi">Type 5 - Multi-Select Dropdown (with chips)</a></li>
+    <li><a href="#cascade">Type 6 - Cascading / Dependent Dropdown (SpiceJet E2E)</a></li>
+    <li><a href="#hidden">Type 7 - Hidden / Disabled Dropdown</a></li>
+    <li><a href="#issues">Issues encyclopedia &amp; root-cause solutions</a></li>
+    <li><a href="#best">Best practices that prevent flaky tests</a></li>
+    <li><a href="#util">Reusable <code>DropdownUtility</code> class (drop into your framework)</a></li>
+    <li><a href="#interview">Interview questions &amp; <em>answered</em> explanations</a></li>
+    <li><a href="#cheat">One-page cheat sheet</a></li>
+  </ol>
+</div>
+
+<!-- ============================================================== -->
+<h2 id="intro">1. A mental model: what is a "dropdown" really?</h2>
+
+<div class="callout story">
+  <strong>Restaurant menu analogy</strong>
+  Imagine you walk into a restaurant. The waiter hands you a menu - that's the
+  trigger. You read the menu, point at "Paneer Butter Masala", and the waiter
+  closes the menu and notes your choice. A dropdown works exactly like that:
+  <em>open &rarr; pick &rarr; close &rarr; selection committed</em>.
+  Every type of dropdown - native, Bootstrap, custom - is a different
+  <em>menu design</em>, but the same flow.
+</div>
+
+<p>
+  Browsers do <strong>not</strong> have one universal "dropdown" widget. The
+  word "dropdown" is a <strong>UX term</strong>, not an HTML element. As a
+  tester your first job is to ask: <em>which kind of dropdown am I looking
+  at?</em> - because that decides which Selenium technique works.
+</p>
+
+<table>
+  <tr>
+    <th>Implementation</th>
+    <th>HTML signature</th>
+    <th>Selenium tool of choice</th>
+  </tr>
+  <tr>
+    <td>Native HTML select</td>
+    <td><code>&lt;select&gt;&lt;option&gt;</code></td>
+    <td><code>org.openqa.selenium.support.ui.Select</code></td>
+  </tr>
+  <tr>
+    <td>Bootstrap / jQuery</td>
+    <td><code>&lt;button data-toggle="dropdown"&gt;</code> + <code>&lt;ul&gt;</code></td>
+    <td>Click + <code>List&lt;WebElement&gt;</code></td>
+  </tr>
+  <tr>
+    <td>Custom Div</td>
+    <td><code>&lt;div role="combobox"&gt;</code> + <code>&lt;div role="listbox"&gt;</code></td>
+    <td>Click + waits + Actions / JS</td>
+  </tr>
+  <tr>
+    <td>Auto-suggest</td>
+    <td><code>&lt;input&gt;</code> + dynamic <code>&lt;ul&gt;</code></td>
+    <td><code>sendKeys</code> + wait + click</td>
+  </tr>
+</table>
+
+<div class="callout danger">
+  <strong>Golden rule</strong>
+  Use the <code>Select</code> class <em>only</em> when the outer tag is literally
+  <code>&lt;select&gt;</code>. Using it on anything else throws
+  <code>UnexpectedTagNameException</code>.
+</div>
+
+<!-- ============================================================== -->
+<h2 id="anatomy">2. Anatomy of every dropdown - inspect like a pro</h2>
+
+<p>
+  Open <strong>DevTools (F12) &rarr; Elements panel</strong> and click the
+  dropdown trigger. Look at the <em>outermost</em> element of the popup. The
+  outer tag tells you the type, full stop.
+</p>
+
+<h4>Anatomy of a native <code>&lt;select&gt;</code></h4>
+<div class="anatomy">&lt;select id="country"&gt;
+    &lt;option value="in"&gt;India&lt;/option&gt;
+    &lt;option value="us"&gt;United States&lt;/option&gt;
+&lt;/select&gt;</div>
+
+<h4>Anatomy of a Bootstrap dropdown</h4>
+<div class="anatomy">&lt;div class="dropdown"&gt;
+    &lt;button data-bs-toggle="dropdown"&gt;Select country&lt;/button&gt;
+    &lt;ul class="dropdown-menu"&gt;
+        &lt;li&gt;&lt;a&gt;India&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a&gt;United States&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+&lt;/div&gt;</div>
+
+<h4>Anatomy of a div-based custom dropdown</h4>
+<div class="anatomy">&lt;div class="custom-select" role="combobox"&gt;
+    &lt;div class="selected"&gt;English&lt;/div&gt;
+    &lt;div class="options" role="listbox"&gt;
+        &lt;div role="option"&gt;English&lt;/div&gt;
+        &lt;div role="option"&gt;Hindi&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</div>
+
+<div class="callout tip">
+  <strong>Pro tip</strong>
+  In DevTools, hover over the dropdown popup with the inspector arrow. If the
+  highlight shows a <code>&lt;select&gt;</code>, you're done - use the
+  <code>Select</code> class. If it shows a <code>&lt;ul&gt;</code> or
+  <code>&lt;div&gt;</code>, you'll write click-based code.
+</div>
+
+<!-- ============================================================== -->
+<h2 id="select" class="page-break">3. Type 1 - Native <code>&lt;select&gt;</code> Dropdown</h2>
+
+<h3>3.1 Definition &amp; how it works</h3>
+<p>
+  The native HTML dropdown - the simplest of them all. It has a single
+  <code>&lt;select&gt;</code> tag with <code>&lt;option&gt;</code> children.
+  Selenium ships with a helper class - <code>Select</code> - that wraps this
+  exact element type.
+</p>
+
+<div class="callout info">
+  <strong>Why the Select class exists</strong>
+  Native selects behave specially - the dropdown panel is rendered by the
+  <em>operating system</em>, not by the browser DOM. You cannot click an
+  <code>&lt;option&gt;</code> the way you click a button. The <code>Select</code>
+  class abstracts this away.
+</div>
+
+<h3>3.2 The full <code>Select</code> API - every method, with intent</h3>
+
+<table>
+  <tr><th>Method</th><th>What it does</th><th>When to use</th></tr>
+  <tr><td><code>selectByVisibleText("India")</code></td><td>Picks option whose visible text matches exactly</td><td>Most common - readable tests</td></tr>
+  <tr><td><code>selectByValue("in")</code></td><td>Picks option whose <code>value=""</code> attribute matches</td><td>When option text is localised but values are stable</td></tr>
+  <tr><td><code>selectByIndex(2)</code></td><td>Picks the Nth option (0-based)</td><td>When position is known &amp; stable</td></tr>
+  <tr><td><code>deselectAll()</code></td><td>Clears all selections</td><td>Multi-select setup before each test</td></tr>
+  <tr><td><code>getOptions()</code></td><td>All options as <code>List&lt;WebElement&gt;</code></td><td>Counting, asserting, iterating</td></tr>
+  <tr><td><code>getAllSelectedOptions()</code></td><td>Currently selected options</td><td>Validating multi-select state</td></tr>
+  <tr><td><code>getFirstSelectedOption()</code></td><td>The first selected option</td><td>Single-select read-back</td></tr>
+  <tr><td><code>isMultiple()</code></td><td><code>true</code> if <code>multiple</code> attribute is present</td><td>Generic utility code</td></tr>
+</table>
+
+<h3>3.3 End-to-End Example - Facebook signup birthday dropdowns</h3>
+
+<div class="scenario">
+  <div class="scenario-title">Scenario</div>
+  Open Facebook's signup page and choose 15 August 2000 as the date of birth.
+  Verify the values were committed by reading them back. We use a complete
+  Page Object + Test class to mirror your existing OrangeHRM framework style.
+</div>
+
+<h4>Page Object: <code>FacebookSignupPage.java</code></h4>
+<pre><code>package com.orangehrm.pages;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.Select;
+
+public class FacebookSignupPage {
+    private final WebDriver driver;
+
+    private final By dayDropdown   = By.id("day");
+    private final By monthDropdown = By.id("month");
+    private final By yearDropdown  = By.id("year");
+
+    public FacebookSignupPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    public void selectBirthDay(String day) {
+        new Select(driver.findElement(dayDropdown)).selectByVisibleText(day);
+    }
+
+    public void selectBirthMonth(String month) {
+        // value is "1".."12" - we use visible text for readability
+        new Select(driver.findElement(monthDropdown)).selectByVisibleText(month);
+    }
+
+    public void selectBirthYear(String year) {
+        new Select(driver.findElement(yearDropdown)).selectByVisibleText(year);
+    }
+
+    public String readSelectedDay() {
+        return new Select(driver.findElement(dayDropdown))
+                .getFirstSelectedOption().getText();
+    }
+
+    public int countYears() {
+        return new Select(driver.findElement(yearDropdown)).getOptions().size();
+    }
+}</code></pre>
+
+<h4>Test: <code>FacebookDOBTest.java</code></h4>
+<pre><code>package com.orangeHRM.test;
+
+import com.orangehrm.pages.FacebookSignupPage;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.Assert;
+import org.testng.annotations.*;
+
+import java.time.Duration;
+
+public class FacebookDOBTest {
+    private WebDriver driver;
+    private FacebookSignupPage page;
+
+    @BeforeMethod
+    public void setUp() {
+        driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        driver.get("https://www.facebook.com/r.php");
+        page = new FacebookSignupPage(driver);
+    }
+
+    @Test
+    public void selectDateOfBirth_shouldCommitAllThreeFields() {
+        page.selectBirthDay("15");
+        page.selectBirthMonth("Aug");
+        page.selectBirthYear("2000");
+
+        Assert.assertEquals(page.readSelectedDay(), "15");
+        Assert.assertTrue(page.countYears() &gt; 100,
+            "Year dropdown should list at least 100 years");
+    }
+
+    @AfterMethod
+    public void tearDown() {
+        if (driver != null) driver.quit();
+    }
+}</code></pre>
+
+<div class="callout tip">
+  <strong>Why this design</strong>
+  The Page Object hides the dropdown type. Tomorrow Facebook may rebuild this
+  page with a custom React widget - the test class won't change, only the
+  Page Object will.
+</div>
+
+<h3>3.4 Iterating to pick a value chosen at runtime</h3>
+<pre><code>String wantedCountry = excelReader.getCellValue("Data", 2, 1); // "India"
+
+Select s = new Select(driver.findElement(By.id("country")));
+for (WebElement opt : s.getOptions()) {
+    if (opt.getText().trim().equalsIgnoreCase(wantedCountry)) {
+        opt.click();
+        break;
+    }
+}</code></pre>
+
+<h3>3.5 Issues you will hit on real projects</h3>
+<table>
+  <tr><th>Issue</th><th>Root cause</th><th>Solution</th></tr>
+  <tr><td><code>UnexpectedTagNameException</code></td><td>Element is not a <code>&lt;select&gt;</code></td><td>Use the div / Bootstrap technique (next sections)</td></tr>
+  <tr><td><code>NoSuchElementException</code></td><td>Page still loading, or you are inside an iframe</td><td><code>WebDriverWait</code> for <code>presenceOfElementLocated</code>; switch frame</td></tr>
+  <tr><td><code>selectByVisibleText</code> can't find option</td><td>Hidden whitespace / non-breaking space (<code>&amp;nbsp;</code>)</td><td>Iterate, <code>trim()</code> + <code>replace('\u00A0',' ')</code>, then click</td></tr>
+  <tr><td><code>ElementNotInteractableException</code></td><td><code>&lt;select&gt;</code> is hidden behind a custom UI</td><td>Use JS executor to set value, then dispatch <code>change</code> event</td></tr>
+  <tr><td>UI doesn't update after selection</td><td>React/Angular ignores native event</td><td>Fire <code>new Event('change',{bubbles:true})</code> via JS</td></tr>
+</table>
+
+<!-- ============================================================== -->
+<h2 id="bootstrap" class="page-break">4. Type 2 - Bootstrap / Lightbox Dropdown</h2>
+
+<h3>4.1 Definition &amp; how it works</h3>
+<p>
+  Bootstrap is a CSS/JS library used by ~25% of all websites. Its dropdown is
+  built from a <code>&lt;button&gt;</code> (toggle) and a sibling
+  <code>&lt;ul class="dropdown-menu"&gt;</code> (panel). When the button is
+  clicked, JavaScript adds a <code>show</code> class that makes the panel
+  visible. The panel often <em>floats above</em> other content - hence the
+  nickname "lightbox dropdown".
+</p>
+
+<div class="callout story">
+  <strong>Vending machine analogy</strong>
+  Native <code>&lt;select&gt;</code> is a vending machine: you press the button
+  and the OS draws the menu for you. Bootstrap is more like a folding paper
+  menu: pressing the button physically reveals more HTML that was already on
+  the page but hidden. As a tester you have to interact with that revealed
+  HTML directly.
+</div>
+
+<h3>4.2 End-to-End Example - LambdaTest Bootstrap playground</h3>
+
+<div class="scenario">
+  <div class="scenario-title">Scenario</div>
+  Open the LambdaTest Bootstrap dropdown playground, click "Single Button
+  Dropdown", and pick the option "Action". Verify the click happened by
+  reading the URL fragment.
+</div>
+
+<h4>Page Object: <code>BootstrapDropdownPage.java</code></h4>
+<pre><code>package com.orangehrm.pages;
+
+import org.openqa.selenium.*;
+import org.openqa.selenium.support.ui.*;
+
+import java.time.Duration;
+import java.util.List;
+
+public class BootstrapDropdownPage {
+    private final WebDriver driver;
+    private final WebDriverWait wait;
+
+    private final By toggle      = By.id("single-button");
+    private final By menu        = By.cssSelector("ul.dropdown-menu");
+    private final By menuOptions = By.cssSelector("ul.dropdown-menu li a");
+
+    public BootstrapDropdownPage(WebDriver driver) {
+        this.driver = driver;
+        this.wait   = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+
+    public void openDropdown() {
+        wait.until(ExpectedConditions.elementToBeClickable(toggle)).click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(menu));
+    }
+
+    public void selectOption(String wantedText) {
+        openDropdown();
+        List&lt;WebElement&gt; opts = driver.findElements(menuOptions);
+        for (WebElement o : opts) {
+            if (o.getText().trim().equalsIgnoreCase(wantedText)) {
+                wait.until(ExpectedConditions.elementToBeClickable(o)).click();
+                return;
+            }
+        }
+        throw new NoSuchElementException(
+            "Option not found: " + wantedText +
+            " | Available: " + opts.stream().map(WebElement::getText).toList());
+    }
+}</code></pre>
+
+<h4>Test: <code>BootstrapDropdownTest.java</code></h4>
+<pre><code>@Test
+public void shouldSelectActionFromBootstrapDropdown() {
+    driver.get("https://www.lambdatest.com/selenium-playground/bootstrap-dropdown-demo");
+    BootstrapDropdownPage page = new BootstrapDropdownPage(driver);
+
+    page.selectOption("Action");
+
+    // Bootstrap menu doesn't navigate, but the menu should now be closed.
+    Assert.assertTrue(
+        driver.findElements(By.cssSelector("ul.dropdown-menu.show")).isEmpty(),
+        "Menu should auto-close after selection");
+}</code></pre>
+
+<h3>4.3 The "lightbox" twist</h3>
+<p>
+  Some Bootstrap dropdowns (especially with <code>data-bs-popper</code>) move
+  the menu OUT of its parent and append it directly to <code>&lt;body&gt;</code>.
+  XPath written relative to the trigger will fail.
+</p>
+
+<pre><code>// Wrong - assumes the menu is a sibling of the trigger
+By.xpath(".//ul[@class='dropdown-menu']//a[text()='India']");
+
+// Right - locate from document root, only the visible menu
+By.xpath("//ul[contains(@class,'dropdown-menu') " +
+         "and not(contains(@style,'display: none'))]" +
+         "//a[normalize-space()='India']");</code></pre>
+
+<h3>4.4 Issues</h3>
+<table>
+  <tr><th>Issue</th><th>Root cause</th><th>Solution</th></tr>
+  <tr><td>Click on toggle does nothing</td><td>Bootstrap JS not yet bound</td><td>Wait for <code>elementToBeClickable</code></td></tr>
+  <tr><td><code>StaleElementReferenceException</code> while iterating</td><td>Menu re-renders on open/close</td><td>Capture texts to a <code>List&lt;String&gt;</code> first, click via fresh <code>findElement</code></td></tr>
+  <tr><td>Menu closes before click</td><td>Mouse moved away during animation</td><td>Use <code>Actions.moveToElement(option).click().perform()</code></td></tr>
+</table>
+
+<!-- ============================================================== -->
+<h2 id="div" class="page-break">5. Type 3 - Custom Div Dropdown</h2>
+
+<h3>5.1 Definition &amp; how it works</h3>
+<p>
+  A fully custom dropdown built from <code>&lt;div&gt;</code>, <code>&lt;span&gt;</code>,
+  and CSS. There is <strong>no helper class</strong> in Selenium for this.
+  You drive it like a real user: click the trigger, wait for the panel, click
+  the option you want.
+</p>
+
+<div class="callout warn">
+  <strong>This is the hardest type</strong>
+  Custom dropdowns vary wildly between sites. Some animate, some virtualise
+  (only render visible rows), some teleport the panel to <code>&lt;body&gt;</code>,
+  and some need keyboard input (arrow + Enter). Learn to inspect carefully.
+</div>
+
+<h3>5.2 End-to-End Example - MakeMyTrip flight booking</h3>
+
+<div class="scenario">
+  <div class="scenario-title">Scenario</div>
+  Open MakeMyTrip, dismiss the login popup, set "From" to Delhi and "To" to
+  Mumbai, both via div-based auto-search dropdowns.
+</div>
+
+<h4>Page Object: <code>MakeMyTripFlightPage.java</code></h4>
+<pre><code>package com.orangehrm.pages;
+
+import org.openqa.selenium.*;
+import org.openqa.selenium.support.ui.*;
+
+import java.time.Duration;
+import java.util.List;
+
+public class MakeMyTripFlightPage {
+    private final WebDriver driver;
+    private final WebDriverWait wait;
+
+    private final By loginCloseBtn = By.xpath("//span[@data-cy='closeModal']");
+    private final By fromLabel     = By.xpath("//span[text()='From']");
+    private final By toLabel       = By.xpath("//span[text()='To']");
+    private final By searchBox     = By.cssSelector("input[placeholder='From']");
+    private final By suggestList   = By.cssSelector("p.font14.appendBottom5");
+
+    public MakeMyTripFlightPage(WebDriver driver) {
+        this.driver = driver;
+        this.wait   = new WebDriverWait(driver, Duration.ofSeconds(15));
+    }
+
+    public void dismissLoginPopupIfPresent() {
+        try {
+            wait.withTimeout(Duration.ofSeconds(5))
+                .until(ExpectedConditions.elementToBeClickable(loginCloseBtn))
+                .click();
+        } catch (TimeoutException ignore) { /* popup didn't show this run */ }
+    }
+
+    public void selectFromCity(String cityName) {
+        wait.until(ExpectedConditions.elementToBeClickable(fromLabel)).click();
+        WebElement input = wait.until(
+            ExpectedConditions.visibilityOfElementLocated(searchBox));
+        input.sendKeys(cityName);
+        clickSuggestion(cityName);
+    }
+
+    public void selectToCity(String cityName) {
+        wait.until(ExpectedConditions.elementToBeClickable(toLabel)).click();
+        WebElement input = wait.until(ExpectedConditions.visibilityOfElementLocated(
+            By.cssSelector("input[placeholder='To']")));
+        input.sendKeys(cityName);
+        clickSuggestion(cityName);
+    }
+
+    private void clickSuggestion(String cityName) {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(suggestList));
+        List&lt;WebElement&gt; suggestions = driver.findElements(suggestList);
+        for (WebElement s : suggestions) {
+            if (s.getText().toLowerCase().contains(cityName.toLowerCase())) {
+                s.click();
+                return;
+            }
+        }
+        throw new NoSuchElementException("City not found: " + cityName);
+    }
+}</code></pre>
+
+<h4>Test</h4>
+<pre><code>@Test
+public void shouldBookFlightFromDelhiToMumbai() {
+    driver.get("https://www.makemytrip.com/");
+    MakeMyTripFlightPage page = new MakeMyTripFlightPage(driver);
+
+    page.dismissLoginPopupIfPresent();
+    page.selectFromCity("Delhi");
+    page.selectToCity("Mumbai");
+
+    // No assertion library magic - just sanity check on the visible chips
+    Assert.assertTrue(driver.getPageSource().contains("DEL"));
+    Assert.assertTrue(driver.getPageSource().contains("BOM"));
+}</code></pre>
+
+<h3>5.3 Issues</h3>
+<table>
+  <tr><th>Issue</th><th>Root cause</th><th>Solution</th></tr>
+  <tr><td>Click on container doesn't open panel</td><td>Real handler is on a child <code>&lt;span&gt;</code></td><td>Locate the actual clickable child or use <code>Actions.moveToElement().click()</code></td></tr>
+  <tr><td>Option not in DOM until you scroll</td><td>Virtualised list (only visible rows render)</td><td>Type to filter, or scroll inside the list with JS until the option appears</td></tr>
+  <tr><td>Click does nothing</td><td>Real handler is on the parent</td><td><code>opt.findElement(By.xpath("./..")).click()</code> or JS click</td></tr>
+</table>
+
+<!-- ============================================================== -->
+<h2 id="autosuggest" class="page-break">6. Type 4 - Auto-Suggest Dropdown</h2>
+
+<h3>6.1 Definition</h3>
+<p>
+  An <code>&lt;input&gt;</code> whose suggestion list is built dynamically as
+  the user types - Google, Amazon, jQuery UI autocomplete. Each keystroke
+  triggers an AJAX call; the results re-render the list.
+</p>
+
+<h3>6.2 End-to-End Example - Google search suggestions</h3>
+
+<pre><code>@Test
+public void googleSuggestionListShouldContainSeleniumWebDriver() {
+    driver.get("https://www.google.com");
+    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+    WebElement box = driver.findElement(By.name("q"));
+    box.sendKeys("selenium");
+
+    // Wait for at least one suggestion to render
+    By suggestionLi = By.xpath("//ul[@role='listbox']//li");
+    wait.until(ExpectedConditions.visibilityOfElementLocated(suggestionLi));
+
+    List&lt;String&gt; texts = driver.findElements(suggestionLi)
+        .stream().map(WebElement::getText).toList();
+
+    Assert.assertTrue(
+        texts.stream().anyMatch(t -&gt; t.toLowerCase().contains("webdriver")),
+        "Expected at least one 'webdriver' suggestion. Got: " + texts);
+}</code></pre>
+
+<h3>6.3 Common pitfalls</h3>
+<table>
+  <tr><th>Issue</th><th>Why</th><th>Fix</th></tr>
+  <tr><td>List is empty when you read it</td><td>You read before the AJAX completed</td><td>Wait for <code>visibilityOfElementLocated</code> on the list</td></tr>
+  <tr><td>List re-renders mid-iteration &rarr; <code>StaleElementReferenceException</code></td><td>Each keystroke rebuilds the list</td><td>Capture texts first, then re-locate the matching <code>&lt;li&gt;</code> by text</td></tr>
+  <tr><td>Pressing Enter went to results page</td><td>Form was submitted</td><td>Click the suggestion <code>&lt;li&gt;</code> directly, or arrow-down + Enter</td></tr>
+</table>
+
+<!-- ============================================================== -->
+<h2 id="multi" class="page-break">7. Type 5 - Multi-Select Dropdown</h2>
+
+<h3>7.1 Native <code>&lt;select multiple&gt;</code></h3>
+<pre><code>// LambdaTest playground:
+// https://www.lambdatest.com/selenium-playground/select-dropdown-demo
+driver.get("https://www.lambdatest.com/selenium-playground/select-dropdown-demo");
+
+Select multi = new Select(driver.findElement(
+    By.cssSelector("select[name='Multi Select List']")));
+
+Assert.assertTrue(multi.isMultiple(), "Expected multi-select");
+
+multi.selectByVisibleText("California");
+multi.selectByVisibleText("Florida");
+
+List&lt;WebElement&gt; selected = multi.getAllSelectedOptions();
+Assert.assertEquals(selected.size(), 2);
+
+multi.deselectByVisibleText("California");
+multi.deselectAll();
+Assert.assertEquals(multi.getAllSelectedOptions().size(), 0);</code></pre>
+
+<h3>7.2 Custom multi-select (chips/tags)</h3>
+<p>
+  Built with checkboxes inside a popup or React-Select multi. After clicking
+  options, each appears as a "chip" with an "x" to remove. There is no
+  <code>Select</code> helper - you click each option, and click the chip's
+  "x" to deselect.
+</p>
+
+<pre><code>WebElement input = driver.findElement(By.cssSelector("#selectMenuContainer input"));
+input.click();
+driver.findElement(By.xpath("//div[text()='Green']")).click();
+driver.findElement(By.xpath("//div[text()='Black']")).click();
+
+// remove the Green chip
+driver.findElement(By.xpath(
+    "//div[contains(@class,'multi-value__label') and text()='Green']" +
+    "/following-sibling::div")).click();</code></pre>
+
+<!-- ============================================================== -->
+<h2 id="cascade" class="page-break">8. Type 6 - Cascading / Dependent Dropdown</h2>
+
+<h3>8.1 Definition</h3>
+<p>
+  When the options of dropdown B depend on what was selected in dropdown A.
+  Examples: Country &rarr; State &rarr; City, From &rarr; To (filtered by routes).
+</p>
+
+<div class="callout danger">
+  <strong>The trap</strong>
+  After picking value A, the second dropdown is <em>rebuilt</em>. Any
+  <code>WebElement</code> you held becomes stale. <strong>Always re-locate</strong>
+  the second dropdown after the first selection, and <strong>wait</strong> for
+  it to be re-populated.
+</div>
+
+<h3>8.2 End-to-End Example - SpiceJet flight booking</h3>
+
+<div class="scenario">
+  <div class="scenario-title">Scenario</div>
+  On SpiceJet, select "From: Bengaluru" then select "To". Notice that picking
+  "From" filters which destinations are available.
+</div>
+
+<pre><code>@Test
+public void shouldHandleCascadingFromToCity() {
+    driver.get("https://www.spicejet.com");
+    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+    // 1. Open "From"
+    driver.findElement(By.xpath("//div[text()='From']")).click();
+
+    // 2. Pick Bengaluru
+    By cityRow = By.xpath("//div[contains(text(),'Bengaluru')]");
+    wait.until(ExpectedConditions.elementToBeClickable(cityRow)).click();
+
+    // 3. The "To" panel auto-opens. Wait for its options to render fresh.
+    By toOptions = By.xpath("//div[@data-testid='to-testID-origin']//div[contains(@class,'css-')]");
+    wait.until(d -&gt; d.findElements(toOptions).size() &gt; 5);
+
+    // 4. Pick a destination
+    driver.findElement(By.xpath("//div[contains(text(),'Mumbai')]")).click();
+
+    Assert.assertTrue(driver.getPageSource().contains("BLR"));
+    Assert.assertTrue(driver.getPageSource().contains("BOM"));
+}</code></pre>
+
+<h3>8.3 Cascading <code>&lt;select&gt;</code> pattern</h3>
+<pre><code>// 1. Pick country
+new Select(driver.findElement(By.id("country"))).selectByVisibleText("India");
+
+// 2. Wait until states are loaded (more than the placeholder option)
+wait.until(d -&gt; new Select(d.findElement(By.id("state")))
+                  .getOptions().size() &gt; 1);
+
+// 3. Pick state
+new Select(driver.findElement(By.id("state"))).selectByVisibleText("Karnataka");</code></pre>
+
+<!-- ============================================================== -->
+<h2 id="hidden" class="page-break">9. Type 7 - Hidden / Disabled Dropdown</h2>
+
+<p>
+  Some apps style the original <code>&lt;select&gt;</code> as
+  <code>display:none</code> and render a custom UI on top. Selenium throws
+  <code>ElementNotInteractableException</code> because the element is not
+  visible. Three solutions:
+</p>
+
+<h4>Solution 1 - Interact with the visible custom UI</h4>
+<p>Preferred. Use Section 5 techniques on the on-screen widget.</p>
+
+<h4>Solution 2 - JavaScript Executor (last resort)</h4>
+<pre><code>WebElement hidden = driver.findElement(By.id("country"));
+((JavascriptExecutor) driver).executeScript(
+    "arguments[0].style.display='block';" +
+    "arguments[0].value=arguments[1];" +
+    "arguments[0].dispatchEvent(new Event('change',{bubbles:true}));",
+    hidden, "in");</code></pre>
+
+<h4>Solution 3 - Un-hide via JS, then use Select</h4>
+<pre><code>((JavascriptExecutor) driver).executeScript(
+    "arguments[0].style.display='block';",
+    driver.findElement(By.id("country")));
+
+new Select(driver.findElement(By.id("country"))).selectByValue("in");</code></pre>
+
+<!-- ============================================================== -->
+<h2 id="issues" class="page-break">10. Issues encyclopedia &amp; root-cause solutions</h2>
+
+<table>
+  <tr><th>Exception / Symptom</th><th>Root cause</th><th>Solution</th></tr>
+  <tr><td><code>UnexpectedTagNameException</code></td><td>Used <code>Select</code> on a non-<code>&lt;select&gt;</code> element</td><td>Switch to div / Bootstrap technique</td></tr>
+  <tr><td><code>ElementNotInteractableException</code></td><td>Element hidden, off-screen, or covered</td><td><code>scrollIntoView</code>, close overlay, or JS click</td></tr>
+  <tr><td><code>StaleElementReferenceException</code></td><td>DOM re-rendered after locate</td><td>Re-locate inside loop; <code>ExpectedConditions.refreshed(...)</code></td></tr>
+  <tr><td><code>NoSuchElementException</code> after dropdown opens</td><td>Panel rendered at body root</td><td>Locate from <code>//</code>, not relative XPath</td></tr>
+  <tr><td>Click happens but value not committed</td><td>Framework needs event dispatch</td><td>Fire <code>change</code> / <code>input</code> via JS</td></tr>
+  <tr><td>Dropdown opens, then immediately closes</td><td>Mouse moved during animation</td><td><code>Actions.moveToElement(option).click().perform()</code></td></tr>
+  <tr><td>Hidden whitespace breaks <code>selectByVisibleText</code></td><td>Designer used <code>&amp;nbsp;</code></td><td>Compare with <code>text.replace('\u00A0',' ').trim()</code></td></tr>
+  <tr><td>Slow dropdown causes flaky tests</td><td>Hard <code>Thread.sleep</code></td><td><code>WebDriverWait</code> + custom condition</td></tr>
+  <tr><td>Inside iframe, nothing is found</td><td>Forgot to switch frames</td><td><code>driver.switchTo().frame(...)</code> &rarr; <code>defaultContent()</code></td></tr>
+  <tr><td>Long list, can't find option at the bottom</td><td>Virtualised list - only visible rows in DOM</td><td>Type to filter, or scroll inside the list with JS</td></tr>
+</table>
+
+<!-- ============================================================== -->
+<h2 id="best">11. Best practices that prevent flaky tests</h2>
+
+<ol>
+  <li><strong>Inspect first.</strong> Decide between Select / Bootstrap / Div before writing code.</li>
+  <li><strong>Never use <code>Thread.sleep</code></strong>. Replace with <code>WebDriverWait</code> + an <code>ExpectedCondition</code>.</li>
+  <li><strong>Wrap dropdown logic in a Page Object method</strong> - <code>selectCountry(String name)</code>. The test class shouldn't know <em>how</em> the dropdown is built.</li>
+  <li><strong>Centralise utility methods</strong> for div-based dropdowns (Section 12) so every page object reuses the same battle-tested code.</li>
+  <li><strong>Validate after selection.</strong> Read back and assert. Catches "click happened but selection didn't" silently.</li>
+  <li><strong>For multi-selects, deselect all before each test</strong> so tests are independent.</li>
+  <li><strong>Handle stale elements with <code>ExpectedConditions.refreshed(...)</code></strong> when cascading.</li>
+  <li><strong>Log the available options</strong> when the desired one isn't found - so failure messages are diagnostic, not vague.</li>
+</ol>
+
+<!-- ============================================================== -->
+<h2 id="util" class="page-break">12. Reusable <code>DropdownUtility</code> class</h2>
+
+<p>Drop this into <code>com.orangehrm.actiondriver</code> (or a new
+<code>com.orangehrm.utilities.DropdownUtility</code>) and reuse it everywhere.</p>
+
+<pre><code>package com.orangehrm.utilities;
+
+import org.openqa.selenium.*;
+import org.openqa.selenium.support.ui.*;
+
+import java.time.Duration;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class DropdownUtility {
+
+    private final WebDriver driver;
+    private final WebDriverWait wait;
+
+    public DropdownUtility(WebDriver driver, Duration timeout) {
+        this.driver = driver;
+        this.wait   = new WebDriverWait(driver, timeout);
+    }
+
+    /** Native <select> by visible text. */
+    public void selectByText(By locator, String text) {
+        WebElement el = wait.until(ExpectedConditions.elementToBeClickable(locator));
+        new Select(el).selectByVisibleText(text);
+    }
+
+    /** Native <select> by value attribute. */
+    public void selectByValue(By locator, String value) {
+        WebElement el = wait.until(ExpectedConditions.elementToBeClickable(locator));
+        new Select(el).selectByValue(value);
+    }
+
+    /** Bootstrap or div dropdown - click trigger, wait, click option by text. */
+    public void selectFromCustomDropdown(By trigger, By options, String wanted) {
+        wait.until(ExpectedConditions.elementToBeClickable(trigger)).click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(options));
+
+        List&lt;WebElement&gt; opts = driver.findElements(options);
+        for (WebElement o : opts) {
+            if (o.getText().trim().equalsIgnoreCase(wanted)) {
+                wait.until(ExpectedConditions.elementToBeClickable(o)).click();
+                return;
+            }
+        }
+        throw new NoSuchElementException(
+            "Option not found: " + wanted + " | Available: " +
+            opts.stream().map(WebElement::getText).collect(Collectors.toList()));
+    }
+
+    /** Auto-suggest: type into input, wait, click suggestion by text. */
+    public void selectFromAutoSuggest(By input, By suggestions,
+                                      String typeText, String wanted) {
+        WebElement in = wait.until(ExpectedConditions.elementToBeClickable(input));
+        in.clear();
+        in.sendKeys(typeText);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(suggestions));
+
+        for (WebElement s : driver.findElements(suggestions)) {
+            if (s.getText().trim().equalsIgnoreCase(wanted)) {
+                s.click();
+                return;
+            }
+        }
+        throw new NoSuchElementException("Suggestion not found: " + wanted);
+    }
+
+    /** JS fallback for hidden / problematic <select>. */
+    public void selectByValueJS(By locator, String value) {
+        WebElement el = driver.findElement(locator);
+        ((JavascriptExecutor) driver).executeScript(
+            "arguments[0].value = arguments[1];" +
+            "arguments[0].dispatchEvent(new Event('change',{bubbles:true}));",
+            el, value);
+    }
+}</code></pre>
+
+<h4>Usage from a Page Object</h4>
+<pre><code>DropdownUtility dd = new DropdownUtility(driver, Duration.ofSeconds(10));
+
+dd.selectByText(By.id("country"), "India");
+
+dd.selectFromCustomDropdown(
+    By.cssSelector(".lang-trigger"),
+    By.cssSelector(".lang-options li"),
+    "English");
+
+dd.selectFromAutoSuggest(
+    By.cssSelector("input[placeholder='From']"),
+    By.cssSelector("p.font14.appendBottom5"),
+    "Delhi", "Delhi, India");</code></pre>
+
+<!-- ============================================================== -->
+<h2 id="interview" class="page-break">13. Interview questions with model answers</h2>
+
+<h3>A. Conceptual / Beginner</h3>
+
+<div class="qa">
+  <div class="q">Q1. What is the <code>Select</code> class in Selenium?</div>
+  <div class="a">A helper class in <code>org.openqa.selenium.support.ui</code> that wraps native <code>&lt;select&gt;</code> elements. It exposes methods like <code>selectByVisibleText</code>, <code>selectByValue</code>, <code>selectByIndex</code>, <code>getOptions</code> and <code>deselectAll</code>. Internally it sets the option's <code>selected</code> property and fires a <code>change</code> event.</div>
+</div>
+
+<div class="qa">
+  <div class="q">Q2. Why can't <code>Select</code> handle Bootstrap or custom dropdowns?</div>
+  <div class="a">Because the <code>Select</code> constructor explicitly checks the tag name. If it isn't <code>&lt;select&gt;</code> it throws <code>UnexpectedTagNameException</code>. Bootstrap dropdowns use <code>&lt;ul&gt;</code> and <code>&lt;button&gt;</code> - they look like dropdowns but are made of generic HTML, so we click them like any normal element.</div>
+</div>
+
+<div class="qa">
+  <div class="q">Q3. Difference between <code>selectByVisibleText</code>, <code>selectByValue</code>, <code>selectByIndex</code>?</div>
+  <div class="a">
+    <ul>
+      <li><code>selectByVisibleText("India")</code> - matches the user-facing text.</li>
+      <li><code>selectByValue("in")</code> - matches the <code>value</code> attribute, useful for localised UIs.</li>
+      <li><code>selectByIndex(0)</code> - position based, brittle if option order changes.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Q4. How do you read the currently selected option?</div>
+  <div class="a"><code>new Select(el).getFirstSelectedOption().getText()</code> for single-select; <code>getAllSelectedOptions()</code> for multi-select.</div>
+</div>
+
+<div class="qa">
+  <div class="q">Q5. How do you check if a dropdown supports multi-select?</div>
+  <div class="a"><code>new Select(el).isMultiple()</code> returns <code>true</code> if the <code>multiple</code> attribute is present on the <code>&lt;select&gt;</code>.</div>
+</div>
+
+<h3>B. Practical / Mid-level</h3>
+
+<div class="qa">
+  <div class="q">Q6. How would you select an option from a Bootstrap dropdown?</div>
+  <div class="a">
+    1. Click the toggle <code>&lt;button&gt;</code>.
+    2. Wait for <code>visibilityOfElementLocated</code> on <code>ul.dropdown-menu</code>.
+    3. Iterate <code>li a</code>, match the visible text, click.
+    4. Optionally assert the menu closed.
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Q7. How do you handle a dropdown that doesn't use the <code>&lt;select&gt;</code> tag?</div>
+  <div class="a">Drive it like a user: click the trigger, wait for the panel, click the option. Use <code>WebDriverWait</code> + <code>ExpectedConditions</code>. Wrap in a Page Object so the test class doesn't care about the implementation.</div>
+</div>
+
+<div class="qa">
+  <div class="q">Q8. How do you handle Google's auto-suggest list?</div>
+  <div class="a"><code>sendKeys</code> &rarr; wait for <code>ul[role='listbox']</code> &rarr; iterate <code>&lt;li&gt;</code>, match by text, click. Don't press Enter or the form submits.</div>
+</div>
+
+<div class="qa">
+  <div class="q">Q9. What is <code>StaleElementReferenceException</code> and why does it hit cascading dropdowns?</div>
+  <div class="a">It's thrown when a <code>WebElement</code> reference points to a node that's no longer in the DOM. In cascading dropdowns the second list is rebuilt after the first selection, invalidating any reference. Fix: re-locate after the first selection, or use <code>ExpectedConditions.refreshed(...)</code>.</div>
+</div>
+
+<div class="qa">
+  <div class="q">Q10. How would you select a value coming from an Excel sheet?</div>
+  <div class="a">Read the value via your Excel utility (e.g. <code>ExcelReaderUtility.getCellValue(...)</code>), then pass it to <code>selectByVisibleText</code> or to your <code>DropdownUtility</code> method.</div>
+</div>
+
+<div class="qa">
+  <div class="q">Q11. How do you verify a dropdown is sorted alphabetically?</div>
+  <div class="a">
+<pre><code>List&lt;String&gt; actual = new Select(el).getOptions()
+    .stream().map(WebElement::getText).toList();
+List&lt;String&gt; sorted = new ArrayList&lt;&gt;(actual);
+Collections.sort(sorted);
+Assert.assertEquals(actual, sorted);</code></pre>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Q12. How do you handle a dropdown inside an iframe?</div>
+  <div class="a"><code>driver.switchTo().frame(...)</code> by name/id/index/<code>WebElement</code>, do your dropdown work, then <code>driver.switchTo().defaultContent()</code>. Skipping the switch causes <code>NoSuchElementException</code>.</div>
+</div>
+
+<h3>C. Scenario / Senior-level</h3>
+
+<div class="qa">
+  <div class="q">Q13. The dropdown is hidden via <code>display:none</code> - how do you select?</div>
+  <div class="a">Two options:
+    <ol>
+      <li>Interact with the visible custom widget that replaced it.</li>
+      <li>JS executor: set <code>arguments[0].value</code> and dispatch a <code>change</code> event.</li>
+    </ol>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Q14. The list is virtualised - only visible rows are in the DOM. How do you click an option at the bottom?</div>
+  <div class="a">Two strategies:
+    <ul>
+      <li>Type into the search input to filter the list to a few rows including the wanted one.</li>
+      <li>Scroll the list container with JS until the option is rendered: <code>arguments[0].scrollTop += 100</code> in a loop, until <code>findElements(by).size() &gt; 0</code>.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Q15. Click works locally but fails on Jenkins - possible reasons?</div>
+  <div class="a">
+    <ul>
+      <li>Headless mode renders a smaller viewport - element off-screen. Set <code>--window-size=1920,1080</code>.</li>
+      <li>Animations slower on a CI machine - replace <code>Thread.sleep</code> with proper waits.</li>
+      <li>Different Chrome version - update WebDriverManager / matching driver.</li>
+      <li>Locale: Jenkins uses <code>en_US</code>, app text might differ.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Q16. How would you design a generic, reusable utility for every dropdown type?</div>
+  <div class="a">A single <code>DropdownUtility</code> exposing four methods: <code>selectByText</code>, <code>selectByValue</code>, <code>selectFromCustomDropdown</code>, <code>selectFromAutoSuggest</code> - plus a JS fallback. The page object decides which one to call. The test class never knows the type. (See Section 12.)</div>
+</div>
+
+<div class="qa">
+  <div class="q">Q17. After selecting via Selenium, the form still says "field required". Why?</div>
+  <div class="a">React/Vue/Angular ignored the native event. Either click the option through the visible custom UI (so the framework's click handler fires), or fire <code>new Event('change',{bubbles:true})</code> via JS.</div>
+</div>
+
+<div class="qa">
+  <div class="q">Q18. Same option text in two cascading dropdowns - how do you avoid XPath ambiguity?</div>
+  <div class="a">Scope the locator by parent ID or attribute: <code>//div[@id='to-list']//li[text()='Mumbai']</code>.</div>
+</div>
+
+<div class="qa">
+  <div class="q">Q19. How do you assert all 50 US states are present in a dropdown?</div>
+  <div class="a">
+<pre><code>List&lt;String&gt; states = new Select(el).getOptions()
+    .stream().map(WebElement::getText).map(String::trim).toList();
+Assert.assertTrue(states.containsAll(STATES_50));
+Assert.assertEquals(states.size(), 50);</code></pre>
+  </div>
+</div>
+
+<h3>D. Hands-on coding tasks</h3>
+<ul>
+  <li>Print all options of a <code>&lt;select&gt;</code> dropdown.</li>
+  <li>Count total options.</li>
+  <li>Select the <em>last</em> option without knowing its text.</li>
+  <li>Select a <em>random</em> option, then verify it is selected.</li>
+  <li>Select all options of a multi-select, deselect the second, print remaining.</li>
+  <li>Select "India" from MakeMyTrip "From" using only XPath.</li>
+  <li>Sort the options of a <code>&lt;select&gt;</code> and verify order.</li>
+</ul>
+
+<!-- ============================================================== -->
+<h2 id="cheat" class="page-break">14. One-page cheat sheet</h2>
+
+<table>
+  <tr><th>You see in DevTools</th><th>It is a...</th><th>Use...</th></tr>
+  <tr><td><code>&lt;select&gt; &lt;option&gt;</code></td><td>Native</td><td><code>Select</code> class</td></tr>
+  <tr><td><code>&lt;button data-bs-toggle&gt; + &lt;ul&gt;</code></td><td>Bootstrap</td><td>Click + List of <code>&lt;li&gt;</code></td></tr>
+  <tr><td><code>&lt;div role="combobox"&gt;</code></td><td>Custom div</td><td>Click + waits + click</td></tr>
+  <tr><td><code>&lt;input&gt;</code> + dynamic <code>&lt;ul&gt;</code></td><td>Auto-suggest</td><td><code>sendKeys</code> + wait + click</td></tr>
+  <tr><td><code>&lt;select multiple&gt;</code></td><td>Native multi</td><td><code>Select</code> + <code>deselectAll</code></td></tr>
+  <tr><td>Custom multi with chips</td><td>React-Select / Select2</td><td>Click each, click x to remove</td></tr>
+  <tr><td><code>display:none &lt;select&gt;</code></td><td>Hidden</td><td>JS executor or interact with custom UI</td></tr>
+  <tr><td>Inside iframe</td><td>Any</td><td><code>switchTo().frame(...)</code> first</td></tr>
+</table>
+
+<div class="callout tip">
+  <strong>Daily practice URLs</strong>
+  <ul>
+    <li><a href="https://www.lambdatest.com/selenium-playground/select-dropdown-demo">LambdaTest - Select dropdown</a></li>
+    <li><a href="https://www.lambdatest.com/selenium-playground/bootstrap-dropdown-demo">LambdaTest - Bootstrap dropdown</a></li>
+    <li><a href="https://demoqa.com/select-menu">DemoQA - Select Menu</a></li>
+    <li><a href="https://www.makemytrip.com/">MakeMyTrip - real div + auto-suggest</a></li>
+    <li><a href="https://www.spicejet.com/">SpiceJet - cascading dropdowns</a></li>
+    <li><a href="https://www.facebook.com/r.php">Facebook signup - native <code>&lt;select&gt;</code></a></li>
+  </ul>
+</div>
+
+<hr style="margin-top:60px">
+<p style="text-align:center; color:#64748b; font-size:0.9rem">
+  End of document &middot; Save this page as PDF via Print &rarr; Save as PDF.
+</p>
+
+</body>
+</html>
